@@ -5,7 +5,7 @@
       "Effect": "Allow",
       "Principal": {
         "AWS": [
-          "${download_lambda_role}"
+          "${account_number}"
         ]
       },
       "Action": "secretsmanager:GetSecretValue",
