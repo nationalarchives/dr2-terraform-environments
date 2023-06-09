@@ -1,0 +1,12 @@
+name: 'Terraform check'
+on:
+  push:
+permissions:
+  id-token: write
+  contents: write
+jobs:
+  check:
+    uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_check.yml@dr2-github-actions
+    secrets:
+      MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
+      WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}

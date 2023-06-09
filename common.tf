@@ -26,10 +26,10 @@ resource "aws_secretsmanager_secret_version" "preservica_secret_version" {
 }
 
 module "vpc" {
-  source                = "git::https://github.com/nationalarchives/da-terraform-modules//vpc?ref=add-nat-instance-and-vpc-policy"
-  vpc_name              = "${local.environment}-vpc"
-  az_count              = local.az_count
-  elastic_ip_allocation_ids = [aws_eip.eip.allocation_id]
+  source                       = "git::https://github.com/nationalarchives/da-terraform-modules//vpc?ref=add-nat-instance-and-vpc-policy"
+  vpc_name                     = "${local.environment}-vpc"
+  az_count                     = local.az_count
+  elastic_ip_allocation_ids    = [aws_eip.eip.allocation_id]
   nat_instance_security_groups = [module.nat_instance_security_group.security_group_id]
 }
 

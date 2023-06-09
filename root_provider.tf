@@ -16,7 +16,7 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = local.environment
-      CreatedBy = "dp-terraform-environments"
+      CreatedBy   = "dp-terraform-environments"
     }
   }
 }
