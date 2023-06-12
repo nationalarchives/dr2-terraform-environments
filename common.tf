@@ -12,9 +12,6 @@ resource "random_string" "preservica_user" {
 
 resource "aws_secretsmanager_secret" "preservica_secret" {
   name = "${local.environment}-preservica-api-login-details-${random_string.preservica_user.result}"
-  policy = templatefile("./templates/secrets_manager/secrets_manager_lambda_policy.json.tpl", {
-    account_number = var.dp_account_number
-  })
 }
 
 resource "aws_secretsmanager_secret_version" "preservica_secret_version" {
@@ -29,11 +26,12 @@ module "vpc" {
   source                       = "git::https://github.com/nationalarchives/da-terraform-modules//vpc"
   vpc_name                     = "${local.environment}-vpc"
   az_count                     = local.az_count
-  elastic_ip_allocation_ids    = [aws_eip.eip.allocation_id]
+  elastic_ip_allocation_ids    = aws_eip.eip.*.allocation_id
   nat_instance_security_groups = [module.nat_instance_security_group.security_group_id]
 }
 
 resource "aws_eip" "eip" {
+  count  = local.az_count
   domain = "vpc"
 }
 
