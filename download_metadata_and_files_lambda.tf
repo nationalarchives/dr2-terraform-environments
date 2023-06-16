@@ -1,13 +1,16 @@
 locals {
   disaster_recovery_bucket_name = "${local.environment}-disaster-recovery"
-  lambda_name                   = "${local.environment}-download-files-metadata"
-  queue_name                    = "${local.environment}-download-files-metadata"
+  lambda_name                   = "${local.environment}-download-files-and-metadata"
+  queue_name                    = "${local.environment}-download-files-and-metadata"
 }
 
 module "download_metadata_and_files_lambda" {
-  source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda?ref=add-nat-instance-and-vpc-policy"
+  source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda?ref=add-sns-topic-to-s3-bucket"
   function_name = local.lambda_name
   handler       = "uk.gov.nationalarchives.Lambda::handleRequest"
+  lambda_sqs_queue_mappings = {
+    download_files_queue = module.download_files_sqs.sqs_arn
+  }
   policies = {
     "${local.lambda_name}-policy" = templatefile("./templates/iam_policy/download_files_metadata_policy.json.tpl", {
       secrets_manager_secret_arn   = "arn:aws:secretsmanager:eu-west-2:${var.dp_account_number}:secret:sandbox-preservica-6-preservicav6login-INFTcQ",
@@ -36,21 +39,15 @@ module "download_metadata_and_files_lambda" {
 }
 
 module "download_files_sqs" {
-  source                   = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  queue_name               = local.queue_name
-  sqs_policy               = templatefile("./templates/sqs/sqs_access_policy.json.tpl", { role_arn = module.download_metadata_and_files_lambda.lambda_role_arn, account_id = var.dp_account_number, queue_name = local.queue_name })
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  queue_name = local.queue_name
+  sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
+    account_id = var.dp_account_number,
+    queue_name = local.queue_name
+  })
   redrive_maximum_receives = 3
   tags = {
     CreatedBy = "dp-terraform-environments"
   }
 }
 
-module "disaster_recovery_bucket" {
-  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
-  bucket_name = local.disaster_recovery_bucket_name
-  common_tags = {
-    CreatedBy = "dp-terraform-environments"
-  }
-  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", { bucket_name = "${local.disaster_recovery_bucket_name}-logs", account_id = var.dp_account_number })
-  bucket_policy         = templatefile("./templates/s3/disaster_recovery_bucket_policy.json.tpl", { download_files_metadata_lambda_role_arn = module.download_metadata_and_files_lambda.lambda_role_arn, bucket_name = local.disaster_recovery_bucket_name })
-}

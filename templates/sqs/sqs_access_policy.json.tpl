@@ -4,9 +4,11 @@
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${role_arn}"
+        "AWS": "${account_id}"
       },
-      "Action": "SQS:SendMessage",
+      "Action": [
+        "SQS:*"
+      ],
       "Resource": "arn:aws:sqs:eu-west-2:${account_id}:${queue_name}"
     }
   ]

@@ -10,6 +10,7 @@ module "deploy_lambda_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name   = "${local.environment_title}DPGithubActionsDeployLambdaPolicy"
   policy_string = templatefile("${path.module}/templates/iam_policy/deploy_lambda_policy.json.tpl", {
-    download_lambda_arn = module.download_metadata_and_files_lambda.lambda_arn
+    download_metadata_lambda_arn = module.download_metadata_and_files_lambda.lambda_arn,
+    bucket_name                  = local.disaster_recovery_bucket_name
   })
 }

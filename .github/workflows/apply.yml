@@ -11,16 +11,21 @@ permissions:
   id-token: write
   contents: write
 jobs:
+  setup:
+    uses: nationalarchives/dr2-github-actions/.github/workflows/set_terraform_var_names.yml@create-generic-apply-job
+    with:
+      project: dr2
+      environment: ${{ github.event.inputs.environment }}
   apply:
     uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_apply.yml@main
     with:
       repo-name: dp-terraform-environments
       environment: ${{ github.event.inputs.environment }}
     secrets:
-      MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
-      WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-      ACCOUNT_NUMBER: ${{ secrets.ACCOUNT_NUMBER }}
-      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-      INTG_ACCOUNT_NUMBER: ${{ secrets.INTG_ACCOUNT_NUMBER }}
-      STAGING_ACCOUNT_NUMBER: ${{ secrets.STAGING_ACCOUNT_NUMBER }}
-      PROD_ACCOUNT_NUMBER: ${{ secrets.PROD_ACCOUNT_NUMBER }}
+      WORKFLOW_TOKEN: ${{ secrets[needs.setup.outputs.workflow-token] }}
+      ACCOUNT_NUMBER: ${{ secrets[needs.setup.outputs.account-number] }}
+      SLACK_WEBHOOK: ${{ secrets[needs.setup.outputs.slack-webhook] }}
+      TERRAFORM_ROLE: ${{ secrets[needs.setup.outputs.terraform-role] }}
+      STATE_BUCKET: ${{ secrets[needs.setup.outputs.state-bucket] }}
+      DYNAMO_TABLE: ${{ secrets[needs.setup.outputs.dynamo-table] }}
+

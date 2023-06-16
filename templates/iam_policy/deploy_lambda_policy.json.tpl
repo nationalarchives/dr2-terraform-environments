@@ -10,7 +10,8 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "${download_lambda_arn}"
+        "${download_metadata_lambda_arn}",
+        "arn:aws:s3:::${bucket_name}"
       ]
     }
   ],
