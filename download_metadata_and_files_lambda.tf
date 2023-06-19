@@ -5,7 +5,7 @@ locals {
 }
 
 module "download_metadata_and_files_lambda" {
-  source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda?ref=add-sns-topic-to-s3-bucket"
+  source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name = local.lambda_name
   handler       = "uk.gov.nationalarchives.Lambda::handleRequest"
   lambda_sqs_queue_mappings = {
