@@ -7,7 +7,7 @@
         "AWS": "${account_id}"
       },
       "Action": [
-        "SQS:*"
+        "sqs:SendMessage"
       ],
       "Resource": "arn:aws:sqs:eu-west-2:${account_id}:${queue_name}"
     }
