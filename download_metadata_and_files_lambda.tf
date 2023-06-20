@@ -42,7 +42,7 @@ module "download_files_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.queue_name
   sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
-    account_id = var.dp_account_number,
+    account_id = var.dp_account_number, //TODO Restrict this to the SNS topic ARN when it's created
     queue_name = local.queue_name
   })
   redrive_maximum_receives = 3
