@@ -1,3 +1,8 @@
+module "config" {
+  source  = "./da-terraform-configurations"
+  project = "dr2"
+}
+
 terraform {
   backend "s3" {
     bucket         = "mgmt-dp-terraform-state"
@@ -12,11 +17,12 @@ provider "aws" {
   assume_role {
     role_arn     = "arn:aws:iam::${var.dp_account_number}:role/${local.environment_title}TerraformRole"
     session_name = "terraform"
+    external_id  = module.config.terraform_config[local.environment]["terraform_external_id"]
   }
   default_tags {
     tags = {
       Environment = local.environment
-      CreatedBy = "dp-terraform-environments"
+      CreatedBy   = "dp-terraform-environments"
     }
   }
 }
