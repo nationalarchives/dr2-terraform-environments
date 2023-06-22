@@ -21,6 +21,7 @@ jobs:
     with:
       repo-name: dp-terraform-environments
       environment: ${{ github.event.inputs.environment }}
+      project: dr2
     secrets:
       WORKFLOW_TOKEN: ${{ secrets[needs.setup.outputs.workflow-token] }}
       ACCOUNT_NUMBER: ${{ secrets[needs.setup.outputs.account-number] }}
