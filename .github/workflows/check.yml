@@ -6,7 +6,6 @@ permissions:
   contents: write
 jobs:
   check:
-    needs: setup
     uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_check.yml@main
     secrets:
       MANAGEMENT_ACCOUNT: ${{ secrets.DR2_MANAGEMENT_ACCOUNT }}
