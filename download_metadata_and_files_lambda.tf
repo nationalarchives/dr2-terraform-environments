@@ -1,7 +1,7 @@
 locals {
-  disaster_recovery_bucket_name = "${local.environment}-disaster-recovery"
-  download_files_and_metadata_lambda_name                   = "${local.environment}-download-files-and-metadata"
-  queue_name                    = "${local.environment}-download-files-and-metadata"
+  disaster_recovery_bucket_name           = "${local.environment}-disaster-recovery"
+  download_files_and_metadata_lambda_name = "${local.environment}-download-files-and-metadata"
+  queue_name                              = "${local.environment}-download-files-and-metadata"
 }
 
 module "download_metadata_and_files_lambda" {

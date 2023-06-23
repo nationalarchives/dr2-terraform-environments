@@ -1,5 +1,5 @@
 locals {
-  notifications_lambda_name                   = "${local.environment}-slack-notifications"
+  notifications_lambda_name = "${local.environment}-slack-notifications"
 }
 
 module "slack_notifications_lambda" {
@@ -9,18 +9,18 @@ module "slack_notifications_lambda" {
 
   policies = {
     "${local.notifications_lambda_name}-policy" = templatefile("./templates/iam_policy/slack_notifications_policy.json.tpl", {
-      secrets_manager_secret_arn   = "arn:aws:secretsmanager:eu-west-2:${var.dp_account_number}:secret:slack_webhook_url-xrHr13",
-      account_id                   = var.dp_account_number
-      lambda_name                  = local.notifications_lambda_name
+      ssm_parameter_arn = data.aws_ssm_parameter.slack_webhook_url.arn,
+      account_id        = var.dp_account_number
+      lambda_name       = local.notifications_lambda_name
     })
   }
-  runtime     = "python3.10"
+  runtime = "python3.10"
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   plaintext_env_vars = {
-    WEBHOOK_SECRET_NAME = aws_secretsmanager_secret.slack_webhook_url.name
+    WEBHOOK_PARAMETER_NAME = data.aws_ssm_parameter.slack_webhook_url.name
   }
   tags = {
     Name      = local.notifications_lambda_name

@@ -1,10 +1,10 @@
 {
   "Statement": [
     {
-      "Action": "secretsmanager:GetSecretValue",
+      "Action": "ssm:GetParameter",
       "Effect": "Allow",
-      "Resource": "${secrets_manager_secret_arn}",
-      "Sid": "readSecretsManager"
+      "Resource": "${ssm_parameter_arn}",
+      "Sid": "readSSM"
     },
     {
       "Action": [

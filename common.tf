@@ -14,9 +14,8 @@ resource "aws_secretsmanager_secret" "preservica_secret" {
   name = "${local.environment}-preservica-api-login-details-${random_string.preservica_user.result}"
 }
 
-resource "aws_secretsmanager_secret" "slack_webhook_url" {
-  name = "${local.environment}-slack_webhook_url"
-  description = "For posting notifications to our Slack channel"
+data "aws_ssm_parameter" "slack_webhook_url" {
+  name = "/${local.environment}/slack/cloudwatch-alarm-webhook"
 }
 
 resource "aws_secretsmanager_secret_version" "preservica_secret_version" {
