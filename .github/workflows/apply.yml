@@ -12,7 +12,7 @@ permissions:
   contents: write
 jobs:
   setup:
-    uses: nationalarchives/dr2-github-actions/.github/workflows/set_terraform_var_names.yml@create-generic-apply-job
+    uses: nationalarchives/dr2-github-actions/.github/workflows/set_terraform_var_names.yml@main
     with:
       project: dr2
       environment: ${{ github.event.inputs.environment }}
@@ -21,6 +21,7 @@ jobs:
     with:
       repo-name: dp-terraform-environments
       environment: ${{ github.event.inputs.environment }}
+      project: dr2
     secrets:
       WORKFLOW_TOKEN: ${{ secrets[needs.setup.outputs.workflow-token] }}
       ACCOUNT_NUMBER: ${{ secrets[needs.setup.outputs.account-number] }}
