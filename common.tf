@@ -28,6 +28,7 @@ module "vpc" {
   az_count                     = local.az_count
   elastic_ip_allocation_ids    = aws_eip.eip.*.allocation_id
   nat_instance_security_groups = [module.nat_instance_security_group.security_group_id]
+  environment                  = local.environment
 }
 
 resource "aws_eip" "eip" {
