@@ -1,24 +1,24 @@
 locals {
-  disaster_recovery_bucket_name = "${local.environment}-disaster-recovery"
-  lambda_name                   = "${local.environment}-download-files-and-metadata"
-  queue_name                    = "${local.environment}-download-files-and-metadata"
+  disaster_recovery_bucket_name           = "${local.environment}-disaster-recovery"
+  download_files_and_metadata_lambda_name = "${local.environment}-download-files-and-metadata"
+  queue_name                              = "${local.environment}-download-files-and-metadata"
 }
 
 module "download_metadata_and_files_lambda" {
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
-  function_name = local.lambda_name
+  function_name = local.download_files_and_metadata_lambda_name
   handler       = "uk.gov.nationalarchives.Lambda::handleRequest"
   lambda_sqs_queue_mappings = {
     download_files_queue = module.download_files_sqs.sqs_arn
   }
   policies = {
-    "${local.lambda_name}-policy" = templatefile("./templates/iam_policy/download_files_metadata_policy.json.tpl", {
+    "${local.download_files_and_metadata_lambda_name}-policy" = templatefile("./templates/iam_policy/download_files_metadata_policy.json.tpl", {
       secrets_manager_secret_arn   = "arn:aws:secretsmanager:eu-west-2:${var.dp_account_number}:secret:sandbox-preservica-6-preservicav6login-INFTcQ",
       download_files_sqs_queue_arn = module.download_files_sqs.sqs_arn
       disaster_recovery_bucket     = module.disaster_recovery_bucket
       bucket_name                  = local.disaster_recovery_bucket_name
       account_id                   = var.dp_account_number
-      lambda_name                  = local.lambda_name
+      lambda_name                  = local.download_files_and_metadata_lambda_name
     })
   }
   memory_size = 512
@@ -33,7 +33,7 @@ module "download_metadata_and_files_lambda" {
     PRESERVICA_URL  = data.aws_ssm_parameter.preservica_url.value
   }
   tags = {
-    Name      = local.lambda_name
+    Name      = local.download_files_and_metadata_lambda_name
     CreatedBy = "dp-terraform-environments"
   }
 }

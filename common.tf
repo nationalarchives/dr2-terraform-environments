@@ -14,6 +14,10 @@ resource "aws_secretsmanager_secret" "preservica_secret" {
   name = "${local.environment}-preservica-api-login-details-${random_string.preservica_user.result}"
 }
 
+data "aws_ssm_parameter" "slack_webhook_url" {
+  name = "/${local.environment}/slack/cloudwatch-alarm-webhook"
+}
+
 resource "aws_secretsmanager_secret_version" "preservica_secret_version" {
   secret_id     = aws_secretsmanager_secret.preservica_secret.id
   secret_string = jsonencode({ (random_string.preservica_user.result) = random_password.preservica_password.result })
