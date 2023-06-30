@@ -6,6 +6,9 @@ The prototype is divided into separate files corresponding to one part of the in
 All of these files are run at once when terraform runs. 
 
 `common.tf` Common modules like VPCs, shared security groups and system wide secrets
+`download_metadata_and_files_lambda.tf` Resources for the disaster recovery lambda.
+`disaster_recovery` Shared resources for the disaster recovery workflow.
+`slack_notifications_lambda` Resources for the notifications lambda.
 
 
 ## Deployment
@@ -21,6 +24,10 @@ Check whether the changes look correct, then open the actions approval page and 
 Deployments can be approved by anyone in the `digital-records-repository` GitHub team.
 
 [github-actions-job]: https://github.com/nationalarchives/dp-terraform-environments/actions/workflows/apply.yml
+
+## Elastic IPs
+Each environment has one elastic IP per AZ created manually within the AWS console and then used within terraform using `data "aws_eip"`
+This removes the risk of the EIP being accidentally deleted as this would change the IP address and we need a list of static IPs to send to Preservica.
 
 ## Local development
 
