@@ -30,14 +30,17 @@ module "vpc" {
   source                       = "git::https://github.com/nationalarchives/da-terraform-modules//vpc"
   vpc_name                     = "${local.environment}-vpc"
   az_count                     = local.az_count
-  elastic_ip_allocation_ids    = aws_eip.eip.*.allocation_id
+  elastic_ip_allocation_ids    = data.aws_eip.eip.*.id
   nat_instance_security_groups = [module.nat_instance_security_group.security_group_id]
   environment                  = local.environment
 }
 
-resource "aws_eip" "eip" {
-  count  = local.az_count
-  domain = "vpc"
+data "aws_eip" "eip" {
+  count = local.az_count
+  filter {
+    name   = "tag:Name"
+    values = ["${local.environment}-eip-${count.index}"]
+  }
 }
 
 module "nat_instance_security_group" {
