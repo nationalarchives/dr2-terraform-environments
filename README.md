@@ -9,6 +9,7 @@ All of these files are run at once when terraform runs.
 `download_metadata_and_files_lambda.tf` Resources for the disaster recovery lambda.
 `disaster_recovery` Shared resources for the disaster recovery workflow.
 `slack_notifications_lambda` Resources for the notifications lambda.
+`deploy_preservica_config` A lambda, queue, topic and bucket for deploying XML config to Preservica.
 
 
 ## Deployment
