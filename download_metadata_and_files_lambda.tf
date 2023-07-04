@@ -1,7 +1,7 @@
 locals {
   disaster_recovery_bucket_name           = "${local.environment}-disaster-recovery"
   download_files_and_metadata_lambda_name = "${local.environment}-download-files-and-metadata"
-  queue_name                              = "${local.environment}-download-files-and-metadata"
+  download_metadata_and_files_queue_name  = "${local.environment}-download-files-and-metadata"
 }
 
 module "download_metadata_and_files_lambda" {
@@ -40,10 +40,10 @@ module "download_metadata_and_files_lambda" {
 
 module "download_files_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  queue_name = local.queue_name
+  queue_name = local.download_metadata_and_files_queue_name
   sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
     account_id = var.dp_account_number, //TODO Restrict this to the SNS topic ARN when it's created
-    queue_name = local.queue_name
+    queue_name = local.download_metadata_and_files_queue_name
   })
   redrive_maximum_receives = 3
   tags = {
