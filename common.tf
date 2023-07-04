@@ -75,3 +75,27 @@ module "outbound_https_access_only" {
     protocol    = "tcp"
   }]
 }
+
+module "dr2_kms_key" {
+  source   = "git::https://github.com/nationalarchives/da-terraform-modules//kms"
+  key_name = "${local.environment}-kms-dr2"
+  default_policy_variables = {
+    user_roles = [
+      module.download_metadata_and_files_lambda.lambda_role_arn
+    ]
+    ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
+  }
+}
+
+module "dr2_developer_key" {
+  source   = "git::https://github.com/nationalarchives/da-terraform-modules//kms"
+  key_name = "${local.environment}-kms-dr2-dev"
+  default_policy_variables = {
+    user_roles = [data.aws_ssm_parameter.dev_admin_role.value, module.preservica_config_lambda.lambda_role_arn]
+    ci_roles   = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
+  }
+}
+
+data "aws_ssm_parameter" "dev_admin_role" {
+  name = "/${local.environment}/developer_role"
+}
