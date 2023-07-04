@@ -49,5 +49,6 @@ module "download_files_sqs" {
   tags = {
     CreatedBy = "dp-terraform-environments"
   }
+  kms_key_id = module.dr2_kms_key.kms_key_arn
 }
 
