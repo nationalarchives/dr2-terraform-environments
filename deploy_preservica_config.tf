@@ -30,6 +30,9 @@ module "preservica_config_sns" {
   }
   topic_name  = "${local.environment}-preservica-config"
   kms_key_arn = module.dr2_developer_key.kms_key_arn
+  sqs_subscriptions = {
+    preservica_config_queue = module.preservica_config_queue.sqs_arn
+  }
 }
 
 module "preservica_config_queue" {
