@@ -1,6 +1,6 @@
 module "dlq_metadata_and_files_cloudwatch_alarm" {
   source              = "git::https://github.com/nationalarchives/da-terraform-modules//cloudwatch_alarms"
-  metric_name         = "NumberOfMessagesReceived"
+  metric_name         = "ApproximateNumberOfMessagesVisible"
   namespace           = "AWS/SQS"
   name                = "${local.environment}-dlq-notifications"
   threshold           = "0"
@@ -9,8 +9,7 @@ module "dlq_metadata_and_files_cloudwatch_alarm" {
   statistic           = "Sum"
   datapoints_to_alarm = 1
   dimensions = {
-    Name  = "QueueName"
-    value = "${local.download_metadata_and_files_queue_name}-dlq"
+    QueueName = "${local.download_metadata_and_files_queue_name}-dlq"
   }
   notification_topic = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.environment}-dlq-notifications"
 }
