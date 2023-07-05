@@ -5,7 +5,6 @@ module "dlq_metadata_and_files_cloudwatch_alarm" {
   name                = "${local.environment}-dlq-notifications"
   threshold           = "0"
   comparison_operator = "GreaterThanThreshold"
-  treat_missing_data  = "missing"
   statistic           = "Sum"
   datapoints_to_alarm = 1
   dimensions = {
