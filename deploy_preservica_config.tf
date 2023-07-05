@@ -38,8 +38,10 @@ module "preservica_config_sns" {
 module "preservica_config_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = "${local.environment}-preservica-config"
-  sqs_policy = templatefile("${path.module}/templates/sqs/sqs_access_policy.json.tpl", {
+  sqs_policy = templatefile("${path.module}/templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id, queue_name = "${local.environment}-preservica-config"
+    queue_name = "${local.environment}-preservica-config"
+    topic_arn  = module.preservica_config_sns.sns_arn
   })
   kms_key_id = module.dr2_developer_key.kms_key_arn
 }
