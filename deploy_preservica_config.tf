@@ -8,7 +8,6 @@ module "preservica_config_bucket" {
   sns_topic_config = {
     "s3:ObjectCreated:*" = module.preservica_config_sns.sns_arn
   }
-  kms_key_arn = module.dr2_developer_key.kms_key_arn
   bucket_policy = templatefile("${path.module}/templates/s3/preservica_config_bucket_policy.json.tpl", {
     preservica_config_lambda_role_arn = module.preservica_config_lambda.lambda_role_arn
     bucket_name                       = local.preservica_config_bucket_name
@@ -43,7 +42,8 @@ module "preservica_config_queue" {
     queue_name = "${local.environment}-preservica-config"
     topic_arn  = module.preservica_config_sns.sns_arn
   })
-  kms_key_id = module.dr2_developer_key.kms_key_arn
+  kms_key_id         = module.dr2_developer_key.kms_key_arn
+  visibility_timeout = 60
 }
 
 module "preservica_config_lambda" {
