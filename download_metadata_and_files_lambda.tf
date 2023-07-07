@@ -49,6 +49,7 @@ module "download_files_sqs" {
   tags = {
     CreatedBy = "dp-terraform-environments"
   }
-  kms_key_id = module.dr2_kms_key.kms_key_arn
+  kms_key_id             = module.dr2_kms_key.kms_key_arn
+  dlq_notification_topic = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.environment}-dlq-notifications"
 }
 
