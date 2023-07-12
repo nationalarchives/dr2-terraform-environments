@@ -1,4 +1,4 @@
-module "dlq_notifications_sns" {
+module "cloudwatch_alarms_notifications_sns" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sns"
   sns_policy = templatefile("${path.module}/templates/sns/cloudwatch_alarm_policy.json.tpl", {
     topic_name           = "${local.environment}-dlq-notifications"
@@ -11,11 +11,11 @@ module "dlq_notifications_sns" {
   topic_name  = "${local.environment}-dlq-notifications"
   kms_key_arn = module.dr2_kms_key.kms_key_arn
   sqs_subscriptions = {
-    dlq_notifications_queue = module.dlq_notifications_queue.sqs_arn
+    dlq_notifications_queue = module.cloudwatch_alarms_notifications_queue.sqs_arn
   }
 }
 
-module "dlq_notifications_queue" {
+module "cloudwatch_alarms_notifications_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = "${local.environment}-dlq-notifications"
   sqs_policy = templatefile("${path.module}/templates/sqs/sns_send_message_policy.json.tpl", {
