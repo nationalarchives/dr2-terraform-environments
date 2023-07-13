@@ -1,7 +1,7 @@
 locals {
   entity_event_lambda_name = "${local.environment}-entity-event-lambda"
   entity_event_topic_name  = "${local.environment}-preservica-config-topic"
-  last_polled_table_name   = "${local.environment}-entity-event-last-updated"
+  last_polled_table_name   = "${local.environment}-entity-event-lambda-query-start-datetime"
   entity_event_topic_arn   = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.entity_event_topic_name}"
 }
 
@@ -31,10 +31,10 @@ module "entity_event_lambda" {
     "events.amazonaws.com" = module.entity_event_cloudwatch_event.event_arn
   }
   plaintext_env_vars = {
-    API_SECRET_NAME        = aws_secretsmanager_secret.preservica_secret.name
-    API_SNS_ARN            = local.entity_event_topic_arn
+    PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_secret.name
+    ENTITY_EVENT_TOPIC_ARN = local.entity_event_topic_arn
     LAST_POLLED_TABLE_NAME = local.last_polled_table_name
-    PRESERVICA_URL         = data.aws_ssm_parameter.preservica_url.value
+    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
   }
 }
 
