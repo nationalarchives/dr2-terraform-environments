@@ -31,10 +31,10 @@ module "entity_event_lambda" {
     "events.amazonaws.com" = module.entity_event_cloudwatch_event.event_arn
   }
   plaintext_env_vars = {
-    PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_secret.name
-    ENTITY_EVENT_TOPIC_ARN = local.entity_event_topic_arn
-    LAST_POLLED_TABLE_NAME = local.last_polled_table_name
-    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
+    PRESERVICA_SECRET_NAME       = aws_secretsmanager_secret.preservica_secret.name
+    ENTITY_EVENT_TOPIC_ARN       = local.entity_event_topic_arn
+    LAST_EVENT_ACTION_TABLE_NAME = local.last_polled_table_name
+    PRESERVICA_API_URL           = data.aws_ssm_parameter.preservica_url.value
   }
 }
 
