@@ -1,6 +1,6 @@
 locals {
   entity_event_lambda_name = "${local.environment}-entity-event-lambda"
-  entity_event_topic_name  = "${local.environment}-preservica-config-topic"
+  entity_event_topic_name  = "${local.environment}-entity-event-topic"
   last_polled_table_name   = "${local.environment}-entity-event-lambda-query-start-datetime"
   entity_event_topic_arn   = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.entity_event_topic_name}"
 }
