@@ -25,7 +25,7 @@ module "entity_event_lambda" {
       sns_arn                    = local.entity_event_topic_arn
     })
   }
-  runtime = "java11"
+  runtime = "java17"
   tags    = {}
   lambda_invoke_permissions = {
     "events.amazonaws.com" = module.entity_event_cloudwatch_event.event_arn
