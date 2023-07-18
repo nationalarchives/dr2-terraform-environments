@@ -93,7 +93,7 @@ module "dr2_developer_key" {
   default_policy_variables = {
     user_roles    = [data.aws_ssm_parameter.dev_admin_role.value, module.preservica_config_lambda.lambda_role_arn]
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
-    service_names = ["s3", "sns"]
+    service_names = ["s3", "sns", "logs"]
   }
 }
 
