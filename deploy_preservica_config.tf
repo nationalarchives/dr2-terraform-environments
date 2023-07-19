@@ -44,7 +44,7 @@ module "preservica_config_queue" {
     topic_arn  = module.preservica_config_sns.sns_arn
   })
   kms_key_id         = module.dr2_developer_key.kms_key_arn
-  visibility_timeout = 60
+  visibility_timeout = 360
 }
 
 module "preservica_config_lambda" {
@@ -72,8 +72,8 @@ module "preservica_config_lambda" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   plaintext_env_vars = {
-    SECRET_NAME    = aws_secretsmanager_secret.preservica_secret.name
-    PRESERVICA_URL = data.aws_ssm_parameter.preservica_url.value
+    PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_secret.name
+    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
   }
   tags = {
     Name      = local.preservica_config_lambda_name
