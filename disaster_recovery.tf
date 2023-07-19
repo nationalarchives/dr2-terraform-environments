@@ -11,4 +11,5 @@ module "disaster_recovery_bucket" {
     download_files_metadata_lambda_role_arn = module.download_metadata_and_files_lambda.lambda_role_arn,
     bucket_name                             = local.disaster_recovery_bucket_name
   })
+  kms_key_arn = module.dr2_kms_key.kms_key_arn
 }
