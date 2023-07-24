@@ -7,7 +7,7 @@
         "Service": "s3.amazonaws.com"
       },
       "Action": [
-        "SNS:Publish"
+        "sns:Publish"
       ],
       "Resource": "arn:aws:sns:eu-west-2:${account_id}:${topic_name}",
       "Condition": {

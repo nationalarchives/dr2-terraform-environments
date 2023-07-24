@@ -81,9 +81,11 @@ module "dr2_kms_key" {
   key_name = "${local.environment}-kms-dr2"
   default_policy_variables = {
     user_roles = [
-      module.download_metadata_and_files_lambda.lambda_role_arn
+      module.download_metadata_and_files_lambda.lambda_role_arn,
+      module.slack_notifications_lambda.lambda_role_arn
     ]
-    ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
+    ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
+    service_names = ["cloudwatch", "sns"]
   }
 }
 
