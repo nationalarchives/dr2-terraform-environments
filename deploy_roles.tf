@@ -12,8 +12,9 @@ module "deploy_lambda_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name   = "${local.environment_title}DPGithubActionsDeployLambdaPolicy"
   policy_string = templatefile("${path.module}/templates/iam_policy/deploy_lambda_policy.json.tpl", {
-    download_metadata_lambda_arn  = module.download_metadata_and_files_lambda.lambda_arn,
-    slack_notification_lambda_arn = module.slack_notifications_lambda.lambda_arn
-    bucket_name                   = "mgmt-dp-code-deploy"
+    download_metadata_lambda_arn       = module.download_metadata_and_files_lambda.lambda_arn,
+    slack_notification_lambda_arn      = module.slack_notifications_lambda.lambda_arn
+    entity_event_generation_lambda_arn = module.entity_event_generator_lambda.lambda_arn
+    bucket_name                        = "mgmt-dp-code-deploy"
   })
 }
