@@ -25,10 +25,15 @@ module "entity_event_generator_lambda" {
       sns_arn                    = local.entity_event_topic_arn
     })
   }
-  runtime = "java17"
-  tags    = {}
+  runtime     = "java17"
+  memory_size = 512
+  tags        = {}
   lambda_invoke_permissions = {
     "events.amazonaws.com" = module.entity_event_cloudwatch_event.event_arn
+  }
+  vpc_config = {
+    subnet_ids         = module.vpc.private_subnets
+    security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   plaintext_env_vars = {
     PRESERVICA_SECRET_NAME       = aws_secretsmanager_secret.preservica_secret.name
@@ -43,6 +48,15 @@ module "entity_event_lambda_updated_since_query_start_datetime_table" {
   hash_key      = "id"
   hash_key_type = "S"
   table_name    = local.last_polled_table_name
+}
+
+resource "aws_dynamodb_table_item" "initial_start_date" {
+  hash_key   = "id"
+  item       = templatefile("${path.module}/templates/dynamo/initial_last_updated_item.json.tpl", {})
+  table_name = local.last_polled_table_name
+  lifecycle {
+    ignore_changes = [item]
+  }
 }
 
 module "entity_event_generator_topic" {
