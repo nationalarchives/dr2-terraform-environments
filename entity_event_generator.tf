@@ -50,7 +50,7 @@ module "entity_event_lambda_updated_since_query_start_datetime_table" {
   table_name    = local.last_polled_table_name
 }
 
-resource "aws_dynamodb_table_item" "initial_start_date_time" {
+resource "aws_dynamodb_table_item" "initial_start_datetime" {
   hash_key   = "id"
   item       = templatefile("${path.module}/templates/dynamo/initial_last_updated_item.json.tpl", {})
   table_name = local.last_polled_table_name
