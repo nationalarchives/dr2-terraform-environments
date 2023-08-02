@@ -1,5 +1,8 @@
 locals {
-  az_count = local.environment == "prod" ? 2 : 1
+  az_count                      = local.environment == "prod" ? 2 : 1
+  ingest_raw_cache_bucket_name  = "${local.environment}-dr2-ingest-raw-cache"
+  pre_ingest_step_function_name = "${local.environment_title}PreIngestStepFunction"
+  additional_user_roles         = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -80,10 +83,11 @@ module "dr2_kms_key" {
   source   = "git::https://github.com/nationalarchives/da-terraform-modules//kms"
   key_name = "${local.environment}-kms-dr2"
   default_policy_variables = {
-    user_roles = [
+    user_roles = concat([
+      module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.download_metadata_and_files_lambda.lambda_role_arn,
       module.slack_notifications_lambda.lambda_role_arn
-    ]
+    ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
     service_names = ["cloudwatch", "sns"]
   }
@@ -101,4 +105,25 @@ module "dr2_developer_key" {
 
 data "aws_ssm_parameter" "dev_admin_role" {
   name = "/${local.environment}/developer_role"
+}
+
+module "ingest_raw_cache_bucket" {
+  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
+  bucket_name = local.ingest_raw_cache_bucket_name
+  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
+    bucket_name = "${local.ingest_raw_cache_bucket_name}-logs", account_id = var.dp_account_number
+  })
+  bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
+    lambda_role_arn = module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
+    bucket_name     = local.ingest_raw_cache_bucket_name
+  })
+  kms_key_arn = module.dr2_kms_key.kms_key_arn
+}
+
+module "pre_ingest_step_function" {
+  source                                = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
+  environment                           = local.environment
+  step_function_definition              = templatefile("${path.module}/templates/sfn/pre_ingest_sfn_definition.json.tpl", { step_function_name = local.pre_ingest_step_function_name })
+  step_function_name                    = local.pre_ingest_step_function_name
+  step_function_role_policy_attachments = {}
 }
