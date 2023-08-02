@@ -122,7 +122,6 @@ module "ingest_raw_cache_bucket" {
 
 module "pre_ingest_step_function" {
   source                                = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
-  environment                           = local.environment
   step_function_definition              = templatefile("${path.module}/templates/sfn/pre_ingest_sfn_definition.json.tpl", { step_function_name = local.pre_ingest_step_function_name })
   step_function_name                    = local.pre_ingest_step_function_name
   step_function_role_policy_attachments = {}
