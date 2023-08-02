@@ -25,9 +25,10 @@ module "entity_event_generator_lambda" {
       sns_arn                    = local.entity_event_topic_arn
     })
   }
-  runtime     = "java17"
-  memory_size = 512
-  tags        = {}
+  timeout_seconds = 180
+  runtime         = "java17"
+  memory_size     = 512
+  tags            = {}
   lambda_invoke_permissions = {
     "events.amazonaws.com" = module.entity_event_cloudwatch_event.event_arn
   }
