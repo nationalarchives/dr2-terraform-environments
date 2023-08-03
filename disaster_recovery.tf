@@ -7,9 +7,9 @@ module "disaster_recovery_bucket" {
   logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
     bucket_name = "${local.disaster_recovery_bucket_name}-logs", account_id = var.dp_account_number
   })
-  bucket_policy = templatefile("./templates/s3/disaster_recovery_bucket_policy.json.tpl", {
-    download_files_metadata_lambda_role_arn = module.download_metadata_and_files_lambda.lambda_role_arn,
-    bucket_name                             = local.disaster_recovery_bucket_name
+  bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
+    lambda_role_arn = module.download_metadata_and_files_lambda.lambda_role_arn,
+    bucket_name     = local.disaster_recovery_bucket_name
   })
   kms_key_arn = module.dr2_kms_key.kms_key_arn
 }

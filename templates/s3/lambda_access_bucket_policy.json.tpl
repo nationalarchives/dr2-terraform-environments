@@ -4,7 +4,7 @@
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${download_files_metadata_lambda_role_arn}"
+        "AWS": "${lambda_role_arn}"
       },
       "Action": [
         "s3:GetObject",
