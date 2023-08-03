@@ -1,7 +1,23 @@
 locals {
-  ingest_parsed_court_document_event_handler_queue_name  = "${local.environment}-ingest-parsed-court-document-event-handler"
-  ingest_parsed_court_document_event_handler_lambda_name = "${local.environment}-ingest-parsed-court-document-event-handler"
+  ingest_parsed_court_document_event_handler_queue_name       = "${local.environment}-ingest-parsed-court-document-event-handler"
+  ingest_parsed_court_document_event_handler_test_bucket_name = "${local.environment}-ingest-parsed-court-document-event-handler-test-input"
+  ingest_parsed_court_document_event_handler_lambda_name      = "${local.environment}-ingest-parsed-court-document-event-handler"
 }
+
+module "ingest_parsed_court_document_event_handler_test_input_bucket" {
+  count       = local.environment == "intg" ? 1 : 0
+  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
+  bucket_name = local.ingest_parsed_court_document_event_handler_test_bucket_name
+  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
+    bucket_name = "${local.ingest_parsed_court_document_event_handler_test_bucket_name}-logs", account_id = var.dp_account_number
+  })
+  bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
+    lambda_role_arn = module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
+    bucket_name     = local.ingest_parsed_court_document_event_handler_test_bucket_name
+  })
+  kms_key_arn = module.dr2_kms_key.kms_key_arn
+}
+
 module "ingest_parsed_court_document_event_handler_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_parsed_court_document_event_handler_queue_name
