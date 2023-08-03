@@ -1,7 +1,7 @@
 locals {
   az_count                      = local.environment == "prod" ? 2 : 1
   ingest_raw_cache_bucket_name  = "${local.environment}-dr2-ingest-raw-cache"
-  pre_ingest_step_function_name = "${local.environment_title}IngestStepFunction"
+  pre_ingest_step_function_name = "${local.environment_title}-ingest-step-function"
   additional_user_roles         = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
 }
 resource "random_password" "preservica_password" {
