@@ -3,6 +3,7 @@ locals {
   ingest_raw_cache_bucket_name  = "${local.environment}-dr2-ingest-raw-cache"
   pre_ingest_step_function_name = "${local.environment_title}-ingest-step-function"
   additional_user_roles         = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  files_dynamo_table_name       = "${local.environment}-dr2-files"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -86,7 +87,8 @@ module "dr2_kms_key" {
     user_roles = concat([
       module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.download_metadata_and_files_lambda.lambda_role_arn,
-      module.slack_notifications_lambda.lambda_role_arn
+      module.slack_notifications_lambda.lambda_role_arn,
+      module.ingest_mapper_lambda.lambda_role_arn
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
     service_names = ["cloudwatch", "sns"]
@@ -121,8 +123,28 @@ module "ingest_raw_cache_bucket" {
 }
 
 module "pre_ingest_step_function" {
-  source                                = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
-  step_function_definition              = templatefile("${path.module}/templates/sfn/pre_ingest_sfn_definition.json.tpl", { step_function_name = local.pre_ingest_step_function_name })
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
+  step_function_definition = templatefile("${path.module}/templates/sfn/pre_ingest_sfn_definition.json.tpl", {
+    step_function_name = local.pre_ingest_step_function_name
+  })
   step_function_name                    = local.pre_ingest_step_function_name
   step_function_role_policy_attachments = {}
+}
+
+module "files_table" {
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
+  hash_key   = { name = "id", type = "S" }
+  table_name = local.files_dynamo_table_name
+  additional_attributes = [
+    { name = "batchId", type = "S" },
+    { name = "parentPath", type = "S" }
+  ]
+  global_secondary_indexes = [
+    {
+      name            = "BatchParentPathIdx"
+      hash_key        = "batchId"
+      range_key       = "parentPath"
+      projection_type = "ALL"
+    }
+  ]
 }
