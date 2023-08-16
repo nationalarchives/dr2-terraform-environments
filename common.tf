@@ -48,7 +48,7 @@ data "aws_eip" "eip" {
 
 module "nat_instance_security_group" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = "dp-terraform-environments" }
+  common_tags = { CreatedBy = "dr2-terraform-environments" }
   description = "A security group to allow access to the NAT instance"
   name        = "${local.environment}-nat-instance-security-group"
   vpc_id      = module.vpc.vpc_id
@@ -67,7 +67,7 @@ module "nat_instance_security_group" {
 
 module "outbound_https_access_only" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = "dp-terraform-environments" }
+  common_tags = { CreatedBy = "dr2-terraform-environments" }
   description = "A security group to allow outbound access only"
   name        = "${local.environment}-outbound-https"
   vpc_id      = module.vpc.vpc_id
@@ -111,7 +111,7 @@ module "ingest_raw_cache_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_raw_cache_bucket_name
   logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.ingest_raw_cache_bucket_name}-logs", account_id = var.dp_account_number
+    bucket_name = "${local.ingest_raw_cache_bucket_name}-logs", account_id = var.dr2_account_number
   })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
     lambda_role_arn = module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
