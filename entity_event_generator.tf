@@ -45,10 +45,9 @@ module "entity_event_generator_lambda" {
 }
 
 module "entity_event_lambda_updated_since_query_start_datetime_table" {
-  source        = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
-  hash_key      = "id"
-  hash_key_type = "S"
-  table_name    = local.last_polled_table_name
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
+  hash_key   = { name = "id", type = "S" }
+  table_name = local.last_polled_table_name
 }
 
 resource "aws_dynamodb_table_item" "initial_start_datetime" {
