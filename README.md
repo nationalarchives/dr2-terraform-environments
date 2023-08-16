@@ -1,4 +1,4 @@
-# DP Terraform Environments
+# DR2 Terraform Environments
 
 ## Terraform Structure
 
