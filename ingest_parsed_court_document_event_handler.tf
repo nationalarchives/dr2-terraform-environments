@@ -12,8 +12,8 @@ module "ingest_parsed_court_document_event_handler_test_input_bucket" {
     bucket_name = "${local.ingest_parsed_court_document_event_handler_test_bucket_name}-logs", account_id = var.account_number
   })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
-    lambda_role_arn = module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
-    bucket_name     = local.ingest_parsed_court_document_event_handler_test_bucket_name
+    lambda_role_arns = jsonencode([module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn]),
+    bucket_name      = local.ingest_parsed_court_document_event_handler_test_bucket_name
   })
   kms_key_arn = module.dr2_kms_key.kms_key_arn
 }
