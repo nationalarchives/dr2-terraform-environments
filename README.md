@@ -58,7 +58,7 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
 
 3. Set the following Terraform environment variables on the local environment:
 
-    * TF_VAR_dr2_account_number=*[account number of the environment to update]*
+    * TF_VAR_account_number=*[account number of the environment to update]*
 
 4. Initialize Terraform (if not done so previously):
 
