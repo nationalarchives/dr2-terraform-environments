@@ -13,11 +13,11 @@ module "download_metadata_and_files_lambda" {
   }
   policies = {
     "${local.download_files_and_metadata_lambda_name}-policy" = templatefile("./templates/iam_policy/download_files_metadata_policy.json.tpl", {
-      secrets_manager_secret_arn   = "arn:aws:secretsmanager:eu-west-2:${var.dr2_account_number}:secret:sandbox-preservica-6-preservicav6login-INFTcQ",
+      secrets_manager_secret_arn   = "arn:aws:secretsmanager:eu-west-2:${var.account_number}:secret:sandbox-preservica-6-preservicav6login-INFTcQ",
       download_files_sqs_queue_arn = module.download_files_sqs.sqs_arn
       disaster_recovery_bucket     = module.disaster_recovery_bucket
       bucket_name                  = local.disaster_recovery_bucket_name
-      account_id                   = var.dr2_account_number
+      account_id                   = var.account_number
       lambda_name                  = local.download_files_and_metadata_lambda_name
     })
   }
@@ -42,7 +42,7 @@ module "download_files_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.download_metadata_and_files_queue_name
   sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
-    account_id = var.dr2_account_number, //TODO Restrict this to the SNS topic ARN when it's created
+    account_id = var.account_number, //TODO Restrict this to the SNS topic ARN when it's created
     queue_name = local.download_metadata_and_files_queue_name
   })
   redrive_maximum_receives = 3

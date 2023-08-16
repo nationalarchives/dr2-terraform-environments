@@ -5,7 +5,7 @@ module "disaster_recovery_bucket" {
     CreatedBy = "dr2-terraform-environments"
   }
   logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.disaster_recovery_bucket_name}-logs", account_id = var.dr2_account_number
+    bucket_name = "${local.disaster_recovery_bucket_name}-logs", account_id = var.account_number
   })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
     lambda_role_arn = module.download_metadata_and_files_lambda.lambda_role_arn,

@@ -12,7 +12,7 @@ module "slack_notifications_lambda" {
   policies = {
     "${local.notifications_lambda_name}-policy" = templatefile("./templates/iam_policy/slack_notifications_policy.json.tpl", {
       ssm_parameter_arn  = data.aws_ssm_parameter.slack_webhook_url.arn,
-      account_id         = var.dr2_account_number
+      account_id         = var.account_number
       lambda_name        = local.notifications_lambda_name
       notification_queue = module.cloudwatch_alarms_notifications_queue.sqs_arn
     })

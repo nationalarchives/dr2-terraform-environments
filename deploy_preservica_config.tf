@@ -13,7 +13,7 @@ module "preservica_config_bucket" {
     bucket_name                       = local.preservica_config_bucket_name
   })
   logging_bucket_policy = templatefile("${path.module}/templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.preservica_config_bucket_name}-logs", account_id = var.dr2_account_number
+    bucket_name = "${local.preservica_config_bucket_name}-logs", account_id = var.account_number
   })
 }
 
@@ -60,7 +60,7 @@ module "preservica_config_lambda" {
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
       preservica_config_queue    = module.preservica_config_queue.sqs_arn
       bucket_name                = local.preservica_config_bucket_name
-      account_id                 = var.dr2_account_number
+      account_id                 = var.account_number
       lambda_name                = local.preservica_config_lambda_name
     })
   }
