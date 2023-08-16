@@ -9,7 +9,7 @@ module "ingest_mapper_lambda" {
   policies = {
     "${local.ingest_mapper_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_mapper_policy.json.tpl", {
       bucket_name   = local.ingest_raw_cache_bucket_name
-      account_id    = var.dp_account_number
+      account_id    = var.account_number
       lambda_name   = local.ingest_mapper_lambda_name
       dynamo_db_arn = module.files_table.table_arn
     })
