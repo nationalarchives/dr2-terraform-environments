@@ -14,7 +14,7 @@ All of these files are run at once when terraform runs.
 
 ## Deployment
 
-To start a deployment, run the [DP Terraform Environments Deploy job in GitHub actions][github-actions-job] by clicking 'Run Workflow' and selecting the environment you want to deploy to. All changes must be deployed first to integration, then staging, then production.
+To start a deployment, run the [DR2 Terraform Environments Deploy job in GitHub actions][github-actions-job] by clicking 'Run Workflow' and selecting the environment you want to deploy to. All changes must be deployed first to integration, then staging, then production.
 
 The deployment will pause when Terraform has determined which changes need to be applied. Review the Terraform plan output by clicking the link provided in the Slack notification. This will be a link to Cloudwatch in the management account so you will need to be logged in to the management AWS account to use this.
 
@@ -24,7 +24,7 @@ Check whether the changes look correct, then open the actions approval page and 
 
 Deployments can be approved by anyone in the `digital-records-repository` GitHub team.
 
-[github-actions-job]: https://github.com/nationalarchives/dp-terraform-environments/actions/workflows/apply.yml
+[github-actions-job]: https://github.com/nationalarchives/dr2-terraform-environments/actions/workflows/apply.yml
 
 ## Elastic IPs
 Each environment has one elastic IP per AZ created manually within the AWS console and then used within terraform using `data "aws_eip"`
@@ -46,11 +46,11 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
 
 ## Running Terraform Project Locally
 
-**NOTE: Running Terraform locally should only be used to check the Terraform plan. Updating the DP environments should only ever be done through GitHub actions**
+**NOTE: Running Terraform locally should only be used to check the Terraform plan. Updating the DR2 environments should only ever be done through GitHub actions**
 
-1. Clone DP Environments project to local machine: https://github.com/nationalarchives/dp-terraform-environments and navigate to the directory
+1. Clone DR2 Environments project to local machine: https://github.com/nationalarchives/dr2-terraform-environments and navigate to the directory
 
-2. Switch to the Terraform workspace corresponding to the DP environment to be worked on:
+2. Switch to the Terraform workspace corresponding to the DR2 environment to be worked on:
 
    ```
    [location of project] $ terraform workspace select intg
@@ -58,14 +58,14 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
 
 3. Set the following Terraform environment variables on the local environment:
 
-    * TF_VAR_dp_account_number=*[account number of the environment to update]*
+    * TF_VAR_dr2_account_number=*[account number of the environment to update]*
 
 4. Initialize Terraform (if not done so previously):
 
 ```
 [location of project] $ terraform init   
 ```
-5. Run Terraform to view changes that will be made to the DP environment AWS resources
+5. Run Terraform to view changes that will be made to the DR2 environment AWS resources
 
 ```
 [location of project] $ terraform plan
