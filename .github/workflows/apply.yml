@@ -20,7 +20,7 @@ jobs:
     uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_apply.yml@main
     needs: setup
     with:
-      repo-name: dp-terraform-environments
+      repo-name: dr2-terraform-environments
       environment: ${{ github.event.inputs.environment }}
       project: dr2
     secrets:

@@ -3,6 +3,7 @@ locals {
   ingest_raw_cache_bucket_name  = "${local.environment}-dr2-ingest-raw-cache"
   pre_ingest_step_function_name = "${local.environment_title}-ingest-step-function"
   additional_user_roles         = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  files_dynamo_table_name       = "${local.environment}-dr2-files"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -48,7 +49,7 @@ data "aws_eip" "eip" {
 
 module "nat_instance_security_group" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = "dp-terraform-environments" }
+  common_tags = { CreatedBy = "dr2-terraform-environments" }
   description = "A security group to allow access to the NAT instance"
   name        = "${local.environment}-nat-instance-security-group"
   vpc_id      = module.vpc.vpc_id
@@ -67,7 +68,7 @@ module "nat_instance_security_group" {
 
 module "outbound_https_access_only" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = "dp-terraform-environments" }
+  common_tags = { CreatedBy = "dr2-terraform-environments" }
   description = "A security group to allow outbound access only"
   name        = "${local.environment}-outbound-https"
   vpc_id      = module.vpc.vpc_id
@@ -86,7 +87,8 @@ module "dr2_kms_key" {
     user_roles = concat([
       module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.download_metadata_and_files_lambda.lambda_role_arn,
-      module.slack_notifications_lambda.lambda_role_arn
+      module.slack_notifications_lambda.lambda_role_arn,
+      module.ingest_mapper_lambda.lambda_role_arn
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
     service_names = ["cloudwatch", "sns"]
@@ -111,7 +113,7 @@ module "ingest_raw_cache_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_raw_cache_bucket_name
   logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.ingest_raw_cache_bucket_name}-logs", account_id = var.dp_account_number
+    bucket_name = "${local.ingest_raw_cache_bucket_name}-logs", account_id = var.account_number
   })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
     lambda_role_arn = module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
@@ -121,8 +123,28 @@ module "ingest_raw_cache_bucket" {
 }
 
 module "pre_ingest_step_function" {
-  source                                = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
-  step_function_definition              = templatefile("${path.module}/templates/sfn/pre_ingest_sfn_definition.json.tpl", { step_function_name = local.pre_ingest_step_function_name })
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
+  step_function_definition = templatefile("${path.module}/templates/sfn/pre_ingest_sfn_definition.json.tpl", {
+    step_function_name = local.pre_ingest_step_function_name
+  })
   step_function_name                    = local.pre_ingest_step_function_name
   step_function_role_policy_attachments = {}
+}
+
+module "files_table" {
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
+  hash_key   = { name = "id", type = "S" }
+  table_name = local.files_dynamo_table_name
+  additional_attributes = [
+    { name = "batchId", type = "S" },
+    { name = "parentPath", type = "S" }
+  ]
+  global_secondary_indexes = [
+    {
+      name            = "BatchParentPathIdx"
+      hash_key        = "batchId"
+      range_key       = "parentPath"
+      projection_type = "ALL"
+    }
+  ]
 }
