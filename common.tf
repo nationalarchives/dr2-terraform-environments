@@ -1,9 +1,10 @@
 locals {
-  az_count                      = local.environment == "prod" ? 2 : 1
-  ingest_raw_cache_bucket_name  = "${local.environment}-dr2-ingest-raw-cache"
-  pre_ingest_step_function_name = "${local.environment_title}-ingest-step-function"
-  additional_user_roles         = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
-  files_dynamo_table_name       = "${local.environment}-dr2-files"
+  az_count                         = local.environment == "prod" ? 2 : 1
+  ingest_raw_cache_bucket_name     = "${local.environment}-dr2-ingest-raw-cache"
+  ingest_staging_cache_bucket_name = "${local.environment}-dr2-ingest-staging-cache"
+  pre_ingest_step_function_name    = "${local.environment_title}-ingest-step-function"
+  additional_user_roles            = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  files_dynamo_table_name          = "${local.environment}-dr2-files"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -116,8 +117,21 @@ module "ingest_raw_cache_bucket" {
     bucket_name = "${local.ingest_raw_cache_bucket_name}-logs", account_id = var.account_number
   })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
-    lambda_role_arn = module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
-    bucket_name     = local.ingest_raw_cache_bucket_name
+    lambda_role_arns = jsonencode([module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn]),
+    bucket_name      = local.ingest_raw_cache_bucket_name
+  })
+  kms_key_arn = module.dr2_kms_key.kms_key_arn
+}
+
+module "ingest_staging_cache_bucket" {
+  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
+  bucket_name = local.ingest_staging_cache_bucket_name
+  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
+    bucket_name = "${local.ingest_staging_cache_bucket_name}-logs", account_id = var.account_number
+  })
+  bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
+    lambda_role_arns = jsonencode([module.ingest_mapper_lambda.lambda_role_arn, module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn]),
+    bucket_name      = local.ingest_staging_cache_bucket_name
   })
   kms_key_arn = module.dr2_kms_key.kms_key_arn
 }

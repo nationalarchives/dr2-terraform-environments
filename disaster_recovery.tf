@@ -8,8 +8,8 @@ module "disaster_recovery_bucket" {
     bucket_name = "${local.disaster_recovery_bucket_name}-logs", account_id = var.account_number
   })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
-    lambda_role_arn = module.download_metadata_and_files_lambda.lambda_role_arn,
-    bucket_name     = local.disaster_recovery_bucket_name
+    lambda_role_arns = jsonencode([module.download_metadata_and_files_lambda.lambda_role_arn]),
+    bucket_name      = local.disaster_recovery_bucket_name
   })
   kms_key_arn = module.dr2_kms_key.kms_key_arn
 }

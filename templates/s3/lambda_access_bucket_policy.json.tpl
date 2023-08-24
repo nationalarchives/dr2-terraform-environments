@@ -4,7 +4,7 @@
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${lambda_role_arn}"
+        "AWS": ${lambda_role_arns}
       },
       "Action": [
         "s3:GetObject",
