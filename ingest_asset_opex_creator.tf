@@ -1,5 +1,5 @@
 locals {
-  ingest_asset_opex_creator_lambda_name = "${local.environment}-ingest-mapper-opex-creator"
+  ingest_asset_opex_creator_lambda_name = "${local.environment}-ingest-asset-opex-creator"
 }
 module "ingest_asset_opex_creator_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
