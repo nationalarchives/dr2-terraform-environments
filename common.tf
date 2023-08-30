@@ -1,10 +1,11 @@
 locals {
-  az_count                         = local.environment == "prod" ? 2 : 1
-  ingest_raw_cache_bucket_name     = "${local.environment}-dr2-ingest-raw-cache"
-  ingest_staging_cache_bucket_name = "${local.environment}-dr2-ingest-staging-cache"
-  pre_ingest_step_function_name    = "${local.environment_title}-ingest-step-function"
-  additional_user_roles            = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
-  files_dynamo_table_name          = "${local.environment}-dr2-files"
+  az_count                                = local.environment == "prod" ? 2 : 1
+  ingest_raw_cache_bucket_name            = "${local.environment}-dr2-ingest-raw-cache"
+  ingest_staging_cache_bucket_name        = "${local.environment}-dr2-ingest-staging-cache"
+  pre_ingest_step_function_name           = "${local.environment_title}-ingest-step-function"
+  additional_user_roles                   = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  files_dynamo_table_name                 = "${local.environment}-dr2-files"
+  files_table_global_secondary_index_name = "BatchParentPathIdx"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -89,7 +90,8 @@ module "dr2_kms_key" {
       module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.download_metadata_and_files_lambda.lambda_role_arn,
       module.slack_notifications_lambda.lambda_role_arn,
-      module.ingest_mapper_lambda.lambda_role_arn
+      module.ingest_mapper_lambda.lambda_role_arn,
+      module.ingest_asset_opex_creator_lambda.lambda_role_arn
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
     service_names = ["cloudwatch", "sns"]
@@ -155,7 +157,7 @@ module "files_table" {
   ]
   global_secondary_indexes = [
     {
-      name            = "BatchParentPathIdx"
+      name            = local.files_table_global_secondary_index_name
       hash_key        = "batchId"
       range_key       = "parentPath"
       projection_type = "ALL"
