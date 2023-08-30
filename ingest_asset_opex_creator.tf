@@ -22,7 +22,6 @@ module "ingest_asset_opex_creator_lambda" {
   plaintext_env_vars = {
     DYNAMO_TABLE_NAME  = local.files_dynamo_table_name
     DYNAMO_GSI_NAME    = local.files_table_global_secondary_index_name
-    SOURCE_BUCKET      = local.ingest_raw_cache_bucket_name
     DESTINATION_BUCKET = local.ingest_staging_cache_bucket_name
   }
   tags = {
