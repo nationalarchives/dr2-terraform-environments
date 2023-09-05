@@ -22,7 +22,7 @@
         "arn:aws:s3:::${bucket_name}",
         "arn:aws:s3:::${bucket_name}/*"
       ],
-      "Sid": "readIngestStagingCache"
+      "Sid": "readWriteIngestStagingCache"
     },
     {
       "Action": [
