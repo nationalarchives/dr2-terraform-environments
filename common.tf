@@ -92,6 +92,7 @@ module "dr2_kms_key" {
       module.slack_notifications_lambda.lambda_role_arn,
       module.ingest_mapper_lambda.lambda_role_arn,
       module.ingest_asset_opex_creator_lambda.lambda_role_arn,
+      module.ingest_folder_opex_creator_lambda.lambda_role_arn,
       module.ingest_upsert_archives_folder_lambda
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
@@ -149,9 +150,11 @@ module "pre_ingest_step_function" {
 }
 
 module "files_table" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
-  hash_key   = { name = "id", type = "S" }
-  table_name = local.files_dynamo_table_name
+  source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
+  hash_key                       = { name = "id", type = "S" }
+  table_name                     = local.files_dynamo_table_name
+  server_side_encryption_enabled = true
+  kms_key_arn                    = module.dr2_kms_key.kms_key_arn
   additional_attributes = [
     { name = "batchId", type = "S" },
     { name = "parentPath", type = "S" }
