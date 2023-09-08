@@ -39,7 +39,7 @@ module "download_metadata_and_files_lambda" {
 }
 
 module "download_files_sqs" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs?ref=DR2-1201-module-for-eventbridge-rule"
   queue_name = local.download_metadata_and_files_queue_name
   sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
     account_id = var.account_number, //TODO Restrict this to the SNS topic ARN when it's created
@@ -49,7 +49,6 @@ module "download_files_sqs" {
   tags = {
     CreatedBy = "dr2-terraform-environments"
   }
-  kms_key_id             = module.dr2_kms_key.kms_key_arn
-  dlq_notification_topic = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.environment}-dlq-notifications"
+  kms_key_id = module.dr2_kms_key.kms_key_arn
 }
 

@@ -89,7 +89,6 @@ module "dr2_kms_key" {
     user_roles = concat([
       module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.download_metadata_and_files_lambda.lambda_role_arn,
-      module.slack_notifications_lambda.lambda_role_arn,
       module.ingest_mapper_lambda.lambda_role_arn,
       module.ingest_asset_opex_creator_lambda.lambda_role_arn,
       module.ingest_folder_opex_creator_lambda.lambda_role_arn,
@@ -104,9 +103,12 @@ module "dr2_developer_key" {
   source   = "git::https://github.com/nationalarchives/da-terraform-modules//kms"
   key_name = "${local.environment}-kms-dr2-dev"
   default_policy_variables = {
-    user_roles    = [data.aws_ssm_parameter.dev_admin_role.value, module.preservica_config_lambda.lambda_role_arn]
+    user_roles = [
+      data.aws_ssm_parameter.dev_admin_role.value,
+      module.preservica_config_lambda.lambda_role_arn,
+    ]
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
-    service_names = ["s3", "sns", "logs.eu-west-2"]
+    service_names = ["s3", "sns", "logs.eu-west-2", "cloudwatch"]
   }
 }
 
@@ -167,4 +169,59 @@ module "files_table" {
       projection_type = "ALL"
     }
   ]
+}
+
+data "aws_ssm_parameter" "slack_token" {
+  name            = "/mgmt/slack/token"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "dr2_notifications_slack_channel" {
+  name = "/mgmt/slack/notifications/channel"
+}
+
+module "eventbridge_alarm_notifications_destination" {
+  source                     = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination?ref=DR2-1201-module-for-eventbridge-rule"
+  authorisation_header_value = "Bearer ${data.aws_ssm_parameter.slack_token.value}"
+  name                       = "${local.environment}-eventbridge-slack-destination"
+}
+
+module "cloudwatch_alarm_event_bridge_rule" {
+  for_each = toset(["OK", "ALARM"])
+  source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule?ref=DR2-1201-module-for-eventbridge-rule"
+  event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
+    cloudwatch_alarms = jsonencode(flatten([
+      module.download_files_sqs.dlq_cloudwatch_alarm_arn,
+      module.ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_alarm_arn
+    ])),
+    state_value = each.value
+  })
+  name                = "${local.environment}-eventbridge-alarm-state-change-${lower(each.value)}"
+  api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
+  input_transformer = {
+    input_paths = {
+      "alarmName"    = "$.detail.alarmName",
+      "currentValue" = "$.detail.state.value"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
+      channel_id = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
+      message    = ":${each.value == "OK" ? "green-tick" : "alert-noflash-slow"}: Cloudwatch alarm <alarmName> has entered state <currentValue>"
+    })
+  }
+}
+
+module "dev_slack_message_eventbridge_rule" {
+  source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule?ref=DR2-1201-module-for-eventbridge-rule"
+  api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
+  event_pattern       = templatefile("${path.module}/templates/eventbridge/custom_source_event_pattern.json.tpl", { source_name = "DR2DevMessage" })
+  name                = "${local.environment}-eventbridge-dev-slack-message"
+  input_transformer = {
+    input_paths = {
+      "message" = "$.detail.message"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
+      channel_id = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
+      message    = "<message>"
+    })
+  }
 }
