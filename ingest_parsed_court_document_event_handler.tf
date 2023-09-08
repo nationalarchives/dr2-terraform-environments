@@ -19,7 +19,7 @@ module "ingest_parsed_court_document_event_handler_test_input_bucket" {
 }
 
 module "ingest_parsed_court_document_event_handler_sqs" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs?ref=DR2-1201-module-for-eventbridge-rule"
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_parsed_court_document_event_handler_queue_name
   sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
     account_id = var.account_number, //TODO Restrict this to the SNS topic ARN when it's created

@@ -181,14 +181,14 @@ data "aws_ssm_parameter" "dr2_notifications_slack_channel" {
 }
 
 module "eventbridge_alarm_notifications_destination" {
-  source                     = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination?ref=DR2-1201-module-for-eventbridge-rule"
+  source                     = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination"
   authorisation_header_value = "Bearer ${data.aws_ssm_parameter.slack_token.value}"
   name                       = "${local.environment}-eventbridge-slack-destination"
 }
 
 module "cloudwatch_alarm_event_bridge_rule" {
   for_each = toset(["OK", "ALARM"])
-  source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule?ref=DR2-1201-module-for-eventbridge-rule"
+  source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
     cloudwatch_alarms = jsonencode(flatten([
       module.download_files_sqs.dlq_cloudwatch_alarm_arn,
@@ -211,7 +211,7 @@ module "cloudwatch_alarm_event_bridge_rule" {
 }
 
 module "dev_slack_message_eventbridge_rule" {
-  source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule?ref=DR2-1201-module-for-eventbridge-rule"
+  source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   event_pattern       = templatefile("${path.module}/templates/eventbridge/custom_source_event_pattern.json.tpl", { source_name = "DR2DevMessage" })
   name                = "${local.environment}-eventbridge-dev-slack-message"
