@@ -192,7 +192,8 @@ module "cloudwatch_alarm_event_bridge_rule" {
   event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
     cloudwatch_alarms = jsonencode(flatten([
       module.download_files_sqs.dlq_cloudwatch_alarm_arn,
-      module.ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_alarm_arn
+      module.ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_alarm_arn,
+      module.preservica_config_queue.dlq_cloudwatch_alarm_arn
     ])),
     state_value = each.value
   })
