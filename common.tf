@@ -105,7 +105,7 @@ module "dr2_developer_key" {
   default_policy_variables = {
     user_roles = [
       data.aws_ssm_parameter.dev_admin_role.value,
-      module.preservica_config_lambda.lambda_role_arn,
+      module.preservica_config_lambda.lambda_role_arn
     ]
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/IntgTerraformRole"]
     service_names = ["s3", "sns", "logs.eu-west-2", "cloudwatch"]
@@ -205,8 +205,8 @@ module "cloudwatch_alarm_event_bridge_rule" {
       "currentValue" = "$.detail.state.value"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
-      channel_id = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
-      message    = ":${each.value == "OK" ? "green-tick" : "alert-noflash-slow"}: Cloudwatch alarm <alarmName> has entered state <currentValue>"
+      channel_id   = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
+      slackMessage = ":${each.value == "OK" ? "green-tick" : "alert-noflash-slow"}: Cloudwatch alarm <alarmName> has entered state <currentValue>"
     })
   }
 }
@@ -218,11 +218,11 @@ module "dev_slack_message_eventbridge_rule" {
   name                = "${local.environment}-eventbridge-dev-slack-message"
   input_transformer = {
     input_paths = {
-      "message" = "$.detail.message"
+      "slackMessage" = "$.detail.slackMessage"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
-      channel_id = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
-      message    = "<message>"
+      channel_id   = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
+      slackMessage = "<slackMessage>"
     })
   }
 }

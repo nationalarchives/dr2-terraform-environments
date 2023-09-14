@@ -1,4 +1,4 @@
 {
   "channel" : "${channel_id}",
-  "text": "${message}"
+  "text": "${slackMessage}"
 }
