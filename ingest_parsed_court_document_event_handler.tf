@@ -28,7 +28,6 @@ module "ingest_parsed_court_document_event_handler_sqs" {
   redrive_maximum_receives = 5
   visibility_timeout       = 180
   kms_key_id               = module.dr2_kms_key.kms_key_arn
-  dlq_notification_topic   = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.environment}-dlq-notifications"
 }
 
 module "ingest_parsed_court_document_event_handler_lambda" {
