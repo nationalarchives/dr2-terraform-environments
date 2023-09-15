@@ -7,6 +7,12 @@
       "Sid": "getDynamoDB"
     },
     {
+      "Action": "secretsmanager:GetSecretValue",
+      "Effect": "Allow",
+      "Resource": "${secrets_manager_secret_arn}",
+      "Sid": "readSecretsManager"
+    },
+    {
       "Action": [
         "logs:PutLogEvents",
         "logs:CreateLogStream",
