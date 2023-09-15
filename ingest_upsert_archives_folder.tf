@@ -21,6 +21,10 @@ module "ingest_upsert_archives_folder_lambda" {
     PRESERVICA_SECRET_NAME    = aws_secretsmanager_secret.preservica_secret.name
     PRESERVICA_API_URL        = data.aws_ssm_parameter.preservica_url.value
   }
+  vpc_config = {
+    subnet_ids         = module.vpc.private_subnets
+    security_group_ids = [module.outbound_https_access_only.security_group_id]
+  }
   tags = {
     Name      = local.ingest_upsert_archives_folder_lambda_name
     CreatedBy = "dr2-terraform-environments"
