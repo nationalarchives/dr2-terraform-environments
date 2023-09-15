@@ -62,15 +62,21 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
 
 4. Initialize Terraform (if not done so previously):
 
-```
-[location of project] $ terraform init   
-```
-5. Run Terraform to view changes that will be made to the DR2 environment AWS resources
+   ```
+   [location of project] $ terraform init
+   ```
 
-```
-[location of project] $ terraform plan
-```
-6. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
+5. To ensure the modules are up-to-date, run
+   ```
+   [location of project] $ terraform get -update
+   ```
+
+6. Run Terraform to view changes that will be made to the DR2 environment AWS resources
+
+   ```
+   [location of project] $ terraform plan
+   ```
+7. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
 
 ## Further Information
 
