@@ -8,9 +8,10 @@ module "ingest_upsert_archives_folder_lambda" {
   timeout_seconds = 60
   policies = {
     "${local.ingest_upsert_archives_folder_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_upsert_archives_folder_policy.json.tpl", {
-      account_id    = var.account_number
-      lambda_name   = local.ingest_upsert_archives_folder_lambda_name
-      dynamo_db_arn = module.files_table.table_arn
+      account_id                 = var.account_number
+      lambda_name                = local.ingest_upsert_archives_folder_lambda_name
+      dynamo_db_arn              = module.files_table.table_arn
+      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
     })
   }
   memory_size = 512
