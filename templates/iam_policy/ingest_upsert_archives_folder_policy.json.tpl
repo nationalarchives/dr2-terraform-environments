@@ -1,6 +1,12 @@
 {
   "Statement": [
     {
+      "Action": "events:PutEvents",
+      "Effect": "Allow",
+      "Resource": "arn:aws:events:eu-west-2:${account_id}:event-bus/default",
+      "Sid": "putEventbridgeEvents"
+    },
+    {
       "Action": "dynamodb:BatchGetItem",
       "Effect": "Allow",
       "Resource": "${dynamo_db_arn}",
