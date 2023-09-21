@@ -5,7 +5,7 @@ locals {
 module "ip_lock_checker_cloudwatch_event" {
   source                  = "git::https://github.com/nationalarchives/da-terraform-modules//cloudwatch_events"
   rule_name               = "${local.environment}-ip-lock-checker-schedule"
-  schedule                = "rate(1 day)"
+  schedule                = "rate(1 hour)"
   lambda_event_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.ip_lock_checker_lambda_name}"
 }
 
