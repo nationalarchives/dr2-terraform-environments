@@ -1,15 +1,15 @@
 locals {
-  ingest_upsert_archives_folder_lambda_name = "${local.environment}-ingest-upsert-archives-folder"
+  ingest_upsert_archive_folders_lambda_name = "${local.environment}-ingest-upsert-archive-folders"
 }
-module "ingest_upsert_archives_folder_lambda" {
+module "ingest_upsert_archive_folders_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
-  function_name   = local.ingest_upsert_archives_folder_lambda_name
+  function_name   = local.ingest_upsert_archive_folders_lambda_name
   handler         = "uk.gov.nationalarchives.Lambda::handleRequest"
   timeout_seconds = 60
   policies = {
-    "${local.ingest_upsert_archives_folder_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_upsert_archives_folder_policy.json.tpl", {
+    "${local.ingest_upsert_archive_folders_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_upsert_archive_folders_policy.json.tpl", {
       account_id                 = var.account_number
-      lambda_name                = local.ingest_upsert_archives_folder_lambda_name
+      lambda_name                = local.ingest_upsert_archive_folders_lambda_name
       dynamo_db_arn              = module.files_table.table_arn
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
     })
@@ -26,7 +26,7 @@ module "ingest_upsert_archives_folder_lambda" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   tags = {
-    Name      = local.ingest_upsert_archives_folder_lambda_name
+    Name      = local.ingest_upsert_archive_folders_lambda_name
     CreatedBy = "dr2-terraform-environments"
   }
 }
