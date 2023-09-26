@@ -20,7 +20,7 @@ module "deploy_lambda_policy" {
       module.ingest_mapper_lambda.lambda_arn,
       module.ingest_asset_opex_creator_lambda.lambda_arn,
       module.ingest_folder_opex_creator_lambda.lambda_arn,
-      module.ingest_upsert_archives_folder_lambda.lambda_arn
+      module.ingest_upsert_archive_folders_lambda.lambda_arn
     ])
     bucket_name = "mgmt-dp-code-deploy"
   })
