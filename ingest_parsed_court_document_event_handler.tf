@@ -44,14 +44,14 @@ module "ingest_parsed_court_document_event_handler_lambda" {
       bucket_name                                          = local.ingest_raw_cache_bucket_name
       account_id                                           = var.account_number
       lambda_name                                          = local.ingest_parsed_court_document_event_handler_lambda_name
-      step_function_arn                                    = module.pre_ingest_step_function.step_function_arn
+      step_function_arn                                    = module.ingest_step_function.step_function_arn
     })
   }
   memory_size = 512
   runtime     = "java17"
   plaintext_env_vars = {
     OUTPUT_BUCKET = local.ingest_raw_cache_bucket_name
-    SFN_ARN       = module.pre_ingest_step_function.step_function_arn
+    SFN_ARN       = module.ingest_step_function.step_function_arn
   }
   tags = {
     Name      = local.ingest_parsed_court_document_event_handler_lambda_name

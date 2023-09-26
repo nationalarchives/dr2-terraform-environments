@@ -2,7 +2,7 @@ locals {
   az_count                                = local.environment == "prod" ? 2 : 1
   ingest_raw_cache_bucket_name            = "${local.environment}-dr2-ingest-raw-cache"
   ingest_staging_cache_bucket_name        = "${local.environment}-dr2-ingest-staging-cache"
-  pre_ingest_step_function_name           = "${local.environment_title}-ingest-step-function"
+  ingest_step_function_name               = "${local.environment_title}-ingest"
   additional_user_roles                   = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   files_dynamo_table_name                 = "${local.environment}-dr2-files"
   files_table_global_secondary_index_name = "BatchParentPathIdx"
@@ -142,13 +142,32 @@ module "ingest_staging_cache_bucket" {
   kms_key_arn = module.dr2_kms_key.kms_key_arn
 }
 
-module "pre_ingest_step_function" {
+module "ingest_step_function" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
-  step_function_definition = templatefile("${path.module}/templates/sfn/pre_ingest_sfn_definition.json.tpl", {
-    step_function_name = local.pre_ingest_step_function_name
+  step_function_definition = templatefile("${path.module}/templates/sfn/ingest_sfn_definition.json.tpl", {
+    step_function_name                        = local.ingest_step_function_name,
+    account_id                                = var.account_number
+    ingest_mapper_lambda_name                 = local.ingest_mapper_lambda_name
+    ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
+    ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
+    ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
   })
-  step_function_name                    = local.pre_ingest_step_function_name
-  step_function_role_policy_attachments = {}
+  step_function_name = local.ingest_step_function_name
+  step_function_role_policy_attachments = {
+    step_function_policy = module.ingest_step_function_policy.policy_arn
+  }
+}
+
+module "ingest_step_function_policy" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
+  name   = "${local.environment_title}IngestStepFunctionPolicy"
+  policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
+    account_id                                = var.account_number
+    ingest_mapper_lambda_name                 = local.ingest_mapper_lambda_name
+    ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
+    ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
+    ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
+  })
 }
 
 module "files_table" {
