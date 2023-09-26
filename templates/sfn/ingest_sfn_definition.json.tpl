@@ -4,12 +4,7 @@
   "States": {
     "Map metadata": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": "$.Payload",
-      "Parameters": {
-        "Payload.$": "$",
-        "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}"
-      },
+      "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
       "Retry": [
         {
           "ErrorEquals": [
@@ -27,11 +22,7 @@
     },
     "Create or update folders in Preservica": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
-      "Parameters": {
-        "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archives_folder_lambda_name}",
-        "Payload.$": "$"
-      },
+      "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archives_folder_lambda_name}",
       "Retry": [
         {
           "ErrorEquals": [
@@ -58,12 +49,7 @@
         "States": {
           "Create Asset OPEX": {
             "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "OutputPath": "$.Payload",
-            "Parameters": {
-              "Payload.$": "$",
-              "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_asset_opex_creator_lambda_name}"
-            },
+            "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_asset_opex_creator_lambda_name}",
             "Retry": [
               {
                 "ErrorEquals": [
@@ -118,12 +104,7 @@
         "States": {
           "Create Folder OPEX": {
             "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "OutputPath": "$.Payload",
-            "Parameters": {
-              "Payload.$": "$",
-              "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_folder_opex_creator_lambda_name}"
-            },
+            "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_folder_opex_creator_lambda_name}",
             "Retry": [
               {
                 "ErrorEquals": [
