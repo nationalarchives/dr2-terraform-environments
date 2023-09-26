@@ -153,7 +153,21 @@ module "ingest_step_function" {
     ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
   })
   step_function_name                    = local.ingest_step_function_name
-  step_function_role_policy_attachments = {}
+  step_function_role_policy_attachments = {
+    step_function_policy = module.ingest_step_function_policy.policy_arn
+  }
+}
+
+module "ingest_step_function_policy" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
+  name   = "${local.environment_title}IngestStepFunctionPolicy"
+  policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
+    account_id                                = var.account_number
+    ingest_mapper_lambda_name                 = local.ingest_mapper_lambda_name
+    ingest_upsert_archives_folder_lambda_name = local.ingest_upsert_archives_folder_lambda_name
+    ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
+    ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
+  })
 }
 
 module "files_table" {
