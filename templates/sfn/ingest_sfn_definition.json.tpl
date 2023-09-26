@@ -41,6 +41,13 @@
     },
     "Map over each Asset Id": {
       "Type": "Map",
+      "ItemsPath": "$.contentAssets",
+      "ItemSelector": {
+        "id.$": "$$.Map.Item.Value",
+        "batchId.$": "$$.Execution.Input.batchId",
+        "executionName.$": "$$.Execution.Name",
+        "sourceBucket.$": "$.s3Bucket"
+      },
       "ItemProcessor": {
         "ProcessorConfig": {
           "Mode": "INLINE"
@@ -67,14 +74,7 @@
           }
         }
       },
-      "ItemSelector": {
-        "id.$": "$$.Map.Item.Value",
-        "batchId.$": "$$.Execution.Input.batchId",
-        "executionName.$": "$$.Execution.Name",
-        "sourceBucket.$": "$.s3Bucket"
-      },
       "Next": "Convert array to object",
-      "ItemsPath": "$.contentAssets",
       "ResultPath": null
     },
     "Convert array to object": {
@@ -96,6 +96,12 @@
     },
     "Map over each Folder Id": {
       "Type": "Map",
+      "ItemsPath": "$.allFolders",
+      "ItemSelector": {
+        "id.$": "$$.Map.Item.Value",
+        "batchId.$": "$$.Execution.Input.batchId",
+        "executionName.$": "$$.Execution.Name"
+      },
       "ItemProcessor": {
         "ProcessorConfig": {
           "Mode": "INLINE"
@@ -122,13 +128,7 @@
           }
         }
       },
-      "End": true,
-      "ItemsPath": "$.allFolders",
-      "ItemSelector": {
-        "id.$": "$$.Map.Item.Value",
-        "batchId.$": "$$.Execution.Input.batchId",
-        "executionName.$": "$$.Execution.Name"
-      }
+      "End": true
     }
   }
 }
