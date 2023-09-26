@@ -1,5 +1,5 @@
 {
-  "Comment": "${step_function_name}: A State machine for Judgment ingests",
+  "Comment": "${step_function_name}: A State machine to ingest DR2 BagIt-like packages into Preservica.",
   "StartAt": "Map metadata",
   "States": {
     "Map metadata": {
