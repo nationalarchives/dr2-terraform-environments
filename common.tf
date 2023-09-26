@@ -148,7 +148,7 @@ module "ingest_step_function" {
     step_function_name                        = local.ingest_step_function_name,
     account_id                                = var.account_number
     ingest_mapper_lambda_name                 = local.ingest_mapper_lambda_name
-    ingest_upsert_archives_folder_lambda_name = local.ingest_upsert_archives_folder_lambda_name
+    ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
   })
@@ -164,7 +164,7 @@ module "ingest_step_function_policy" {
   policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
     account_id                                = var.account_number
     ingest_mapper_lambda_name                 = local.ingest_mapper_lambda_name
-    ingest_upsert_archives_folder_lambda_name = local.ingest_upsert_archives_folder_lambda_name
+    ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
   })

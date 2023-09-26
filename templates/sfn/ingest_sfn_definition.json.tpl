@@ -22,7 +22,7 @@
     },
     "Create or update folders in Preservica": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archives_folder_lambda_name}",
+      "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archive_folders_lambda_name}",
       "Retry": [
         {
           "ErrorEquals": [
