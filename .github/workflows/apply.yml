@@ -16,6 +16,11 @@ jobs:
     with:
       project: dr2
       environment: ${{ github.event.inputs.environment }}
+  test:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - run: echo ${{ needs.setup.outputs.workflow-token }}
   apply:
     uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_apply.yml@main
     needs: setup
