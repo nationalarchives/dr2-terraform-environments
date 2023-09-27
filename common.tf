@@ -230,6 +230,24 @@ module "cloudwatch_alarm_event_bridge_rule" {
   }
 }
 
+module "failed_step_function_event_bridge_rule" {
+  source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
+  event_pattern       = templatefile("${path.module}/templates/eventbridge/step_function_failed_event_pattern.json.tpl", {})
+  name                = "${local.environment}-eventbridge-step-function-failure"
+  api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
+  input_transformer = {
+    input_paths = {
+      "arn"    = "$.detail.stateMachineArn",
+      "name"   = "$.detail.name",
+      "status" = "$.detail.status"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
+      channel_id   = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
+      slackMessage = ":alert-noflash-slow: Step function <arn> with name <name> has <status>"
+    })
+  }
+}
+
 module "dev_slack_message_eventbridge_rule" {
   source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
