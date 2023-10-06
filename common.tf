@@ -6,6 +6,7 @@ locals {
   additional_user_roles                   = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   files_dynamo_table_name                 = "${local.environment}-dr2-files"
   files_table_global_secondary_index_name = "BatchParentPathIdx"
+  preservica_secret_rotation_lambda_name  = "${local.environment}-rotate-preservica-secret"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -18,6 +19,15 @@ resource "random_string" "preservica_user" {
 
 resource "aws_secretsmanager_secret" "preservica_secret" {
   name = "${local.environment}-preservica-api-login-details-${random_string.preservica_user.result}"
+  policy = ""
+}
+
+resource "aws_secretsmanager_secret_rotation" "preservica_secret_rotation" {
+  rotation_lambda_arn = module.preservica_secret_rotation_lambda.lambda_arn
+  secret_id           = aws_secretsmanager_secret.preservica_secret.id
+  rotation_rules {
+    schedule_expression = "rate(4 hours)"
+  }
 }
 
 data "aws_ssm_parameter" "slack_webhook_url" {
@@ -264,3 +274,35 @@ module "dev_slack_message_eventbridge_rule" {
     })
   }
 }
+
+module "preservica_secret_rotation_lambda" {
+  source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
+  function_name   = local.preservica_secret_rotation_lambda_name
+  handler         = "uk.gov.nationalarchives.Lambda::handleRequest"
+  timeout_seconds = 60
+  policies = {
+    "${local.preservica_secret_rotation_lambda_name}-policy" = templatefile("./templates/iam_policy/rotate_secrets_lambda_policy.json.tpl", {
+      secret_arn = aws_secretsmanager_secret.preservica_secret.arn
+      account_id = data.aws_caller_identity.current.account_id
+      lambda_name = local.preservica_secret_rotation_lambda_name
+    })
+  }
+  memory_size = 512
+  runtime     = "java17"
+  vpc_config = {
+    subnet_ids         = module.vpc.private_subnets
+    security_group_ids = [module.outbound_https_access_only.security_group_id]
+  }
+  plaintext_env_vars = {
+    PRESERVICA_API_URL  = data.aws_ssm_parameter.preservica_url.value
+    PRESERVICA_USERNAME = "da_dp_${local.environment}@nationalarchives.gov.uk"
+  }
+  lambda_invoke_permissions = {
+    "secretsmanager.amazonaws.com" = aws_secretsmanager_secret.preservica_secret.arn
+  }
+  tags = {
+    Name      = local.preservica_secret_rotation_lambda_name
+    CreatedBy = "dp-terraform-environments"
+  }
+}
+
