@@ -25,7 +25,7 @@ module "ip_lock_checker_lambda" {
     "events.amazonaws.com" = module.ip_lock_checker_cloudwatch_event.event_arn
   }
   memory_size = 128
-  runtime     = "python3.10"
+  runtime     = "python3.11"
   plaintext_env_vars = {
     PRESERVICA_URL = data.aws_ssm_parameter.preservica_url.value
   }
