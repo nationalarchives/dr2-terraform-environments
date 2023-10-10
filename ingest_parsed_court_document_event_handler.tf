@@ -1,11 +1,11 @@
 locals {
   ingest_parsed_court_document_event_handler_queue_name       = "${local.environment}-ingest-parsed-court-document-event-handler"
-  ingest_parsed_court_document_event_handler_test_bucket_name = "${local.environment}-ingest-parsed-court-document-event-handler-test-input"
+  ingest_parsed_court_document_event_handler_test_bucket_name = "${local.environment}-ingest-parsed-court-document-test-input"
   ingest_parsed_court_document_event_handler_lambda_name      = "${local.environment}-ingest-parsed-court-document-event-handler"
 }
 
 module "ingest_parsed_court_document_event_handler_test_input_bucket" {
-  count       = local.environment == "intg" ? 1 : 0
+  count       = local.environment != "prod" ? 1 : 0
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_parsed_court_document_event_handler_test_bucket_name
   logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
