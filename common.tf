@@ -3,7 +3,7 @@ locals {
   ingest_raw_cache_bucket_name            = "${local.environment}-dr2-ingest-raw-cache"
   ingest_staging_cache_bucket_name        = "${local.environment}-dr2-ingest-staging-cache"
   ingest_step_function_name               = "${local.environment_title}-ingest"
-  additional_user_roles                   = local.environment == "intg" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  additional_user_roles                   = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   files_dynamo_table_name                 = "${local.environment}-dr2-files"
   files_table_global_secondary_index_name = "BatchParentPathIdx"
 }
