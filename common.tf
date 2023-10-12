@@ -1,6 +1,7 @@
 locals {
   az_count                                = local.environment == "prod" ? 2 : 1
   ingest_raw_cache_bucket_name            = "${local.environment}-dr2-ingest-raw-cache"
+  sample_files_bucket_name                = "${local.environment}-dr2-sample-files"
   ingest_staging_cache_bucket_name        = "${local.environment}-dr2-ingest-staging-cache"
   ingest_step_function_name               = "${local.environment_title}-ingest"
   additional_user_roles                   = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
@@ -127,6 +128,13 @@ module "ingest_raw_cache_bucket" {
     bucket_name      = local.ingest_raw_cache_bucket_name
   })
   kms_key_arn = module.dr2_kms_key.kms_key_arn
+}
+
+module "sample_files_bucket" {
+  source            = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
+  bucket_name       = local.sample_files_bucket_name
+  create_log_bucket = false
+  kms_key_arn       = module.dr2_kms_key.kms_key_arn
 }
 
 module "ingest_staging_cache_bucket" {
