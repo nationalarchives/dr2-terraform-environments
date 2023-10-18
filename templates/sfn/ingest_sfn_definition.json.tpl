@@ -128,6 +128,33 @@
           }
         }
       },
+      "Next": "Start workflow",
+      "ResultSelector": {
+        "workflowContextName": "Ingest OPEX (Incremental)",
+        "executionId.$": "$$.Execution.Name"
+      }
+    },
+    "Start workflow": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:eu-west-2:{account_id}:function:${ingest_start_workflow_lambda_name}",
+        "Payload.$": "$"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
       "End": true
     }
   }

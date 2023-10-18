@@ -93,7 +93,8 @@ module "dr2_kms_key" {
       module.ingest_mapper_lambda.lambda_role_arn,
       module.ingest_asset_opex_creator_lambda.lambda_role_arn,
       module.ingest_folder_opex_creator_lambda.lambda_role_arn,
-      module.ingest_upsert_archive_folders_lambda.lambda_role_arn
+      module.ingest_upsert_archive_folders_lambda.lambda_role_arn,
+      module.ingest_start_workflow_lambda.lambda_role_arn
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_names = ["cloudwatch", "sns"]
@@ -159,6 +160,7 @@ module "ingest_step_function" {
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
+    ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -175,6 +177,7 @@ module "ingest_step_function_policy" {
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
+    ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
   })
 }
 
