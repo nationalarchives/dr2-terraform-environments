@@ -159,6 +159,7 @@ module "ingest_step_function" {
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
+    ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -175,6 +176,7 @@ module "ingest_step_function_policy" {
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
+    ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
   })
 }
 
