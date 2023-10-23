@@ -139,7 +139,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",
       "Parameters": {
-        "FunctionName": "arn:aws:lambda:eu-west-2:{account_id}:function:${ingest_start_workflow_lambda_name}",
+        "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_start_workflow_lambda_name}",
         "Payload.$": "$"
       },
       "Retry": [
