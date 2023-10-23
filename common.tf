@@ -34,12 +34,22 @@ resource "aws_secretsmanager_secret_version" "preservica_secret_version" {
 }
 
 module "vpc" {
-  source                       = "git::https://github.com/nationalarchives/da-terraform-modules//vpc"
-  vpc_name                     = "${local.environment}-vpc"
-  az_count                     = local.az_count
-  elastic_ip_allocation_ids    = data.aws_eip.eip.*.id
-  nat_instance_security_groups = [module.nat_instance_security_group.security_group_id]
-  environment                  = local.environment
+  source                    = "git::https://github.com/nationalarchives/da-terraform-modules//vpc"
+  vpc_name                  = "${local.environment}-vpc"
+  az_count                  = local.az_count
+  elastic_ip_allocation_ids = data.aws_eip.eip.*.id
+  use_nat_gateway           = true
+  environment               = local.environment
+  private_nacl_rules = [
+    { rule_no = 100, cidr_block = "0.0.0.0/0", action = "allow", from_port = 443, to_port = 443, egress = true },
+    { rule_no = 100, cidr_block = "0.0.0.0/0", action = "allow", from_port = 1024, to_port = 65535, egress = false },
+  ]
+  public_nacl_rules = [
+    { rule_no = 100, cidr_block = "0.0.0.0/0", action = "allow", from_port = 443, to_port = 443, egress = false },
+    { rule_no = 200, cidr_block = "0.0.0.0/0", action = "allow", from_port = 1024, to_port = 65535, egress = false },
+    { rule_no = 100, cidr_block = "0.0.0.0/0", action = "allow", from_port = 443, to_port = 443, egress = true },
+    { rule_no = 200, cidr_block = "0.0.0.0/0", action = "allow", from_port = 1024, to_port = 65535, egress = true },
+  ]
 }
 
 data "aws_eip" "eip" {
@@ -48,25 +58,6 @@ data "aws_eip" "eip" {
     name   = "tag:Name"
     values = ["${local.environment}-eip-${count.index}"]
   }
-}
-
-module "nat_instance_security_group" {
-  source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = "dr2-terraform-environments" }
-  description = "A security group to allow access to the NAT instance"
-  name        = "${local.environment}-nat-instance-security-group"
-  vpc_id      = module.vpc.vpc_id
-  ingress_security_group_rules = [{
-    port              = 443,
-    description       = "Inbound HTTPS",
-    security_group_id = module.outbound_https_access_only.security_group_id
-  }]
-  egress_cidr_rules = [{
-    port        = 443
-    description = "Outbound https access",
-    cidr_blocks = ["0.0.0.0/0"],
-    protocol    = "tcp"
-  }]
 }
 
 module "outbound_https_access_only" {
