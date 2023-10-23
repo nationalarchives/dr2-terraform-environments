@@ -32,8 +32,8 @@
             "Lambda.TooManyRequestsException"
           ],
           "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
+          "MaxAttempts": 10,
+          "BackoffRate": 4
         }
       ],
       "Next": "Map over each Asset Id",
