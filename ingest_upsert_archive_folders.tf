@@ -25,6 +25,7 @@ module "ingest_upsert_archive_folders_lambda" {
     subnet_ids         = module.vpc.private_subnets
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
+  reserved_concurrency = 1
   tags = {
     Name      = local.ingest_upsert_archive_folders_lambda_name
     CreatedBy = "dr2-terraform-environments"
