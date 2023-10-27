@@ -18,6 +18,24 @@ module "ingest_parsed_court_document_event_handler_test_input_bucket" {
   kms_key_arn = module.dr2_kms_key.kms_key_arn
 }
 
+module "copy_from_tre_bucket_role" {
+  count              = local.environment != "prod" ? 1 : 0
+  source             = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
+  assume_role_policy = templatefile("${path.module}/templates/iam_role/account_assume_role.json.tpl", { account_id = data.aws_caller_identity.current.account_id })
+  name               = split("/", module.config.terraform_config[local.environment]["copy_from_tre_bucket_role"])[1]
+  policy_attachments = {
+    copy_from_tre_bucket_policy = module.copy_from_tre_bucket_policy[count.index].policy_arn
+  }
+  tags = {}
+}
+
+module "copy_from_tre_bucket_policy" {
+  count         = local.environment != "prod" ? 1 : 0
+  source        = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
+  name          = "${local.environment}-copy-from-tre-bucket-policy"
+  policy_string = templatefile("${path.module}/templates/iam_policy/copy_from_tre_bucket_policy.json.tpl", { bucket_name = local.ingest_parsed_court_document_event_handler_test_bucket_name })
+}
+
 module "ingest_parsed_court_document_event_handler_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_parsed_court_document_event_handler_queue_name
