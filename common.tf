@@ -84,7 +84,8 @@ module "dr2_kms_key" {
       module.ingest_mapper_lambda.lambda_role_arn,
       module.ingest_asset_opex_creator_lambda.lambda_role_arn,
       module.ingest_folder_opex_creator_lambda.lambda_role_arn,
-      module.ingest_upsert_archive_folders_lambda.lambda_role_arn
+      module.ingest_upsert_archive_folders_lambda.lambda_role_arn,
+      module.ingest_parent_folder_opex_creator_lambda.lambda_role_arn
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_names = ["cloudwatch", "sns"]
@@ -135,8 +136,12 @@ module "ingest_staging_cache_bucket" {
     bucket_name = "${local.ingest_staging_cache_bucket_name}-logs", account_id = var.account_number
   })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
-    lambda_role_arns = jsonencode([module.ingest_mapper_lambda.lambda_role_arn, module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn]),
-    bucket_name      = local.ingest_staging_cache_bucket_name
+    lambda_role_arns = jsonencode([
+      module.ingest_mapper_lambda.lambda_role_arn,
+      module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
+      module.ingest_parent_folder_opex_creator_lambda.lambda_role_arn
+    ]),
+    bucket_name = local.ingest_staging_cache_bucket_name
   })
   kms_key_arn = module.dr2_kms_key.kms_key_arn
 }
@@ -144,13 +149,14 @@ module "ingest_staging_cache_bucket" {
 module "ingest_step_function" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
   step_function_definition = templatefile("${path.module}/templates/sfn/ingest_sfn_definition.json.tpl", {
-    step_function_name                        = local.ingest_step_function_name,
-    account_id                                = var.account_number
-    ingest_mapper_lambda_name                 = local.ingest_mapper_lambda_name
-    ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
-    ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
-    ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
-    ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
+    step_function_name                            = local.ingest_step_function_name,
+    account_id                                    = var.account_number
+    ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
+    ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
+    ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
+    ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
+    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
+    ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -162,12 +168,13 @@ module "ingest_step_function_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name   = "${local.environment_title}IngestStepFunctionPolicy"
   policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
-    account_id                                = var.account_number
-    ingest_mapper_lambda_name                 = local.ingest_mapper_lambda_name
-    ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
-    ingest_asset_opex_creator_lambda_name     = local.ingest_asset_opex_creator_lambda_name
-    ingest_folder_opex_creator_lambda_name    = local.ingest_folder_opex_creator_lambda_name
-    ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
+    account_id                                    = var.account_number
+    ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
+    ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
+    ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
+    ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
+    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
+    ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
   })
 }
 
