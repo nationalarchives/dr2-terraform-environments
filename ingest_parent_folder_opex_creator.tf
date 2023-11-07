@@ -18,10 +18,6 @@ module "ingest_parent_folder_opex_creator_lambda" {
   plaintext_env_vars = {
     STAGING_CACHE_BUCKET = local.ingest_staging_cache_bucket_name
   }
-  vpc_config = {
-    subnet_ids         = module.vpc.private_subnets
-    security_group_ids = [module.outbound_https_access_only.security_group_id]
-  }
   tags = {
     Name      = local.ingest_parent_folder_opex_creator_lambda_name
     CreatedBy = "dp-terraform-environments"
