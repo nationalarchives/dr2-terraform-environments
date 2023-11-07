@@ -19,7 +19,6 @@ module "ingest_parent_folder_opex_creator_lambda" {
     STAGING_CACHE_BUCKET = local.ingest_staging_cache_bucket_name
   }
   tags = {
-    Name      = local.ingest_parent_folder_opex_creator_lambda_name
-    CreatedBy = "dp-terraform-environments"
+    Name = local.ingest_parent_folder_opex_creator_lambda_name
   }
 }
