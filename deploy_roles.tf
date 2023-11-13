@@ -21,7 +21,7 @@ module "deploy_lambda_policy" {
       module.ingest_asset_opex_creator_lambda.lambda_arn,
       module.ingest_folder_opex_creator_lambda.lambda_arn,
       module.ingest_upsert_archive_folders_lambda.lambda_arn,
-      module.ingest_parent_folder_opex_creator_lambda,
+      module.ingest_parent_folder_opex_creator_lambda.lambda_arn,
       module.ingest_start_workflow_lambda.lambda_arn
     ])
     bucket_name = "mgmt-dp-code-deploy"
