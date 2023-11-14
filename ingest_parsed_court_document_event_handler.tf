@@ -2,6 +2,7 @@ locals {
   ingest_parsed_court_document_event_handler_queue_name       = "${local.environment}-ingest-parsed-court-document-event-handler"
   ingest_parsed_court_document_event_handler_test_bucket_name = "${local.environment}-ingest-parsed-court-document-test-input"
   ingest_parsed_court_document_event_handler_lambda_name      = "${local.environment}-ingest-parsed-court-document-event-handler"
+  tre_v1_judgment_output_bucket                               = "prod-tre-editorial-judgment-out"
 }
 
 module "ingest_parsed_court_document_event_handler_test_input_bucket" {
@@ -33,7 +34,7 @@ module "copy_from_tre_bucket_policy" {
   count         = local.environment != "prod" ? 1 : 0
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name          = "${local.environment}-copy-from-tre-bucket-policy"
-  policy_string = templatefile("${path.module}/templates/iam_policy/copy_from_tre_bucket_policy.json.tpl", { bucket_name = local.ingest_parsed_court_document_event_handler_test_bucket_name })
+  policy_string = templatefile("${path.module}/templates/iam_policy/copy_from_tre_bucket_policy.json.tpl", { bucket_name = local.tre_v1_judgment_output_bucket })
 }
 
 module "ingest_parsed_court_document_event_handler_sqs" {

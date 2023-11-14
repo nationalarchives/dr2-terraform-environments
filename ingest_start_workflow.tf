@@ -1,5 +1,6 @@
 locals {
   ingest_start_workflow_lambda_name = "${local.environment}-ingest-start-workflow"
+  s3_copy_lambda_name               = "${local.environment}-temp-s3-copy"
 }
 module "ingest_start_workflow_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"

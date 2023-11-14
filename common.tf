@@ -42,13 +42,16 @@ module "vpc" {
   environment               = local.environment
   private_nacl_rules = [
     { rule_no = 100, cidr_block = "0.0.0.0/0", action = "allow", from_port = 443, to_port = 443, egress = true },
+    { rule_no = 200, cidr_block = "0.0.0.0/0", action = "allow", from_port = 80, to_port = 80, egress = true },
     { rule_no = 100, cidr_block = "0.0.0.0/0", action = "allow", from_port = 1024, to_port = 65535, egress = false },
   ]
   public_nacl_rules = [
     { rule_no = 100, cidr_block = "0.0.0.0/0", action = "allow", from_port = 443, to_port = 443, egress = false },
     { rule_no = 200, cidr_block = "0.0.0.0/0", action = "allow", from_port = 1024, to_port = 65535, egress = false },
+    { rule_no = 300, cidr_block = "0.0.0.0/0", action = "allow", from_port = 80, to_port = 80, egress = false },
     { rule_no = 100, cidr_block = "0.0.0.0/0", action = "allow", from_port = 443, to_port = 443, egress = true },
     { rule_no = 200, cidr_block = "0.0.0.0/0", action = "allow", from_port = 1024, to_port = 65535, egress = true },
+    { rule_no = 300, cidr_block = "0.0.0.0/0", action = "allow", from_port = 80, to_port = 80, egress = true },
   ]
 }
 
@@ -157,6 +160,7 @@ module "ingest_step_function" {
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
+    s3_copy_lambda_name                           = local.s3_copy_lambda_name
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -173,8 +177,9 @@ module "ingest_step_function_policy" {
     ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
     ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
-    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
+    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
+    s3_copy_lambda_name                           = local.s3_copy_lambda_name
   })
 }
 
@@ -272,3 +277,4 @@ module "dev_slack_message_eventbridge_rule" {
     })
   }
 }
+
