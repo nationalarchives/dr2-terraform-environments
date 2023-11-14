@@ -26,7 +26,7 @@
       "logDriver": "awslogs",
       "options": {
         "awslogs-create-group": "true",
-        "awslogs-group": "/ecs/e2e-tests",
+        "awslogs-group": "/aws/ecs/e2e-tests",
         "awslogs-region": "eu-west-2",
         "awslogs-stream-prefix": "ecs"
       },

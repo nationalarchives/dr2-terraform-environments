@@ -12,7 +12,7 @@
         "ecr:BatchCheckLayerAvailability"
       ],
       "Resource": [
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/ecs/e2e-tests:log-stream:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/aws/ecs/e2e-tests:log-stream:*",
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/e2e-tests"
       ]
     },

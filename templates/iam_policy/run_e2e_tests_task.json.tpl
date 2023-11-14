@@ -20,7 +20,7 @@
         "iam:PassRole"
       ],
       "Resource": [
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/ecs/e2e-tests:log-stream:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/aws/ecs/e2e-tests:log-stream:*",
         "arn:aws:ecs:eu-west-2:${account_id}:task/default/*",
         "arn:aws:ecs:eu-west-2:${account_id}:task-definition/e2e-tests",
         "${execution_role}",
