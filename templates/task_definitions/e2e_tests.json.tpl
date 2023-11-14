@@ -6,7 +6,7 @@
     "essential": true,
     "environment": [
       {
-        "name": "PRESERVICA_URL",
+        "name": "PRESERVICA_API_URL",
         "value": "https://tna.preservica.com"
       },
       {
@@ -14,7 +14,7 @@
         "value": "${account_id}"
       },
       {
-        "name": "SECRET_NAME",
+        "name": "PRESERVICA_SECRET_NAME",
         "value": "${secret_name}"
       },
       {
