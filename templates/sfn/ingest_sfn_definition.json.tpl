@@ -128,6 +128,27 @@
           }
         }
       },
+      "Next": "Create '.opex' manifest file for ingest container folder",
+      "ResultSelector": {
+        "executionId.$": "$$.Execution.Name"
+      }
+    },
+    "Create '.opex' manifest file for ingest container folder": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_parent_folder_opex_creator_lambda_name}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
       "Next": "Start workflow",
       "ResultSelector": {
         "workflowContextName": "Ingest OPEX (Incremental)",
