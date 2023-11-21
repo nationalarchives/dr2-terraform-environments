@@ -86,7 +86,8 @@ module "dr2_kms_key" {
       module.ingest_folder_opex_creator_lambda.lambda_role_arn,
       module.ingest_upsert_archive_folders_lambda.lambda_role_arn,
       module.ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
-      module.e2e_tests_ecs_task_role.role_arn
+      module.e2e_tests_ecs_task_role.role_arn,
+      module.copy_tna_to_preservica_role.role_arn
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_names = ["cloudwatch", "sns"]
