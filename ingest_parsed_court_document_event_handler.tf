@@ -22,7 +22,7 @@ module "ingest_parsed_court_document_event_handler_test_input_bucket" {
 module "copy_from_tre_bucket_role" {
   count              = local.environment != "prod" ? 1 : 0
   source             = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
-  assume_role_policy = templatefile("${path.module}/templates/iam_role/account_assume_role.json.tpl", { account_id = data.aws_caller_identity.current.account_id })
+  assume_role_policy = templatefile("${path.module}/templates/iam_role/aws_principal_assume_role.json.tpl", { aws_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root" })
   name               = split("/", module.config.terraform_config[local.environment]["copy_from_tre_bucket_role"])[1]
   policy_attachments = {
     copy_from_tre_bucket_policy = module.copy_from_tre_bucket_policy[count.index].policy_arn
