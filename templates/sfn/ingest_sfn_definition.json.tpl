@@ -149,11 +149,8 @@
           "BackoffRate": 2
         }
       ],
-      "Next": "Copy to Preservica bucket",
-      "ResultSelector": {
-        "workflowContextName": "Ingest OPEX (Incremental)",
-        "executionId.$": "$$.Execution.Name"
-      }
+      "ResultPath": null,
+      "Next": "Copy to Preservica bucket"
     },
     "Copy to Preservica bucket": {
       "Type": "Task",
@@ -176,7 +173,10 @@
         }
       ],
       "Next": "Start workflow",
-      "ResultPath": null
+      "ResultSelector": {
+        "workflowContextName": "Ingest OPEX (Incremental)",
+        "executionId.$": "$$.Execution.Name"
+      }
     },
     "Start workflow": {
       "Type": "Task",
