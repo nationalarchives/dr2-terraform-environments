@@ -33,21 +33,8 @@
       "secretOptions": []
     },
     "family": "e2e-tests",
-    "taskRoleArn": "${task_role_arn}",
-    "executionRoleArn": "${execution_role_arn}",
-    "networkMode": "awsvpc",
-    "compatibilities": [
-      "FARGATE"
-    ],
-    "requiresCompatibilities": [
-      "FARGATE"
-    ],
     "cpu": 1024,
-    "memory": 3072,
-    "runtimePlatform": {
-      "cpuArchitecture": "X86_64",
-      "operatingSystemFamily": "LINUX"
-    },
+    "memory": 2048,
     "tags": []
   }
 ]
