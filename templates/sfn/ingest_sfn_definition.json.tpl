@@ -130,7 +130,9 @@
       },
       "Next": "Create '.opex' manifest file for ingest container folder",
       "ResultSelector": {
-        "executionId.$": "$$.Execution.Name"
+        "executionId.$": "$$.Execution.Name",
+        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
+        "stagingBucket": "${ingest_staging_cache_bucket_name}"
       }
     },
     "Create '.opex' manifest file for ingest container folder": {
@@ -149,7 +151,59 @@
           "BackoffRate": 2
         }
       ],
+      "ResultPath": null,
+      "Next": "Staging cache S3 object keys"
+    },
+    "Staging cache S3 object keys": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
+        },
+        "StartAt": "Copy to Preservica bucket",
+        "States": {
+          "Copy to Preservica bucket": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_s3_copy_lambda_name}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 1,
+                "MaxAttempts": 3,
+                "BackoffRate": 2
+              }
+            ],
+            "End": true
+          }
+        }
+      },
+      "ItemReader": {
+        "Resource": "arn:aws:states:::s3:listObjectsV2",
+        "Parameters": {
+          "Bucket.$": "$.stagingBucket",
+          "Prefix.$": "$.stagingPrefix"
+        }
+      },
+      "MaxConcurrency": 1000,
+      "Label": "StagingCacheS3ObjectKeys",
       "Next": "Start workflow",
+      "ItemBatcher": {
+        "MaxItemsPerBatch": 10,
+        "BatchInput": {
+          "tnaBucket": "${ingest_staging_cache_bucket_name}",
+          "preservicaBucket": "${preservica_bucket_name}"
+        }
+      },
       "ResultSelector": {
         "workflowContextName": "Ingest OPEX (Incremental)",
         "executionId.$": "$$.Execution.Name"
