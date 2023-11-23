@@ -64,5 +64,11 @@ resource "aws_ecs_task_definition" "e2e_tests" {
     account_id            = data.aws_caller_identity.current.account_id
     management_account_id = module.config.account_numbers["mgmt"]
   })
-  family = "e2e-tests"
+  execution_role_arn       = module.e2e_tests_ecs_execution_role.role_arn
+  task_role_arn            = module.e2e_tests_ecs_task_role.role_arn
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "1024"
+  memory                   = "2048"
+  family                   = "e2e-tests"
 }
