@@ -3,6 +3,11 @@ module "config" {
   project = "dr2"
 }
 
+module "tre_config" {
+  source  = "./da-terraform-configurations"
+  project = "tre"
+}
+
 terraform {
   backend "s3" {
     bucket         = "mgmt-dp-terraform-state"

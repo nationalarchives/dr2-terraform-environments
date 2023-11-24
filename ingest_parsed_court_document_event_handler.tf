@@ -12,7 +12,7 @@ module "ingest_parsed_court_document_event_handler_test_input_bucket" {
     bucket_name = "${local.ingest_parsed_court_document_event_handler_test_bucket_name}-logs", account_id = var.account_number
   })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
-    lambda_role_arns = jsonencode([module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn]),
+    lambda_role_arns = jsonencode([module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn, "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"]),
     bucket_name      = local.ingest_parsed_court_document_event_handler_test_bucket_name
   })
   kms_key_arn = module.dr2_kms_key.kms_key_arn
@@ -33,7 +33,7 @@ module "copy_from_tre_bucket_policy" {
   count         = local.environment != "prod" ? 1 : 0
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name          = "${local.environment}-copy-from-tre-bucket-policy"
-  policy_string = templatefile("${path.module}/templates/iam_policy/copy_from_tre_bucket_policy.json.tpl", { bucket_name = local.ingest_parsed_court_document_event_handler_test_bucket_name })
+  policy_string = templatefile("${path.module}/templates/iam_policy/assume_tre_role_policy.json.tpl", { tre_role = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier" })
 }
 
 module "ingest_parsed_court_document_event_handler_sqs" {
