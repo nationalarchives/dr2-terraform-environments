@@ -88,7 +88,8 @@ module "dr2_kms_key" {
       module.ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.e2e_tests_ecs_task_role.role_arn,
       module.copy_tna_to_preservica_role.role_arn,
-      "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
+      "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier",
+      module.s3_copy_lambda.lambda_role_arn
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_names = ["cloudwatch", "sns"]
@@ -115,9 +116,6 @@ data "aws_ssm_parameter" "dev_admin_role" {
 module "ingest_raw_cache_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_raw_cache_bucket_name
-  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.ingest_raw_cache_bucket_name}-logs", account_id = var.account_number
-  })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
     lambda_role_arns = jsonencode([module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn]),
     bucket_name      = local.ingest_raw_cache_bucket_name
@@ -135,9 +133,6 @@ module "sample_files_bucket" {
 module "ingest_staging_cache_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_staging_cache_bucket_name
-  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.ingest_staging_cache_bucket_name}-logs", account_id = var.account_number
-  })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
     lambda_role_arns = jsonencode([
       module.ingest_mapper_lambda.lambda_role_arn,
@@ -160,6 +155,9 @@ module "ingest_step_function" {
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
+    ingest_s3_copy_lambda_name                    = local.s3_copy_lambda_name
+    ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
+    preservica_bucket_name                        = local.preservica_ingest_bucket
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -178,6 +176,9 @@ module "ingest_step_function_policy" {
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
+    ingest_s3_copy_lambda_name                    = local.s3_copy_lambda_name
+    ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
+    ingest_sfn_name                               = local.ingest_step_function_name
   })
 }
 

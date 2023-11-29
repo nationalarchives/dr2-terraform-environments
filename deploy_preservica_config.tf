@@ -12,9 +12,6 @@ module "preservica_config_bucket" {
     preservica_config_lambda_role_arn = module.preservica_config_lambda.lambda_role_arn
     bucket_name                       = local.preservica_config_bucket_name
   })
-  logging_bucket_policy = templatefile("${path.module}/templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.preservica_config_bucket_name}-logs", account_id = var.account_number
-  })
 }
 
 module "preservica_config_sns" {

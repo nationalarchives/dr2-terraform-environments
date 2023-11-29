@@ -8,9 +8,6 @@ module "ingest_parsed_court_document_event_handler_test_input_bucket" {
   count       = local.environment != "prod" ? 1 : 0
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_parsed_court_document_event_handler_test_bucket_name
-  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.ingest_parsed_court_document_event_handler_test_bucket_name}-logs", account_id = var.account_number
-  })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
     lambda_role_arns = jsonencode([module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn, "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"]),
     bucket_name      = local.ingest_parsed_court_document_event_handler_test_bucket_name
