@@ -116,9 +116,6 @@ data "aws_ssm_parameter" "dev_admin_role" {
 module "ingest_raw_cache_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_raw_cache_bucket_name
-  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.ingest_raw_cache_bucket_name}-logs", account_id = var.account_number
-  })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
     lambda_role_arns = jsonencode([module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn]),
     bucket_name      = local.ingest_raw_cache_bucket_name
@@ -136,9 +133,6 @@ module "sample_files_bucket" {
 module "ingest_staging_cache_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_staging_cache_bucket_name
-  logging_bucket_policy = templatefile("./templates/s3/log_bucket_policy.json.tpl", {
-    bucket_name = "${local.ingest_staging_cache_bucket_name}-logs", account_id = var.account_number
-  })
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
     lambda_role_arns = jsonencode([
       module.ingest_mapper_lambda.lambda_role_arn,
