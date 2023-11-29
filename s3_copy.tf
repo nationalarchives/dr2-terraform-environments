@@ -1,5 +1,6 @@
 locals {
-  s3_copy_lambda_name = "${local.environment}-s3-copy"
+  s3_copy_lambda_name      = "${local.environment}-s3-copy"
+  preservica_ingest_bucket = "com.preservica.tnatest.bulk1"
 }
 module "s3_copy_lambda" {
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"

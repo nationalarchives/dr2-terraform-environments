@@ -157,7 +157,7 @@ module "ingest_step_function" {
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
     ingest_s3_copy_lambda_name                    = local.s3_copy_lambda_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
-    preservica_bucket_name                        = "com.preservica.tnatest.bulk1"
+    preservica_bucket_name                        = local.preservica_ingest_bucket
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
