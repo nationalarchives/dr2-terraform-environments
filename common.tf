@@ -89,7 +89,8 @@ module "dr2_kms_key" {
       module.e2e_tests_ecs_task_role.role_arn,
       module.copy_tna_to_preservica_role.role_arn,
       "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier",
-      module.s3_copy_lambda.lambda_role_arn
+      module.s3_copy_lambda.lambda_role_arn,
+      module.court_document_package_anonymiser_lambda.lambda_role_arn
     ], local.additional_user_roles)
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_names = ["cloudwatch", "sns"]
