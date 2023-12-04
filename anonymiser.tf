@@ -33,9 +33,10 @@ module "court_document_package_anonymiser_lambda" {
 module "court_document_package_anonymiser_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.court_document_anonymiser_queue_name
-  sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
+  sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = var.account_number,
     queue_name = local.court_document_anonymiser_queue_name
+    topic_arn  = module.tre_config.terraform_config["prod"]["da_eventbus"]
   })
   redrive_maximum_receives = 5
   visibility_timeout       = 180
