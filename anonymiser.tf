@@ -44,7 +44,9 @@ module "court_document_package_anonymiser_sqs" {
 }
 
 resource "aws_sns_topic_subscription" "tre_topic_subscription" {
-  endpoint  = module.court_document_package_anonymiser_sqs.sqs_arn
-  protocol  = "sqs"
-  topic_arn = module.tre_config.terraform_config["prod"]["da_eventbus"]
+  count                = local.environment == "intg" ? 1 : 0
+  endpoint             = module.court_document_package_anonymiser_sqs.sqs_arn
+  protocol             = "sqs"
+  topic_arn            = module.tre_config.terraform_config["prod"]["da_eventbus"]
+  raw_message_delivery = true
 }
