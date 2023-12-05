@@ -279,7 +279,7 @@ module "general_slack_message_eventbridge_rule" {
   source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   event_pattern       = templatefile("${path.module}/templates/eventbridge/custom_detail_type_event_pattern.json.tpl", { detail_type = "DR2Message" })
-  name                = "${local.environment}-eventbridge-dev-slack-message"
+  name                = "${local.environment}-eventbridge-general-slack-message"
   input_transformer = {
     input_paths = {
       "slackMessage" = "$.detail.slackMessage"
