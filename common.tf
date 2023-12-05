@@ -92,7 +92,12 @@ module "dr2_kms_key" {
       module.s3_copy_lambda.lambda_role_arn,
       module.court_document_package_anonymiser_lambda.lambda_role_arn
     ], local.additional_user_roles)
-    ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
+    ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
+    service_details = [
+      { service_name = "cloudwatch" },
+      { service_name = "sns", service_source_account = module.tre_config.account_numbers["prod"] },
+      { service_name = "sns" },
+    ]
     service_names = ["cloudwatch", "sns"]
   }
 }
