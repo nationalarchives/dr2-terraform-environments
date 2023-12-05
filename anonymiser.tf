@@ -49,4 +49,6 @@ resource "aws_sns_topic_subscription" "tre_topic_subscription" {
   protocol             = "sqs"
   topic_arn            = module.tre_config.terraform_config["prod"]["da_eventbus"]
   raw_message_delivery = true
+  filter_policy_scope  = "MessageBody"
+  filter_policy        = templatefile("${path.module}/sns/tre_live_stream_filter_policy", {})
 }
