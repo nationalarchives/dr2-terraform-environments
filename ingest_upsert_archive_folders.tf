@@ -14,8 +14,8 @@ module "ingest_upsert_archive_folders_lambda" {
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
     })
   }
-  memory_size = 512
-  runtime     = "java17"
+  memory_size = local.java_lambda_memory_size
+  runtime     = local.java_runtime
   plaintext_env_vars = {
     ARCHIVE_FOLDER_TABLE_NAME = local.files_dynamo_table_name
     PRESERVICA_SECRET_NAME    = aws_secretsmanager_secret.preservica_secret.name

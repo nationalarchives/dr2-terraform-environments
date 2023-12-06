@@ -62,8 +62,8 @@ module "ingest_parsed_court_document_event_handler_lambda" {
       step_function_arn                                    = module.ingest_step_function.step_function_arn
     })
   }
-  memory_size = 512
-  runtime     = "java17"
+  memory_size = local.java_lambda_memory_size
+  runtime     = local.java_runtime
   plaintext_env_vars = {
     OUTPUT_BUCKET = local.ingest_raw_cache_bucket_name
     SFN_ARN       = module.ingest_step_function.step_function_arn
