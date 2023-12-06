@@ -1,6 +1,7 @@
 locals {
   court_document_anonymiser_lambda_name = "${local.environment}-court-document-package-anonymiser"
   court_document_anonymiser_queue_name  = "${local.environment}-court-document-package-anonymiser"
+  tre_terraform_prod_config             = module.tre_config.terraform_config["prod"]
 }
 module "court_document_package_anonymiser_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
@@ -17,7 +18,7 @@ module "court_document_package_anonymiser_lambda" {
       output_bucket_name                  = local.ingest_parsed_court_document_event_handler_test_bucket_name
       account_id                          = var.account_number
       lambda_name                         = local.court_document_anonymiser_lambda_name
-      tre_bucket_arn                      = module.tre_config.terraform_config["prod"]["s3_court_document_pack_out_arn"]
+      tre_bucket_arn                      = local.tre_terraform_prod_config["s3_court_document_pack_out_arn"]
       tre_kms_arn                         = module.tre_config.terraform_config["prod_s3_court_document_pack_out_kms_arn"]
     })
   }
@@ -36,7 +37,7 @@ module "court_document_package_anonymiser_sqs" {
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = var.account_number,
     queue_name = local.court_document_anonymiser_queue_name
-    topic_arn  = module.tre_config.terraform_config["prod"]["da_eventbus"]
+    topic_arn  = local.tre_terraform_prod_config["da_eventbus"]
   })
   redrive_maximum_receives = 5
   visibility_timeout       = 180
@@ -47,7 +48,7 @@ resource "aws_sns_topic_subscription" "tre_topic_subscription" {
   count                = local.environment == "intg" ? 1 : 0
   endpoint             = module.court_document_package_anonymiser_sqs.sqs_arn
   protocol             = "sqs"
-  topic_arn            = module.tre_config.terraform_config["prod"]["da_eventbus"]
+  topic_arn            = local.tre_terraform_prod_config["da_eventbus"]
   raw_message_delivery = true
   filter_policy_scope  = "MessageBody"
   filter_policy        = templatefile("${path.module}/templates/sns/tre_live_stream_filter_policy.json.tpl", {})
