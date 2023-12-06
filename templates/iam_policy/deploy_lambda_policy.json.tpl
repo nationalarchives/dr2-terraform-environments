@@ -11,6 +11,7 @@
     {
       "Action": [
         "lambda:GetFunctionConfiguration",
+        "lambda:GetFunction",
         "lambda:PublishVersion",
         "lambda:UpdateFunctionCode"
       ],
