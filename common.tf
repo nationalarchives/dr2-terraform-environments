@@ -9,6 +9,7 @@ locals {
   files_table_global_secondary_index_name = "BatchParentPathIdx"
   dev_notifications_channel_id            = "C052LJASZ08"
   general_notifications_channel_id        = "C068RLCPZFE"
+  tre_prod_judgment_role                  = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -90,10 +91,16 @@ module "dr2_kms_key" {
       module.ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.e2e_tests_ecs_task_role.role_arn,
       module.copy_tna_to_preservica_role.role_arn,
-      "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier",
-      module.s3_copy_lambda.lambda_role_arn
+      local.tre_prod_judgment_role,
+      module.s3_copy_lambda.lambda_role_arn,
+      module.court_document_package_anonymiser_lambda.lambda_role_arn
     ], local.additional_user_roles)
-    ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
+    ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
+    service_details = [
+      { service_name = "cloudwatch" },
+      { service_name = "sns", service_source_account = module.tre_config.account_numbers["prod"] },
+      { service_name = "sns" },
+    ]
     service_names = ["cloudwatch", "sns"]
   }
 }
