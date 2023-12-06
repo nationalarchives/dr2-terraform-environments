@@ -7,6 +7,8 @@ locals {
   additional_user_roles                   = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   files_dynamo_table_name                 = "${local.environment}-dr2-files"
   files_table_global_secondary_index_name = "BatchParentPathIdx"
+  dev_notifications_channel_id            = "C052LJASZ08"
+  general_notifications_channel_id        = "C068RLCPZFE"
   tre_prod_judgment_role                  = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
 }
 resource "random_password" "preservica_password" {
@@ -214,10 +216,6 @@ data "aws_ssm_parameter" "slack_token" {
   with_decryption = true
 }
 
-data "aws_ssm_parameter" "dr2_notifications_slack_channel" {
-  name = "/mgmt/slack/notifications/channel"
-}
-
 module "eventbridge_alarm_notifications_destination" {
   source                     = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination"
   authorisation_header_value = "Bearer ${data.aws_ssm_parameter.slack_token.value}"
@@ -243,7 +241,7 @@ module "cloudwatch_alarm_event_bridge_rule" {
       "currentValue" = "$.detail.state.value"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
-      channel_id   = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
+      channel_id   = local.dev_notifications_channel_id
       slackMessage = ":${each.value == "OK" ? "green-tick" : "alert-noflash-slow"}: Cloudwatch alarm <alarmName> has entered state <currentValue>"
     })
   }
@@ -262,7 +260,7 @@ module "failed_ingest_step_function_event_bridge_rule" {
       "status" = "$.detail.status"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
-      channel_id   = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
+      channel_id   = local.dev_notifications_channel_id
       slackMessage = ":alert-noflash-slow: Step function ${local.ingest_step_function_name} with name <name> has <status>"
     })
   }
@@ -278,7 +276,23 @@ module "dev_slack_message_eventbridge_rule" {
       "slackMessage" = "$.detail.slackMessage"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
-      channel_id   = data.aws_ssm_parameter.dr2_notifications_slack_channel.value
+      channel_id   = local.dev_notifications_channel_id
+      slackMessage = "<slackMessage>"
+    })
+  }
+}
+
+module "general_slack_message_eventbridge_rule" {
+  source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
+  api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
+  event_pattern       = templatefile("${path.module}/templates/eventbridge/custom_detail_type_event_pattern.json.tpl", { detail_type = "DR2Message" })
+  name                = "${local.environment}-eventbridge-general-slack-message"
+  input_transformer = {
+    input_paths = {
+      "slackMessage" = "$.detail.slackMessage"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
+      channel_id   = local.general_notifications_channel_id
       slackMessage = "<slackMessage>"
     })
   }
