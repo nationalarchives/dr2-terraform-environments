@@ -22,6 +22,18 @@
         "value": "${environment}"
       }
     ],
+    "mountPoints": [
+      {
+        "sourceVolume": "test",
+        "containerPath": "/tests/boot",
+        "readOnly": false
+      },
+      {
+        "sourceVolume": "tmp",
+        "containerPath": "/tmp",
+        "readOnly": false
+      }
+    ],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {

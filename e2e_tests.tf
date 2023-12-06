@@ -71,4 +71,10 @@ resource "aws_ecs_task_definition" "e2e_tests" {
   cpu                      = "1024"
   memory                   = "2048"
   family                   = "e2e-tests"
+  volume {
+    name = "test"
+  }
+  volume {
+    name = "tmp"
+  }
 }
