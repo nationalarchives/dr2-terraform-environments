@@ -13,8 +13,8 @@ module "ingest_parent_folder_opex_creator_lambda" {
       lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
     })
   }
-  memory_size = 512
-  runtime     = "java17"
+  memory_size = local.java_lambda_memory_size
+  runtime     = local.java_runtime
   plaintext_env_vars = {
     STAGING_CACHE_BUCKET = local.ingest_staging_cache_bucket_name
   }

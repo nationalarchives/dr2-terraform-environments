@@ -17,8 +17,8 @@ module "ingest_asset_opex_creator_lambda" {
 
     })
   }
-  memory_size = 512
-  runtime     = "java17"
+  memory_size = local.java_lambda_memory_size
+  runtime     = local.java_runtime
   plaintext_env_vars = {
     DYNAMO_TABLE_NAME  = local.files_dynamo_table_name
     DYNAMO_GSI_NAME    = local.files_table_global_secondary_index_name

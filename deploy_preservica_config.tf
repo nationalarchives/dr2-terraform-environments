@@ -61,8 +61,8 @@ module "preservica_config_lambda" {
       lambda_name                = local.preservica_config_lambda_name
     })
   }
-  memory_size = 512
-  runtime     = "java17"
+  memory_size = local.java_lambda_memory_size
+  runtime     = local.java_runtime
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
     security_group_ids = [module.outbound_https_access_only.security_group_id]

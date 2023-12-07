@@ -13,8 +13,8 @@ module "ingest_start_workflow_lambda" {
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
     })
   }
-  memory_size = 512
-  runtime     = "java17"
+  memory_size = local.java_lambda_memory_size
+  runtime     = local.java_runtime
   plaintext_env_vars = {
     PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_secret.name
     PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
