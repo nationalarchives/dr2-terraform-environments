@@ -301,3 +301,20 @@ module "general_slack_message_eventbridge_rule" {
     })
   }
 }
+
+module "security_hub_eventbridge_rule" {
+  source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
+  api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
+  event_pattern       = templatefile("${path.module}/templates/eventbridge/security_hub_event_pattern.json.tpl", {})
+  name                = "${local.environment}-security-hub"
+  input_transformer = {
+    input_paths = {
+      "id" : "$.detail.findings[0].Resources[0].Id",
+      "title" : "$.detail.findings[0].Title"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
+      channel_id   = local.dev_notifications_channel_id
+      slackMessage = ":alert-noflash-slow: Security Hub finding for `<id>` <title>"
+    })
+  }
+}
