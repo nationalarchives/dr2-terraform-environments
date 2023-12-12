@@ -15,7 +15,7 @@ module "s3_copy_lambda" {
     })
   }
   timeout_seconds = 180
-  memory_size     = local.java_lambda_memory_size
+  memory_size     = 1024
   runtime         = local.java_runtime
   tags            = {}
   plaintext_env_vars = {
