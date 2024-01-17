@@ -1,5 +1,5 @@
 locals {
-  disaster_recovery_bucket_name           = "${local.environment}-disaster-recovery"
+  disaster_recovery_bucket_name           = "${local.environment}-dr2-disaster-recovery"
   download_files_and_metadata_lambda_name = "${local.environment}-download-files-and-metadata"
   download_metadata_and_files_queue_name  = "${local.environment}-download-files-and-metadata"
 }
