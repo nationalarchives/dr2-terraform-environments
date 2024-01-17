@@ -4,16 +4,17 @@ locals {
   tre_terraform_prod_config             = module.tre_config.terraform_config["prod"]
 }
 module "court_document_package_anonymiser_lambda" {
+  count           = local.environment == "intg" ? 1 : 0
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.court_document_anonymiser_lambda_name
   handler         = "bootstrap"
   timeout_seconds = 30
   lambda_sqs_queue_mappings = {
-    court_document_package_anonymiser_queue = module.court_document_package_anonymiser_sqs.sqs_arn
+    court_document_package_anonymiser_queue = module.court_document_package_anonymiser_sqs[count.index].sqs_arn
   }
   policies = {
     "${local.court_document_anonymiser_lambda_name}-policy" = templatefile("./templates/iam_policy/anonymiser_lambda_policy.json.tpl", {
-      anonymiser_test_input_queue         = module.court_document_package_anonymiser_sqs.sqs_arn
+      anonymiser_test_input_queue         = module.court_document_package_anonymiser_sqs[count.index].sqs_arn
       ingest_court_document_handler_queue = module.ingest_parsed_court_document_event_handler_sqs.sqs_arn
       output_bucket_name                  = local.ingest_parsed_court_document_event_handler_test_bucket_name
       account_id                          = var.account_number
@@ -32,6 +33,7 @@ module "court_document_package_anonymiser_lambda" {
 }
 
 module "court_document_package_anonymiser_sqs" {
+  count      = local.environment == "intg" ? 1 : 0
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.court_document_anonymiser_queue_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
@@ -46,7 +48,7 @@ module "court_document_package_anonymiser_sqs" {
 
 resource "aws_sns_topic_subscription" "tre_topic_subscription" {
   count                = local.environment == "intg" ? 1 : 0
-  endpoint             = module.court_document_package_anonymiser_sqs.sqs_arn
+  endpoint             = module.court_document_package_anonymiser_sqs[count.index].sqs_arn
   protocol             = "sqs"
   topic_arn            = local.tre_terraform_prod_config["da_eventbus"]
   raw_message_delivery = true
