@@ -51,8 +51,8 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:s3:::prod-tre-court-document-pack-out",
-        "arn:aws:s3:::prod-tre-court-document-pack-out/*"
+        "${tre_bucket_arn}",
+        "${tre_bucket_arn}/*"
       ],
       "Sid": "readFromTREBucket"
     },
