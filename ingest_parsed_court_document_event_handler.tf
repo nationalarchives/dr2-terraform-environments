@@ -36,9 +36,10 @@ module "copy_from_tre_bucket_policy" {
 module "ingest_parsed_court_document_event_handler_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_parsed_court_document_event_handler_queue_name
-  sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
-    account_id = var.account_number, //TODO Restrict this to the SNS topic ARN when it's created
+  sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
+    account_id = var.account_number,
     queue_name = local.ingest_parsed_court_document_event_handler_queue_name
+    topic_arn  = local.tre_terraform_prod_config["da_eventbus"]
   })
   redrive_maximum_receives = 5
   visibility_timeout       = 180
