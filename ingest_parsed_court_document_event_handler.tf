@@ -74,3 +74,14 @@ module "ingest_parsed_court_document_event_handler_lambda" {
     CreatedBy = "dr2-terraform-environments"
   }
 }
+
+resource "aws_sns_topic_subscription" "tre_topic_court_document_subscription" {
+  # Only do this for prod now. We might do staging if that ends up pointing to prod Preservica
+  count                = local.environment == "prod" ? 1 : 0
+  endpoint             = module.ingest_parsed_court_document_event_handler_sqs.sqs_arn
+  protocol             = "sqs"
+  topic_arn            = local.tre_terraform_prod_config["da_eventbus"]
+  raw_message_delivery = true
+  filter_policy_scope  = "MessageBody"
+  filter_policy        = templatefile("${path.module}/templates/sns/tre_live_stream_filter_policy.json.tpl", {})
+}
