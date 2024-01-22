@@ -31,9 +31,9 @@
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException"
           ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 10,
-          "BackoffRate": 4
+          "IntervalSeconds": 5,
+          "MaxAttempts": 15,
+          "BackoffRate": 1
         }
       ],
       "Next": "Map over each Asset Id",
