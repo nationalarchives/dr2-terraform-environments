@@ -7,8 +7,8 @@ locals {
   additional_user_roles                   = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   files_dynamo_table_name                 = "${local.environment}-dr2-files"
   files_table_global_secondary_index_name = "BatchParentPathIdx"
-  dev_notifications_channel_id            = local.environment == "prod" ? "C06EDJPF0VB" : "C052LJASZ08"
-  general_notifications_channel_id        = local.environment == "prod" ? "C06E20AR65V" : "C068RLCPZFE"
+  dev_notifications_channel_id            = "C052LJASZ08"
+  general_notifications_channel_id        = "C068RLCPZFE"
   tre_prod_judgment_role                  = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
   java_runtime                            = "java21"
   java_lambda_memory_size                 = 512

@@ -2,6 +2,7 @@ locals {
   ingest_parsed_court_document_event_handler_queue_name       = "${local.environment}-ingest-parsed-court-document-event-handler"
   ingest_parsed_court_document_event_handler_test_bucket_name = "${local.environment}-ingest-parsed-court-document-test-input"
   ingest_parsed_court_document_event_handler_lambda_name      = "${local.environment}-ingest-parsed-court-document-event-handler"
+  tre_prod_event_bus                                          = local.tre_terraform_prod_config["da_eventbus"]
 }
 
 module "ingest_parsed_court_document_event_handler_test_input_bucket" {
@@ -36,9 +37,10 @@ module "copy_from_tre_bucket_policy" {
 module "ingest_parsed_court_document_event_handler_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_parsed_court_document_event_handler_queue_name
-  sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
-    account_id = var.account_number, //TODO Restrict this to the SNS topic ARN when it's created
+  sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
+    account_id = var.account_number,
     queue_name = local.ingest_parsed_court_document_event_handler_queue_name
+    topic_arn  = local.tre_prod_event_bus
   })
   redrive_maximum_receives = 5
   visibility_timeout       = 180
@@ -72,4 +74,15 @@ module "ingest_parsed_court_document_event_handler_lambda" {
     Name      = local.ingest_parsed_court_document_event_handler_lambda_name
     CreatedBy = "dr2-terraform-environments"
   }
+}
+
+resource "aws_sns_topic_subscription" "tre_topic_court_document_subscription" {
+  # Only do this for prod now. We might do staging if that ends up pointing to prod Preservica
+  count                = local.environment == "prod" ? 1 : 0
+  endpoint             = module.ingest_parsed_court_document_event_handler_sqs.sqs_arn
+  protocol             = "sqs"
+  topic_arn            = local.tre_prod_event_bus
+  raw_message_delivery = true
+  filter_policy_scope  = "MessageBody"
+  filter_policy        = templatefile("${path.module}/templates/sns/tre_live_stream_filter_policy.json.tpl", {})
 }
