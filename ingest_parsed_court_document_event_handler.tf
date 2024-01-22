@@ -2,6 +2,7 @@ locals {
   ingest_parsed_court_document_event_handler_queue_name       = "${local.environment}-ingest-parsed-court-document-event-handler"
   ingest_parsed_court_document_event_handler_test_bucket_name = "${local.environment}-ingest-parsed-court-document-test-input"
   ingest_parsed_court_document_event_handler_lambda_name      = "${local.environment}-ingest-parsed-court-document-event-handler"
+  court_document_lambda_policy_template_suffix                = local.environment == "prod" ? "_prod" : ""
   tre_prod_event_bus                                          = local.tre_terraform_prod_config["da_eventbus"]
 }
 
@@ -56,12 +57,14 @@ module "ingest_parsed_court_document_event_handler_lambda" {
     ingest_parsed_court_document_event_handler_queue = module.ingest_parsed_court_document_event_handler_sqs.sqs_arn
   }
   policies = {
-    "${local.ingest_parsed_court_document_event_handler_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_parsed_court_document_event_handler_lambda_policy.json.tpl", {
+    "${local.ingest_parsed_court_document_event_handler_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_parsed_court_document_event_handler_lambda_policy${local.court_document_lambda_policy_template_suffix}.json.tpl", {
       ingest_parsed_court_document_event_handler_queue_arn = module.ingest_parsed_court_document_event_handler_sqs.sqs_arn
       bucket_name                                          = local.ingest_raw_cache_bucket_name
       account_id                                           = var.account_number
       lambda_name                                          = local.ingest_parsed_court_document_event_handler_lambda_name
       step_function_arn                                    = module.ingest_step_function.step_function_arn
+      tre_kms_arn                                          = module.tre_config.terraform_config["prod_s3_court_document_pack_out_kms_arn"]
+      tre_bucket_arn                                       = local.tre_terraform_prod_config["s3_court_document_pack_out_arn"]
     })
   }
   memory_size = local.java_lambda_memory_size
