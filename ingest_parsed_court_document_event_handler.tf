@@ -3,6 +3,7 @@ locals {
   ingest_parsed_court_document_event_handler_test_bucket_name = "${local.environment}-ingest-parsed-court-document-test-input"
   ingest_parsed_court_document_event_handler_lambda_name      = "${local.environment}-ingest-parsed-court-document-event-handler"
   court_document_lambda_policy_template_suffix                = local.environment == "prod" ? "_prod" : ""
+  court_document_queue_sqs_policy                             = local.environment == "prod" ? "sns_send_message_policy" : "sqs_access_policy"
   tre_prod_event_bus                                          = local.tre_terraform_prod_config["da_eventbus"]
 }
 
@@ -38,7 +39,7 @@ module "copy_from_tre_bucket_policy" {
 module "ingest_parsed_court_document_event_handler_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_parsed_court_document_event_handler_queue_name
-  sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
+  sqs_policy = templatefile("./templates/sqs/${local.court_document_queue_sqs_policy}.json.tpl", {
     account_id = var.account_number,
     queue_name = local.ingest_parsed_court_document_event_handler_queue_name
     topic_arn  = local.tre_prod_event_bus
