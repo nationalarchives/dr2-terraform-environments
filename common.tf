@@ -14,6 +14,7 @@ locals {
   java_lambda_memory_size                 = 512
   python_runtime                          = "python3.11"
   python_lambda_memory_size               = 128
+  step_function_failure_log_group         = "step-function-failures"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -258,7 +259,7 @@ module "failed_ingest_step_function_event_bridge_rule" {
   })
   name                = "${local.environment}-eventbridge-ingest-step-function-failure"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
-  input_transformer = {
+  api_destination_input_transformer = {
     input_paths = {
       "name"   = "$.detail.name",
       "status" = "$.detail.status"
@@ -268,7 +269,21 @@ module "failed_ingest_step_function_event_bridge_rule" {
       slackMessage = ":alert-noflash-slow: Step function ${local.ingest_step_function_name} with name <name> has <status>"
     })
   }
+  log_group_destination_input_transformer = {
+    log_group_name = local.step_function_failure_log_group
+    input_paths = {
+      "name"      = "$.detail.name",
+      "status"    = "$.detail.status",
+      "startDate" = "$.detail.startDate"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/cloudwatch_message_input_template.json.tpl", {
+      message = "Step function ${local.ingest_step_function_name} with name <name> has <status>"
+    })
+  }
+
 }
+
+
 
 module "dev_slack_message_eventbridge_rule" {
   source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
@@ -300,4 +315,18 @@ module "general_slack_message_eventbridge_rule" {
       slackMessage = "<slackMessage>"
     })
   }
+}
+
+resource "aws_cloudwatch_log_resource_policy" "eventbridge_resource_policy" {
+  policy_document = templatefile("${path.module}/templates/logs/logs_resource_policy.json.tpl", { account_id = data.aws_caller_identity.current.account_id })
+  policy_name     = "TrustEventsToStoreLogEvents"
+}
+
+resource "aws_cloudwatch_dashboard" "ingest_dashboard" {
+  dashboard_body = templatefile("${path.module}/templates/logs/ingest_dashboard.json.tpl", {
+    account_id                      = data.aws_caller_identity.current.account_id,
+    environment                     = local.environment,
+    step_function_failure_log_group = local.step_function_failure_log_group
+  })
+  dashboard_name = "IngestDashboard"
 }
