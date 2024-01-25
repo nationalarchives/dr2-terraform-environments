@@ -8,9 +8,9 @@ module "court_document_package_anonymiser_lambda" {
   function_name   = local.court_document_anonymiser_lambda_name
   handler         = "bootstrap"
   timeout_seconds = 30
-  lambda_sqs_queue_mappings = {
-    court_document_package_anonymiser_queue = module.court_document_package_anonymiser_sqs.sqs_arn
-  }
+  lambda_sqs_queue_mappings = [{
+    sqs_queue_arn = module.court_document_package_anonymiser_sqs.sqs_arn
+  }]
   policies = {
     "${local.court_document_anonymiser_lambda_name}-policy" = templatefile("./templates/iam_policy/anonymiser_lambda_policy.json.tpl", {
       anonymiser_test_input_queue         = module.court_document_package_anonymiser_sqs.sqs_arn

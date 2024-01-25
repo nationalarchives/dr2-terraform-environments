@@ -47,9 +47,9 @@ module "preservica_config_lambda" {
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name = local.preservica_config_lambda_name
   handler       = "uk.gov.nationalarchives.dp.Lambda::handleRequest"
-  lambda_sqs_queue_mappings = {
-    preservica_config_queue = module.preservica_config_queue.sqs_arn
-  }
+  lambda_sqs_queue_mappings = [{
+    sqs_queue_arn = module.preservica_config_queue.sqs_arn
+  }]
   timeout_seconds       = 60
   log_group_kms_key_arn = module.dr2_developer_key.kms_key_arn
   policies = {

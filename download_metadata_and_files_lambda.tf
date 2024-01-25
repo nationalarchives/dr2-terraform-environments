@@ -8,9 +8,9 @@ module "download_metadata_and_files_lambda" {
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name = local.download_files_and_metadata_lambda_name
   handler       = "uk.gov.nationalarchives.Lambda::handleRequest"
-  lambda_sqs_queue_mappings = {
-    download_files_queue = module.download_files_sqs.sqs_arn
-  }
+  lambda_sqs_queue_mappings = [{
+    sqs_queue_arn = module.download_files_sqs.sqs_arn
+  }]
   policies = {
     "${local.download_files_and_metadata_lambda_name}-policy" = templatefile("./templates/iam_policy/download_files_metadata_policy.json.tpl", {
       secrets_manager_secret_arn   = "arn:aws:secretsmanager:eu-west-2:${var.account_number}:secret:sandbox-preservica-6-preservicav6login-INFTcQ",
