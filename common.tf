@@ -240,7 +240,7 @@ module "cloudwatch_alarm_event_bridge_rule" {
   })
   name                = "${local.environment}-eventbridge-alarm-state-change-${lower(each.value)}"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
-  input_transformer = {
+  api_destination_input_transformer = {
     input_paths = {
       "alarmName"    = "$.detail.alarmName",
       "currentValue" = "$.detail.state.value"
@@ -290,7 +290,7 @@ module "dev_slack_message_eventbridge_rule" {
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   event_pattern       = templatefile("${path.module}/templates/eventbridge/custom_detail_type_event_pattern.json.tpl", { detail_type = "DR2DevMessage" })
   name                = "${local.environment}-eventbridge-dev-slack-message"
-  input_transformer = {
+  api_destination_input_transformer = {
     input_paths = {
       "slackMessage" = "$.detail.slackMessage"
     }
@@ -306,7 +306,7 @@ module "general_slack_message_eventbridge_rule" {
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   event_pattern       = templatefile("${path.module}/templates/eventbridge/custom_detail_type_event_pattern.json.tpl", { detail_type = "DR2Message" })
   name                = "${local.environment}-eventbridge-general-slack-message"
-  input_transformer = {
+  api_destination_input_transformer = {
     input_paths = {
       "slackMessage" = "$.detail.slackMessage"
     }
