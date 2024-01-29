@@ -84,14 +84,20 @@
         "allFolders": {
           "archiveHierarchyFolders.$": "$.archiveHierarchyFolders",
           "contentFolders.$": "$.contentFolders"
-        }
+        },
+        "contentAssets.$": "$.contentAssets"
       }
     },
     "Merge array": {
       "Type": "Pass",
       "Next": "Map over each Folder Id",
       "Parameters": {
-        "allFolders.$": "$.allFolders.[*]*"
+        "allFolders.$": "$.allFolders.[*]*",
+        "contentAssets.$": "$.contentAssets",
+        "executionId.$": "$$.Execution.Name",
+        "workflowContextName": "Ingest OPEX (Incremental)",
+        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
+        "stagingBucket": "${ingest_staging_cache_bucket_name}"
       }
     },
     "Map over each Folder Id": {
@@ -128,16 +134,17 @@
           }
         }
       },
-      "Next": "Create '.opex' manifest file for ingest container folder",
-      "ResultSelector": {
-        "executionId.$": "$$.Execution.Name",
-        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
-        "stagingBucket": "${ingest_staging_cache_bucket_name}"
-      }
+      "ResultPath": null,
+      "Next": "Create '.opex' manifest file for ingest container folder"
     },
     "Create '.opex' manifest file for ingest container folder": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_parent_folder_opex_creator_lambda_name}",
+      "Parameters": {
+        "executionId.$": "$$.Execution.Name",
+        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
+        "stagingBucket": "${ingest_staging_cache_bucket_name}"
+      },
       "Retry": [
         {
           "ErrorEquals": [
@@ -204,10 +211,7 @@
           "preservicaBucket": "${preservica_bucket_name}"
         }
       },
-      "ResultSelector": {
-        "workflowContextName": "Ingest OPEX (Incremental)",
-        "executionId.$": "$$.Execution.Name"
-      }
+      "ResultPath": null
     },
     "Start workflow": {
       "Type": "Task",
