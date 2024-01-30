@@ -5,6 +5,8 @@ locals {
   ingest_staging_cache_bucket_name        = "${local.environment}-dr2-ingest-staging-cache"
   ingest_step_function_name               = "${local.environment_title}-ingest"
   additional_user_roles                   = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  anonymiser_roles                        = local.environment == "intg" ? [module.court_document_package_anonymiser_lambda[0].lambda_role_arn] : []
+  anonymiser_lambda_arns                  = local.environment == "intg" ? module.court_document_package_anonymiser_lambda.*.lambda_arn : []
   files_dynamo_table_name                 = "${local.environment}-dr2-files"
   files_table_global_secondary_index_name = "BatchParentPathIdx"
   dev_notifications_channel_id            = "C052LJASZ08"
@@ -97,9 +99,8 @@ module "dr2_kms_key" {
       module.e2e_tests_ecs_task_role.role_arn,
       module.copy_tna_to_preservica_role.role_arn,
       local.tre_prod_judgment_role,
-      module.s3_copy_lambda.lambda_role_arn,
-      module.court_document_package_anonymiser_lambda.lambda_role_arn
-    ], local.additional_user_roles)
+      module.s3_copy_lambda.lambda_role_arn
+    ], local.additional_user_roles, local.anonymiser_roles)
     ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_details = [
       { service_name = "cloudwatch" },
