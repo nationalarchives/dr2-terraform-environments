@@ -37,9 +37,7 @@
       "properties": {
         "title": "SQS DLQ Alarms",
         "alarms": [
-          "arn:aws:cloudwatch:eu-west-2:${account_id}:alarm:${environment}-ingest-parsed-court-document-event-handler-dlq-alarm",
-          "arn:aws:cloudwatch:eu-west-2:${account_id}:alarm:${environment}-court-document-package-anonymiser-dlq-alarm",
-          "arn:aws:cloudwatch:eu-west-2:${account_id}:alarm:${environment}-download-files-and-metadata-dlq-alarm"
+          "arn:aws:cloudwatch:eu-west-2:${account_id}:alarm:${environment}-ingest-parsed-court-document-event-handler-dlq-alarm"
         ]
       }
     },
