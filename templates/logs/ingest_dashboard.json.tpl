@@ -7,7 +7,7 @@
       "x": 0,
       "type": "log",
       "properties": {
-        "query": "SOURCE '/aws/lambda/${environment}-ingest-parsed-court-document-event-handler' | SOURCE '/aws/lambda/${environment}-ingest-mapper' | SOURCE '/aws/lambda/${environment}-court-document-package-anonymiser' | SOURCE '/aws/lambda/${environment}-ingest-asset-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-folder-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-parent-folder-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-start-workflow' | SOURCE '/aws/lambda/${environment}-ingest-upsert-archive-folders' | SOURCE '/aws/lambda/${environment}-s3-copy' | fields @timestamp, message, error.message, log.level, @logStream\n| filter log.level == \"ERROR\"\n| sort @timestamp, batchRef desc\n| limit 20",
+        "query": "SOURCE '/aws/lambda/${environment}-ingest-parsed-court-document-event-handler' | SOURCE '/aws/lambda/${environment}-ingest-mapper' | SOURCE '/aws/lambda/${environment}-ingest-asset-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-folder-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-parent-folder-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-start-workflow' | SOURCE '/aws/lambda/${environment}-ingest-upsert-archive-folders' | SOURCE '/aws/lambda/${environment}-s3-copy' | fields @timestamp, message, error.message, log.level, @logStream\n| filter log.level == \"ERROR\"\n| sort @timestamp, batchRef desc\n| limit 20",
         "region": "eu-west-2",
         "stacked": false,
         "title": "Errors",
