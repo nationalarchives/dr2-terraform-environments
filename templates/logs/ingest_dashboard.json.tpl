@@ -7,7 +7,7 @@
       "x": 0,
       "type": "log",
       "properties": {
-        "query": "SOURCE '/aws/lambda/${environment}-ingest-parsed-court-document-event-handler' | SOURCE '/aws/lambda/${environment}-ingest-mapper' | SOURCE '/aws/lambda/${environment}-court-document-package-anonymiser' | SOURCE '/aws/lambda/${environment}-ingest-asset-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-folder-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-parent-folder-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-start-workflow' | SOURCE '/aws/lambda/${environment}-ingest-upsert-archive-folders' | SOURCE '/aws/lambda/${environment}-s3-copy' | fields @timestamp, message, error.message, log.level, @logStream\n| filter log.level == \"ERROR\"\n| sort @timestamp, batchRef desc\n| limit 20",
+        "query": "SOURCE '/aws/lambda/${environment}-ingest-parsed-court-document-event-handler' | SOURCE '/aws/lambda/${environment}-ingest-mapper' | SOURCE '/aws/lambda/${environment}-ingest-asset-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-folder-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-parent-folder-opex-creator' | SOURCE '/aws/lambda/${environment}-ingest-start-workflow' | SOURCE '/aws/lambda/${environment}-ingest-upsert-archive-folders' | SOURCE '/aws/lambda/${environment}-s3-copy' | fields @timestamp, message, error.message, log.level, @logStream\n| filter log.level == \"ERROR\"\n| sort @timestamp, batchRef desc\n| limit 20",
         "region": "eu-west-2",
         "stacked": false,
         "title": "Errors",
@@ -37,9 +37,7 @@
       "properties": {
         "title": "SQS DLQ Alarms",
         "alarms": [
-          "arn:aws:cloudwatch:eu-west-2:${account_id}:alarm:${environment}-ingest-parsed-court-document-event-handler-dlq-alarm",
-          "arn:aws:cloudwatch:eu-west-2:${account_id}:alarm:${environment}-court-document-package-anonymiser-dlq-alarm",
-          "arn:aws:cloudwatch:eu-west-2:${account_id}:alarm:${environment}-download-files-and-metadata-dlq-alarm"
+          "arn:aws:cloudwatch:eu-west-2:${account_id}:alarm:${environment}-ingest-parsed-court-document-event-handler-dlq-alarm"
         ]
       }
     },
