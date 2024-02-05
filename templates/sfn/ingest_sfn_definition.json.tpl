@@ -216,7 +216,6 @@
     "Start workflow": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": "$.Payload",
       "Parameters": {
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_start_workflow_lambda_name}",
         "Payload.$": "$"
@@ -234,7 +233,64 @@
           "BackoffRate": 2
         }
       ],
-      "End": true
+      "ResultPath": null,
+      "Next": "Wait 5 minutes before getting status"
+    },
+    "Wait 5 minutes before getting status": {
+      "Type": "Wait",
+      "Next": "Get workflow status",
+      "Seconds": 300
+    },
+    "Get workflow status": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_workflow_monitor_lambda_name}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Check workflow status and get Succeeded, Failed and Duplicated asset ids"
+    },
+    "Check workflow status and get Succeeded, Failed and Duplicated asset ids": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Payload.status",
+          "StringEquals": "Failed",
+          "Next": "Job Failed"
+        },
+        {
+          "Variable": "$.Payload.status",
+          "StringEquals": "Succeeded",
+          "Next": "Success"
+        }
+      ],
+      "Default": "Wait 1 minute"
+    },
+    "Wait 1 minute": {
+      "Type": "Wait",
+      "Next": "Get workflow status",
+      "Seconds": 60
+    },
+    "Success": {
+      "Type": "Succeed"
+    },
+    "Job Failed": {
+      "Type": "Fail",
+      "Cause": "AWS Batch Job Failed",
+      "Error": "'Check workflow status' task returned Failed"
     }
   }
 }
