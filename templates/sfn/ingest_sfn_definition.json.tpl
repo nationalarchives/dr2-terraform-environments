@@ -159,59 +159,62 @@
         }
       ],
       "ResultPath": null,
-      "Next": "Staging cache S3 object keys"
+      "Next": "Start datasync task"
     },
-    "Staging cache S3 object keys": {
-      "Type": "Map",
-      "ItemProcessor": {
-        "ProcessorConfig": {
-          "Mode": "DISTRIBUTED",
-          "ExecutionType": "STANDARD"
-        },
-        "StartAt": "Copy to Preservica bucket",
-        "States": {
-          "Copy to Preservica bucket": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "Payload.$": "$",
-              "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_s3_copy_lambda_name}"
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException",
-                  "Lambda.TooManyRequestsException"
-                ],
-                "IntervalSeconds": 1,
-                "MaxAttempts": 3,
-                "BackoffRate": 2
-              }
-            ],
-            "End": true
+    "Start datasync task": {
+      "Type": "Task",
+      "Next": "Wait 20 Seconds",
+      "Parameters": {
+        "TaskArn": "${datasync_task_arn}",
+        "Includes": [
+          {
+            "FilterType": "SIMPLE_PATTERN",
+            "Value.$": "States.Format('/opex/{}', $$.Execution.Name)"
           }
-        }
+        ]
       },
-      "ItemReader": {
-        "Resource": "arn:aws:states:::s3:listObjectsV2",
-        "Parameters": {
-          "Bucket.$": "$.stagingBucket",
-          "Prefix.$": "$.stagingPrefix"
-        }
+      "Resource": "arn:aws:states:::aws-sdk:datasync:startTaskExecution",
+      "Credentials": {
+        "RoleArn": "${tna_to_preservica_role_arn}"
       },
-      "MaxConcurrency": 1000,
-      "Label": "StagingCacheS3ObjectKeys",
-      "Next": "Start workflow",
-      "ItemBatcher": {
-        "MaxItemsPerBatch": 10,
-        "BatchInput": {
-          "tnaBucket": "${ingest_staging_cache_bucket_name}",
-          "preservicaBucket": "${preservica_bucket_name}"
-        }
+      "ResultPath": "$.datasyncExecution"
+    },
+    "Wait 20 Seconds": {
+      "Type": "Wait",
+      "Next": "DescribeTaskExecution",
+      "Seconds": 20
+    },
+    "DescribeTaskExecution": {
+      "Type": "Task",
+      "Next": "Job Complete?",
+      "Parameters": {
+        "TaskExecutionArn.$": "$.datasyncExecution.TaskExecutionArn"
       },
-      "ResultPath": null
+      "Resource": "arn:aws:states:::aws-sdk:datasync:describeTaskExecution",
+      "Credentials": {
+        "RoleArn": "${tna_to_preservica_role_arn}"
+      },
+      "ResultSelector": {
+        "TaskExecutionArn.$": "$.TaskExecutionArn",
+        "Status.$": "$.Status"
+      },
+      "ResultPath": "$.datasyncExecution"
+    },
+    "Job Complete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.datasyncExecution.Status",
+          "StringEquals": "ERROR",
+          "Next": "Fail"
+        },
+        {
+          "Variable": "$.datasyncExecution.Status",
+          "StringEquals": "SUCCESS",
+          "Next": "Start workflow"
+        }
+      ],
+      "Default": "Wait 20 Seconds"
     },
     "Start workflow": {
       "Type": "Task",
@@ -235,6 +238,9 @@
         }
       ],
       "End": true
+    },
+    "Fail": {
+      "Type": "Fail"
     }
   }
 }

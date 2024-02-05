@@ -32,3 +32,17 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias  = "datasync_tna_to_preservica"
+  region = "eu-west-2"
+  assume_role {
+    role_arn     = "arn:aws:iam::${var.account_number}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
+    session_name = "tna_to_preservica"
+  }
+  default_tags {
+    tags = {
+      Environment = local.environment
+      CreatedBy   = "dr2-terraform-environments"
+    }
+  }
+}
