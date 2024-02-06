@@ -24,7 +24,6 @@ module "ingest_workflow_monitor_lambda" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   tags = {
-    Name      = local.ingest_workflow_monitor_lambda_name
-    CreatedBy = "dp-terraform-environments"
+    Name = local.ingest_workflow_monitor_lambda_name
   }
 }
