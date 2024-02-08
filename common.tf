@@ -204,14 +204,14 @@ resource "aws_datasync_location_s3" "preservica_staging_location" {
 }
 
 resource "aws_cloudwatch_log_group" "datasync_log_group" {
-  name = "/aws/datasync"
+  name = "/aws/datasync/tna-to-preservica-copy"
 }
 
 resource "aws_datasync_task" "tna_to_preservica_copy" {
   provider                 = aws.datasync_tna_to_preservica
   destination_location_arn = aws_datasync_location_s3.preservica_staging_location.arn
   source_location_arn      = aws_datasync_location_s3.tna_staging_location.arn
-  cloudwatch_log_group_arn = "arn:aws:logs:eu-west-2:${data.aws_caller_identity.current.account_id}:log-group:/aws/datasync:*"
+  cloudwatch_log_group_arn = aws_cloudwatch_log_group.datasync_log_group.arn
   options {
     log_level         = "TRANSFER"
     posix_permissions = "NONE"
