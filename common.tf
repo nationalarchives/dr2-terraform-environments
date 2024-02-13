@@ -17,6 +17,9 @@ locals {
   python_runtime                          = "python3.11"
   python_lambda_memory_size               = 128
   step_function_failure_log_group         = "step-function-failures"
+  preservica_tenant                       = local.environment == "prod" ? "tna" : "tnatest"
+  preservica_ingest_bucket                = "com.preservica.${local.preservica_tenant}.bulk1"
+  tna_to_preservica_role_arn              = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -97,9 +100,9 @@ module "dr2_kms_key" {
       module.ingest_upsert_archive_folders_lambda.lambda_role_arn,
       module.ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.e2e_tests_ecs_task_role.role_arn,
-      module.copy_tna_to_preservica_role.role_arn,
+      local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
-      module.s3_copy_lambda.lambda_role_arn
+      module.s3_copy_lambda.lambda_role_arn,
     ], local.additional_user_roles, local.anonymiser_roles)
     ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_details = [
@@ -174,11 +177,49 @@ module "ingest_step_function" {
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     preservica_bucket_name                        = local.preservica_ingest_bucket
+    datasync_task_arn                             = aws_datasync_task.tna_to_preservica_copy.arn
+    tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
     step_function_policy = module.ingest_step_function_policy.policy_arn
   }
+}
+
+resource "aws_datasync_location_s3" "tna_staging_location" {
+  provider      = aws.datasync_tna_to_preservica
+  s3_bucket_arn = "arn:aws:s3:::${local.ingest_staging_cache_bucket_name}"
+  subdirectory  = "/"
+  s3_config {
+    bucket_access_role_arn = local.tna_to_preservica_role_arn
+  }
+}
+
+resource "aws_datasync_location_s3" "preservica_staging_location" {
+  provider      = aws.datasync_tna_to_preservica
+  s3_bucket_arn = "arn:aws:s3:::${local.preservica_ingest_bucket}"
+  subdirectory  = "/"
+  s3_config {
+    bucket_access_role_arn = local.tna_to_preservica_role_arn
+  }
+}
+
+resource "aws_cloudwatch_log_group" "datasync_log_group" {
+  name = "/aws/datasync/tna-to-preservica-copy"
+}
+
+resource "aws_datasync_task" "tna_to_preservica_copy" {
+  provider                 = aws.datasync_tna_to_preservica
+  destination_location_arn = aws_datasync_location_s3.preservica_staging_location.arn
+  source_location_arn      = aws_datasync_location_s3.tna_staging_location.arn
+  cloudwatch_log_group_arn = aws_cloudwatch_log_group.datasync_log_group.arn
+  options {
+    log_level         = "TRANSFER"
+    posix_permissions = "NONE"
+    uid               = "NONE"
+    gid               = "NONE"
+  }
+  name = "${local.environment}-tna-to-preservica-copy"
 }
 
 module "ingest_step_function_policy" {
@@ -196,6 +237,7 @@ module "ingest_step_function_policy" {
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     ingest_sfn_name                               = local.ingest_step_function_name
+    tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
 }
 

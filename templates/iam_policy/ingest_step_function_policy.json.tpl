@@ -7,7 +7,7 @@
         "states:RedriveExecution",
         "lambda:InvokeFunction",
         "states:StartExecution",
-        "s3:ListBucket"
+        "sts:AssumeRole"
       ],
       "Resource": [
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
@@ -21,7 +21,7 @@
         "arn:aws:states:eu-west-2:${account_id}:stateMachine:${ingest_sfn_name}",
         "arn:aws:states:eu-west-2:${account_id}:execution:${ingest_sfn_name}/StagingCacheS3ObjectKeys:*",
         "arn:aws:states:eu-west-2:${account_id}:execution:${ingest_sfn_name}:*",
-        "arn:aws:s3:::${ingest_staging_cache_bucket_name}"
+        "${tna_to_preservica_role_arn}"
       ]
     }
   ],
