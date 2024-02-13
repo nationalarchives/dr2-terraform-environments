@@ -206,7 +206,7 @@
         {
           "Variable": "$.datasyncExecution.Status",
           "StringEquals": "ERROR",
-          "Next": "Fail"
+          "Next": "Job Failed"
         },
         {
           "Variable": "$.datasyncExecution.Status",
