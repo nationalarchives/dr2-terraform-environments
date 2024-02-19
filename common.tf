@@ -99,6 +99,7 @@ module "dr2_kms_key" {
       module.ingest_folder_opex_creator_lambda.lambda_role_arn,
       module.ingest_upsert_archive_folders_lambda.lambda_role_arn,
       module.ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
+      module.ingest_asset_reconciler_lambda.lambda_role_arn,
       module.e2e_tests_ecs_task_role.role_arn,
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
