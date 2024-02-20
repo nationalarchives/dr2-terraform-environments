@@ -142,6 +142,7 @@
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_parent_folder_opex_creator_lambda_name}",
       "Parameters": {
         "executionId.$": "$$.Execution.Name",
+        "batchId.$": "$$.Execution.Input.batchId",
         "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
         "stagingBucket": "${ingest_staging_cache_bucket_name}"
       },
@@ -264,20 +265,28 @@
           "BackoffRate": 2
         }
       ],
+      "ResultSelector": {
+        "status.$": "$.Payload.status",
+        "mappedId.$": "$.Payload.mappedId",
+        "succeededAssets.$": "$.Payload.succeededAssets",
+        "failedAssets.$": "$.Payload.failedAssets",
+        "duplicatedAssets.$": "$.Payload.duplicatedAssets"
+      },
+      "ResultPath": "$.WorkflowResult",
       "Next": "Check workflow status and get Succeeded, Failed and Duplicated asset ids"
     },
     "Check workflow status and get Succeeded, Failed and Duplicated asset ids": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.Payload.status",
+          "Variable": "$.WorkflowResult.status",
           "StringEquals": "Failed",
           "Next": "Job Failed"
         },
         {
-          "Variable": "$.Payload.status",
+          "Variable": "$.WorkflowResult.status",
           "StringEquals": "Succeeded",
-          "Next": "Success"
+          "Next": "Map over each assetId and reconcile"
         }
       ],
       "Default": "Wait 1 minute"
@@ -294,6 +303,47 @@
       "Type": "Fail",
       "Cause": "AWS Batch Job Failed",
       "Error": "'Check workflow status' task returned Failed"
+    },
+    "Map over each assetId and reconcile": {
+      "Type": "Map",
+      "ItemsPath": "$.contentAssets",
+      "ItemSelector": {
+        "assetId.$": "$$.Map.Item.Value",
+        "batchId.$": "$$.Execution.Input.batchId",
+        "executionId.$": "$.executionId"
+      },
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "Reconcile assetId and children",
+        "States": {
+          "Reconcile assetId and children": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_asset_reconciler_lambda_name}",
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "End": true
+          }
+        }
+      },
+      "ResultSelector": {
+        "wasReconciled.$": "$[0].wasReconciled",
+        "reason.$": "$[0].reason"
+      },
+      "ResultPath": "$.ReconciliationResult",
+      "End": true
     }
   }
 }
