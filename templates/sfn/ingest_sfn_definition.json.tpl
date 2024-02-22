@@ -11,7 +11,9 @@
             "Lambda.ServiceException",
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
+            "Lambda.TooManyRequestsException",
+            "Lambda.Unknown",
+            "States.ALL"
           ],
           "IntervalSeconds": 2,
           "MaxAttempts": 6,
@@ -29,7 +31,9 @@
             "Lambda.ServiceException",
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
+            "Lambda.TooManyRequestsException",
+            "Lambda.Unknown",
+            "States.ALL"
           ],
           "IntervalSeconds": 5,
           "MaxAttempts": 15,
@@ -63,7 +67,9 @@
                   "Lambda.ServiceException",
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException",
-                  "Lambda.TooManyRequestsException"
+                  "Lambda.TooManyRequestsException",
+                  "Lambda.Unknown",
+                  "States.ALL"
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
@@ -123,7 +129,9 @@
                   "Lambda.ServiceException",
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException",
-                  "Lambda.TooManyRequestsException"
+                  "Lambda.TooManyRequestsException",
+                  "Lambda.Unknown",
+                  "States.ALL"
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
@@ -152,7 +160,9 @@
             "Lambda.ServiceException",
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
+            "Lambda.TooManyRequestsException",
+            "Lambda.Unknown",
+            "States.ALL"
           ],
           "IntervalSeconds": 2,
           "MaxAttempts": 6,
@@ -230,7 +240,9 @@
             "Lambda.ServiceException",
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
+            "Lambda.TooManyRequestsException",
+            "Lambda.Unknown",
+            "States.ALL"
           ],
           "IntervalSeconds": 2,
           "MaxAttempts": 6,
@@ -258,7 +270,9 @@
             "Lambda.ServiceException",
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
+            "Lambda.TooManyRequestsException",
+            "Lambda.Unknown",
+            "States.ALL"
           ],
           "IntervalSeconds": 1,
           "MaxAttempts": 3,
@@ -327,7 +341,9 @@
                   "Lambda.ServiceException",
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException",
-                  "Lambda.TooManyRequestsException"
+                  "Lambda.TooManyRequestsException",
+                  "Lambda.Unknown",
+                  "States.ALL"
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
