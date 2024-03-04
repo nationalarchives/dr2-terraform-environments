@@ -12,7 +12,14 @@
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException",
-            "Lambda.Unknown",
+            "Lambda.Unknown"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        },
+        {
+          "ErrorEquals": [
             "States.ALL"
           ],
           "IntervalSeconds": 2,
@@ -32,12 +39,19 @@
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException",
-            "Lambda.Unknown",
-            "States.ALL"
+            "Lambda.Unknown"
           ],
           "IntervalSeconds": 5,
           "MaxAttempts": 15,
           "BackoffRate": 1
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
         }
       ],
       "Next": "Map over each Asset Id",
@@ -68,7 +82,14 @@
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException",
                   "Lambda.TooManyRequestsException",
-                  "Lambda.Unknown",
+                  "Lambda.Unknown"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              },
+              {
+                "ErrorEquals": [
                   "States.ALL"
                 ],
                 "IntervalSeconds": 2,
@@ -130,7 +151,14 @@
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException",
                   "Lambda.TooManyRequestsException",
-                  "Lambda.Unknown",
+                  "Lambda.Unknown"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              },
+              {
+                "ErrorEquals": [
                   "States.ALL"
                 ],
                 "IntervalSeconds": 2,
@@ -161,7 +189,14 @@
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException",
-            "Lambda.Unknown",
+            "Lambda.Unknown"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        },
+        {
+          "ErrorEquals": [
             "States.ALL"
           ],
           "IntervalSeconds": 2,
@@ -241,7 +276,14 @@
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException",
-            "Lambda.Unknown",
+            "Lambda.Unknown"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        },
+        {
+          "ErrorEquals": [
             "States.ALL"
           ],
           "IntervalSeconds": 2,
@@ -271,11 +313,18 @@
             "Lambda.AWSLambdaException",
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException",
-            "Lambda.Unknown",
-            "States.ALL"
+            "Lambda.Unknown"
           ],
           "IntervalSeconds": 1,
           "MaxAttempts": 3,
+          "BackoffRate": 2
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
           "BackoffRate": 2
         }
       ],
@@ -310,9 +359,6 @@
       "Next": "Get workflow status",
       "Seconds": 60
     },
-    "Success": {
-      "Type": "Succeed"
-    },
     "Job Failed": {
       "Type": "Fail",
       "Cause": "AWS Batch Job Failed",
@@ -342,7 +388,14 @@
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException",
                   "Lambda.TooManyRequestsException",
-                  "Lambda.Unknown",
+                  "Lambda.Unknown"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              },
+              {
+                "ErrorEquals": [
                   "States.ALL"
                 ],
                 "IntervalSeconds": 2,
