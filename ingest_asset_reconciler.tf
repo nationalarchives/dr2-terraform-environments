@@ -23,6 +23,10 @@ module "ingest_asset_reconciler_lambda" {
     DYNAMO_TABLE_NAME      = local.files_dynamo_table_name
     DYNAMO_GSI_NAME        = local.files_table_global_secondary_index_name
   }
+  vpc_config = {
+    subnet_ids         = module.vpc.private_subnets
+    security_group_ids = [module.outbound_https_access_only.security_group_id]
+  }
   tags = {
     Name = local.ingest_asset_reconciler_lambda_name
   }
