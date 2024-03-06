@@ -6,7 +6,7 @@
       ],
       "Effect": "Allow",
       "Resource": "${dynamo_db_arn}",
-      "Sid": "readWriteDynamoDB"
+      "Sid": "readDynamoDb"
     },
     {
       "Action": "secretsmanager:GetSecretValue",
