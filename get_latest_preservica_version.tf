@@ -32,10 +32,7 @@ module "get_latest_preservica_version_lambda" {
   lambda_invoke_permissions = {
     "events.amazonaws.com" = module.get_latest_preservica_version_cloudwatch_event.event_arn
   }
-  vpc_config = {
-    subnet_ids         = module.vpc.private_subnets
-    security_group_ids = [module.outbound_https_access_only.security_group_id]
-  }
+
   plaintext_env_vars = {
     PRESERVICA_SECRET_NAME                = aws_secretsmanager_secret.preservica_secret.name
     PRESERVICA_VERSION_EVENT_TOPIC_ARN    = local.latest_preservica_version_event_topic_arn
