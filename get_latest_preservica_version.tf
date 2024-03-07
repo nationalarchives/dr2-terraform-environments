@@ -34,10 +34,10 @@ module "get_latest_preservica_version_lambda" {
   }
 
   plaintext_env_vars = {
-    PRESERVICA_SECRET_NAME                = aws_secretsmanager_secret.preservica_secret.name
+    PRESERVICA_SECRET_NAME                = aws_secretsmanager_secret.demo_preservica_secret.name
     PRESERVICA_VERSION_EVENT_TOPIC_ARN    = local.latest_preservica_version_event_topic_arn
     CURRENT_PRESERVICA_VERSION_TABLE_NAME = local.dr2_preservica_version_table_name
-    PRESERVICA_API_URL                    = data.aws_ssm_parameter.preservica_url.value
+    PRESERVICA_DEMO_API_URL               = data.aws_ssm_parameter.demo_preservica_url.value
   }
 }
 
