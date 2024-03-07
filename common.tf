@@ -340,10 +340,10 @@ module "guard_duty_findings_eventbridge_rule" {
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   api_destination_input_transformer = {
     input_paths = {
-      "account": "$.account",
-      "id": "$.detail.id",
-      "region": "$.region",
-      "title": "$.detail.title"
+      "account" : "$.account",
+      "id" : "$.detail.id",
+      "region" : "$.region",
+      "title" : "$.detail.title"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/guard_duty_slack_message.json.tpl", {})
   }
