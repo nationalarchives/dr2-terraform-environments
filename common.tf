@@ -331,7 +331,23 @@ module "failed_ingest_step_function_event_bridge_rule" {
 
 }
 
-
+module "guard_duty_findings_eventbridge_rule" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
+  event_pattern = templatefile("${path.module}/templates/eventbridge/source_detail_type_event_pattern.json.tpl", {
+    source = "aws.guardduty", detail_type = "GuardDuty Finding"
+  })
+  name                = "${local.environment}-guard-duty-notify"
+  api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
+  api_destination_input_transformer = {
+    input_paths = {
+      "account" : "$.account",
+      "id" : "$.detail.id",
+      "region" : "$.region",
+      "title" : "$.detail.title"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/guard_duty_slack_message.json.tpl", {})
+  }
+}
 
 module "dev_slack_message_eventbridge_rule" {
   source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
