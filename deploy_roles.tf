@@ -27,9 +27,12 @@ module "deploy_lambda_policy" {
         module.ingest_asset_reconciler_lambda.lambda_arn,
         module.s3_copy_lambda.lambda_arn,
         module.ingest_workflow_monitor_lambda.lambda_arn,
+        module.get_latest_preservica_version_lambda.lambda_arn,
+        module.preservica_config_lambda.lambda_arn,
         local.anonymiser_lambda_arns
       ]
     ))
-    bucket_name = "mgmt-dp-code-deploy"
+    bucket_name = "mgmt-dp-code-deploy",
+    account_id  = data.aws_caller_identity.current.account_id
   })
 }
