@@ -403,15 +403,52 @@
                 "BackoffRate": 2
               }
             ],
+            "Next": "Check if Reconciliation succeeded and post to Slack if it didn't"
+          },
+          "Check if Reconciliation succeeded and post to Slack if it didn't": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.wasReconciled",
+                "BooleanEquals": false,
+                "Next": "Post failure message to Slack"
+              },
+              {
+                "Variable": "$.wasReconciled",
+                "BooleanEquals": true,
+                "Next": "Do nothing"
+              }
+            ],
+            "Default": "Throw Reconciler job error"
+          },
+          "Do nothing": {
+            "Type": "Pass",
             "End": true
+          },
+          "Post failure message to Slack": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::events:putEvents",
+            "Parameters": {
+              "Entries": [
+                {
+                  "Detail": {
+                    "slackMessage": "$.reason"
+                  },
+                  "DetailType": "DR2Message",
+                  "EventBusName": "default",
+                  "Source": "reconcilerLambda"
+                }
+              ]
+            },
+            "End": true
+          },
+          "Throw Reconciler job error": {
+            "Type": "Fail",
+            "Cause": "AWS Batch Job Failed",
+            "Error": "'wasReconciled' value was neither 'true' nor 'false'"
           }
         }
       },
-      "ResultSelector": {
-        "wasReconciled.$": "$[0].wasReconciled",
-        "reason.$": "$[0].reason"
-      },
-      "ResultPath": "$.ReconciliationResult",
       "End": true
     }
   }
