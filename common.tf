@@ -272,7 +272,7 @@ module "files_table" {
 
 module "ingest_lock_table" {
   source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
-  hash_key                       = { name = "assetId", type = "S" }
+  hash_key                       = { name = "ioId", type = "S" }
   table_name                     = local.ingest_lock_dynamo_table_name
   server_side_encryption_enabled = true
   kms_key_arn                    = module.dr2_kms_key.kms_key_arn
