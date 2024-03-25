@@ -1,25 +1,27 @@
 locals {
-  az_count                                = local.environment == "prod" ? 2 : 1
-  ingest_raw_cache_bucket_name            = "${local.environment}-dr2-ingest-raw-cache"
-  sample_files_bucket_name                = "${local.environment}-dr2-sample-files"
-  ingest_staging_cache_bucket_name        = "${local.environment}-dr2-ingest-staging-cache"
-  ingest_step_function_name               = "${local.environment_title}-ingest"
-  additional_user_roles                   = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
-  anonymiser_roles                        = local.environment == "intg" ? [module.court_document_package_anonymiser_lambda[0].lambda_role_arn] : []
-  anonymiser_lambda_arns                  = local.environment == "intg" ? module.court_document_package_anonymiser_lambda.*.lambda_arn : []
-  files_dynamo_table_name                 = "${local.environment}-dr2-files"
-  files_table_global_secondary_index_name = "BatchParentPathIdx"
-  dev_notifications_channel_id            = local.environment == "prod" ? "C06EDJPF0VB" : "C052LJASZ08"
-  general_notifications_channel_id        = local.environment == "prod" ? "C06E20AR65V" : "C068RLCPZFE"
-  tre_prod_judgment_role                  = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
-  java_runtime                            = "java21"
-  java_lambda_memory_size                 = 512
-  python_runtime                          = "python3.11"
-  python_lambda_memory_size               = 128
-  step_function_failure_log_group         = "step-function-failures"
-  preservica_tenant                       = local.environment == "prod" ? "tna" : "tnatest"
-  preservica_ingest_bucket                = "com.preservica.${local.preservica_tenant}.bulk1"
-  tna_to_preservica_role_arn              = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
+  az_count                                      = local.environment == "prod" ? 2 : 1
+  ingest_raw_cache_bucket_name                  = "${local.environment}-dr2-ingest-raw-cache"
+  sample_files_bucket_name                      = "${local.environment}-dr2-sample-files"
+  ingest_staging_cache_bucket_name              = "${local.environment}-dr2-ingest-staging-cache"
+  ingest_step_function_name                     = "${local.environment_title}-ingest"
+  additional_user_roles                         = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  anonymiser_roles                              = local.environment == "intg" ? [module.court_document_package_anonymiser_lambda[0].lambda_role_arn] : []
+  anonymiser_lambda_arns                        = local.environment == "intg" ? module.court_document_package_anonymiser_lambda.*.lambda_arn : []
+  files_dynamo_table_name                       = "${local.environment}-dr2-files"
+  ingest_lock_dynamo_table_name                 = "${local.environment}-dr2-ingest-lock"
+  files_table_global_secondary_index_name       = "BatchParentPathIdx"
+  ingest_lock_table_global_secondary_index_name = "IngestLockBatchIdx"
+  dev_notifications_channel_id                  = local.environment == "prod" ? "C06EDJPF0VB" : "C052LJASZ08"
+  general_notifications_channel_id              = local.environment == "prod" ? "C06E20AR65V" : "C068RLCPZFE"
+  tre_prod_judgment_role                        = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
+  java_runtime                                  = "java21"
+  java_lambda_memory_size                       = 512
+  python_runtime                                = "python3.11"
+  python_lambda_memory_size                     = 128
+  step_function_failure_log_group               = "step-function-failures"
+  preservica_tenant                             = local.environment == "prod" ? "tna" : "tnatest"
+  preservica_ingest_bucket                      = "com.preservica.${local.preservica_tenant}.bulk1"
+  tna_to_preservica_role_arn                    = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -263,6 +265,24 @@ module "files_table" {
       name            = local.files_table_global_secondary_index_name
       hash_key        = "batchId"
       range_key       = "parentPath"
+      projection_type = "ALL"
+    }
+  ]
+}
+
+module "ingest_lock_table" {
+  source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
+  hash_key                       = { name = "assetId", type = "S" }
+  table_name                     = local.ingest_lock_dynamo_table_name
+  server_side_encryption_enabled = true
+  kms_key_arn                    = module.dr2_kms_key.kms_key_arn
+  additional_attributes = [
+    { name = "batchId", type = "S" }
+  ]
+  global_secondary_indexes = [
+    {
+      name            = local.ingest_lock_table_global_secondary_index_name
+      hash_key        = "batchId"
       projection_type = "ALL"
     }
   ]
