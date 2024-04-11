@@ -432,7 +432,7 @@
               "Entries": [
                 {
                   "Detail": {
-                    "slackMessage": "$.reason"
+                    "slackMessage.$": "$.reason"
                   },
                   "DetailType": "DR2Message",
                   "EventBusName": "default",
