@@ -18,6 +18,14 @@
     },
     {
       "Action": [
+        "cloudwatch:PutMetricData"
+      ],
+      "Effect": "Allow",
+      "Resource": "*",
+      "Sid": "putMetrics"
+    },
+    {
+      "Action": [
         "logs:PutLogEvents",
         "logs:PutRetentionPolicy",
         "logs:DescribeLogStreams",
