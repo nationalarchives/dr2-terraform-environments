@@ -3,10 +3,11 @@ locals {
   ingest_raw_cache_bucket_name                  = "${local.environment}-dr2-ingest-raw-cache"
   sample_files_bucket_name                      = "${local.environment}-dr2-sample-files"
   ingest_staging_cache_bucket_name              = "${local.environment}-dr2-ingest-staging-cache"
-  ingest_step_function_name                     = "${local.environment_title}-ingest"
+  ingest_step_function_name_old                 = "${local.environment_title}-ingest"
+  ingest_step_function_name                     = "${local.environment}-dr2-ingest"
   additional_user_roles                         = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   anonymiser_roles                              = local.environment == "intg" ? [module.court_document_package_anonymiser_lambda[0].lambda_role_arn] : []
-  anonymiser_lambda_arns                        = local.environment == "intg" ? module.court_document_package_anonymiser_lambda.*.lambda_arn : []
+  anonymiser_lambda_arns                        = local.environment == "intg" ? flatten([module.court_document_package_anonymiser_lambda.*.lambda_arn, module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
   files_dynamo_table_name                       = "${local.environment}-dr2-files"
   ingest_lock_dynamo_table_name                 = "${local.environment}-dr2-ingest-lock"
   files_table_global_secondary_index_name       = "BatchParentPathIdx"
@@ -99,17 +100,24 @@ module "dr2_kms_key" {
   default_policy_variables = {
     user_roles = concat([
       module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
-      module.download_metadata_and_files_lambda.lambda_role_arn,
       module.ingest_mapper_lambda.lambda_role_arn,
       module.ingest_asset_opex_creator_lambda.lambda_role_arn,
       module.ingest_folder_opex_creator_lambda.lambda_role_arn,
       module.ingest_upsert_archive_folders_lambda.lambda_role_arn,
       module.ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.ingest_asset_reconciler_lambda.lambda_role_arn,
+
+      module.dr2_ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
+      module.dr2_ingest_mapper_lambda.lambda_role_arn,
+      module.dr2_ingest_asset_opex_creator_lambda.lambda_role_arn,
+      module.dr2_ingest_folder_opex_creator_lambda.lambda_role_arn,
+      module.dr2_ingest_upsert_archive_folders_lambda.lambda_role_arn,
+      module.dr2_ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
+      module.dr2_ingest_asset_reconciler_lambda.lambda_role_arn,
+
       module.e2e_tests_ecs_task_role.role_arn,
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
-      module.s3_copy_lambda.lambda_role_arn,
     ], local.additional_user_roles, local.anonymiser_roles)
     ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_details = [
@@ -127,7 +135,8 @@ module "dr2_developer_key" {
   default_policy_variables = {
     user_roles = [
       data.aws_ssm_parameter.dev_admin_role.value,
-      module.preservica_config_lambda.lambda_role_arn
+      module.preservica_config_lambda.lambda_role_arn,
+      module.dr2_preservica_config_lambda.lambda_role_arn
     ]
     ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
     service_names = ["s3", "sns", "logs.eu-west-2", "cloudwatch"]
@@ -172,6 +181,30 @@ module "ingest_staging_cache_bucket" {
 module "ingest_step_function" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
   step_function_definition = templatefile("${path.module}/templates/sfn/ingest_sfn_definition.json.tpl", {
+    step_function_name                            = local.ingest_step_function_name_old,
+    account_id                                    = var.account_number
+    ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name_old
+    ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name_old
+    ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name_old
+    ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name_old
+    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name_old
+    ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name_old
+    ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name_old
+    ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name_old
+    ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
+    preservica_bucket_name                        = local.preservica_ingest_bucket
+    datasync_task_arn                             = aws_datasync_task.tna_to_preservica_copy.arn
+    tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
+  })
+  step_function_name = local.ingest_step_function_name_old
+  step_function_role_policy_attachments = {
+    step_function_policy = module.ingest_step_function_policy.policy_arn
+  }
+}
+
+module "dr2_ingest_step_function" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
+  step_function_definition = templatefile("${path.module}/templates/sfn/ingest_sfn_definition.json.tpl", {
     step_function_name                            = local.ingest_step_function_name,
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
@@ -180,12 +213,11 @@ module "ingest_step_function" {
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
-    ingest_s3_copy_lambda_name                    = local.s3_copy_lambda_name
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     preservica_bucket_name                        = local.preservica_ingest_bucket
-    datasync_task_arn                             = aws_datasync_task.tna_to_preservica_copy.arn
+    datasync_task_arn                             = aws_datasync_task.dr2_tna_to_preservica_copy.arn
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
   step_function_name = local.ingest_step_function_name
@@ -193,6 +225,7 @@ module "ingest_step_function" {
     step_function_policy = module.ingest_step_function_policy.policy_arn
   }
 }
+
 
 resource "aws_datasync_location_s3" "tna_staging_location" {
   provider      = aws.datasync_tna_to_preservica
@@ -230,22 +263,35 @@ resource "aws_datasync_task" "tna_to_preservica_copy" {
   name = "${local.environment}-tna-to-preservica-copy"
 }
 
+resource "aws_datasync_task" "dr2_tna_to_preservica_copy" {
+  provider                 = aws.datasync_tna_to_preservica
+  destination_location_arn = aws_datasync_location_s3.preservica_staging_location.arn
+  source_location_arn      = aws_datasync_location_s3.tna_staging_location.arn
+  cloudwatch_log_group_arn = aws_cloudwatch_log_group.datasync_log_group.arn
+  options {
+    log_level         = "TRANSFER"
+    posix_permissions = "NONE"
+    uid               = "NONE"
+    gid               = "NONE"
+  }
+  name = "${local.environment}-dr2-tna-to-preservica-copy"
+}
+
 module "ingest_step_function_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
-  name   = "${local.environment_title}IngestStepFunctionPolicy"
+  name   = "${local.environment_title}-dr2-ingest-step-function-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
     account_id                                    = var.account_number
-    ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
-    ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
-    ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
-    ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
-    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
-    ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
-    ingest_s3_copy_lambda_name                    = local.s3_copy_lambda_name
-    ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
-    ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
+    ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name_old
+    ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name_old
+    ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name_old
+    ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name_old
+    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name_old
+    ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name_old
+    ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name_old
+    ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name_old
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
-    ingest_sfn_name                               = local.ingest_step_function_name
+    ingest_sfn_name                               = local.ingest_step_function_name_old
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
 }
@@ -296,7 +342,7 @@ data "aws_ssm_parameter" "slack_token" {
 module "eventbridge_alarm_notifications_destination" {
   source                     = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination"
   authorisation_header_value = "Bearer ${data.aws_ssm_parameter.slack_token.value}"
-  name                       = "${local.environment}-eventbridge-slack-destination"
+  name                       = "${local.environment}-dr2-eventbridge-slack-destination"
 }
 
 module "cloudwatch_alarm_event_bridge_rule" {
@@ -304,13 +350,12 @@ module "cloudwatch_alarm_event_bridge_rule" {
   source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
     cloudwatch_alarms = jsonencode(flatten([
-      module.download_files_sqs.dlq_cloudwatch_alarm_arn,
       module.ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_alarm_arn,
-      module.preservica_config_queue.dlq_cloudwatch_alarm_arn
+      module.dr2_preservica_config_queue.dlq_cloudwatch_alarm_arn
     ])),
     state_value = each.value
   })
-  name                = "${local.environment}-eventbridge-alarm-state-change-${lower(each.value)}"
+  name                = "${local.environment}-dr2-eventbridge-alarm-state-change-${lower(each.value)}"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   api_destination_input_transformer = {
     input_paths = {
@@ -329,7 +374,7 @@ module "failed_ingest_step_function_event_bridge_rule" {
   event_pattern = templatefile("${path.module}/templates/eventbridge/step_function_failed_event_pattern.json.tpl", {
     step_function_arn = module.ingest_step_function.step_function_arn
   })
-  name                = "${local.environment}-eventbridge-ingest-step-function-failure"
+  name                = "${local.environment}-dr2-eventbridge-ingest-step-function-failure"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   api_destination_input_transformer = {
     input_paths = {
@@ -338,7 +383,7 @@ module "failed_ingest_step_function_event_bridge_rule" {
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
       channel_id   = local.dev_notifications_channel_id
-      slackMessage = ":alert-noflash-slow: Step function ${local.ingest_step_function_name} with name <name> has <status>"
+      slackMessage = ":alert-noflash-slow: Step function ${local.ingest_step_function_name_old} with name <name> has <status>"
     })
   }
   log_group_destination_input_transformer = {
@@ -349,7 +394,7 @@ module "failed_ingest_step_function_event_bridge_rule" {
       "startDate" = "$.detail.startDate"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/cloudwatch_message_input_template.json.tpl", {
-      message = "Step function ${local.ingest_step_function_name} with name <name> has <status>"
+      message = "Step function ${local.ingest_step_function_name_old} with name <name> has <status>"
     })
   }
 
@@ -360,7 +405,7 @@ module "guard_duty_findings_eventbridge_rule" {
   event_pattern = templatefile("${path.module}/templates/eventbridge/source_detail_type_event_pattern.json.tpl", {
     source = "aws.guardduty", detail_type = "GuardDuty Finding"
   })
-  name                = "${local.environment}-guard-duty-notify"
+  name                = "${local.environment}-dr2-guard-duty-notify"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   api_destination_input_transformer = {
     input_paths = {
@@ -377,7 +422,7 @@ module "dev_slack_message_eventbridge_rule" {
   source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   event_pattern       = templatefile("${path.module}/templates/eventbridge/custom_detail_type_event_pattern.json.tpl", { detail_type = "DR2DevMessage" })
-  name                = "${local.environment}-eventbridge-dev-slack-message"
+  name                = "${local.environment}-dr2-eventbridge-dev-slack-message"
   api_destination_input_transformer = {
     input_paths = {
       "slackMessage" = "$.detail.slackMessage"
@@ -393,7 +438,7 @@ module "general_slack_message_eventbridge_rule" {
   source              = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   event_pattern       = templatefile("${path.module}/templates/eventbridge/custom_detail_type_event_pattern.json.tpl", { detail_type = "DR2Message" })
-  name                = "${local.environment}-eventbridge-general-slack-message"
+  name                = "${local.environment}-dr2-eventbridge-general-slack-message"
   api_destination_input_transformer = {
     input_paths = {
       "slackMessage" = "$.detail.slackMessage"
@@ -407,7 +452,7 @@ module "general_slack_message_eventbridge_rule" {
 
 resource "aws_cloudwatch_log_resource_policy" "eventbridge_resource_policy" {
   policy_document = templatefile("${path.module}/templates/logs/logs_resource_policy.json.tpl", { account_id = data.aws_caller_identity.current.account_id })
-  policy_name     = "TrustEventsToStoreLogEvents"
+  policy_name     = "${local.environment}-dr2-trust-events-to-store-log-events"
 }
 
 resource "aws_cloudwatch_dashboard" "ingest_dashboard" {
@@ -416,5 +461,5 @@ resource "aws_cloudwatch_dashboard" "ingest_dashboard" {
     environment                     = local.environment,
     step_function_failure_log_group = local.step_function_failure_log_group
   })
-  dashboard_name = "IngestDashboard"
+  dashboard_name = "${local.environment}-dr2-ingest-dashboard"
 }
