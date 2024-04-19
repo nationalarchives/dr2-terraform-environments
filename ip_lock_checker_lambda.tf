@@ -14,7 +14,7 @@ module "ip_lock_checker_lambda" {
   function_name = local.ip_lock_checker_lambda_name
 
   handler         = "lambda_function.lambda_handler"
-  timeout_seconds = 30
+  timeout_seconds = local.python_timeout_seconds
   policies = {
     "${local.ip_lock_checker_lambda_name}-policy" = templatefile("./templates/iam_policy/ip_lock_checker_policy.json.tpl", {
       account_id  = var.account_number

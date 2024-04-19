@@ -5,7 +5,7 @@ module "ingest_asset_reconciler_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.ingest_asset_reconciler_lambda_name
   handler         = "uk.gov.nationalarchives.Lambda::handleRequest"
-  timeout_seconds = 60
+  timeout_seconds = local.java_timeout_seconds
   policies = {
     "${local.ingest_asset_reconciler_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_asset_reconciler_policy.json.tpl", {
       account_id                 = var.account_number
