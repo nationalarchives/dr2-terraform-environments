@@ -76,7 +76,7 @@ module "ingest_parsed_court_document_event_handler_lambda" {
   }
   tags = {
     Name      = local.ingest_parsed_court_document_event_handler_lambda_name
-    CreatedBy = "dr2-terraform-environments"
+    CreatedBy = local.creator
   }
 }
 

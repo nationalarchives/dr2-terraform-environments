@@ -34,7 +34,7 @@ module "download_metadata_and_files_lambda" {
   }
   tags = {
     Name      = local.download_files_and_metadata_lambda_name
-    CreatedBy = "dr2-terraform-environments"
+    CreatedBy = local.creator
   }
 }
 
@@ -47,7 +47,7 @@ module "download_files_sqs" {
   })
   redrive_maximum_receives = 3
   tags = {
-    CreatedBy = "dr2-terraform-environments"
+    CreatedBy = local.creator
   }
   kms_key_id = module.dr2_kms_key.kms_key_arn
 }

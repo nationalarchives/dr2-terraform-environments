@@ -28,6 +28,6 @@ module "ingest_upsert_archive_folders_lambda" {
   reserved_concurrency = 1
   tags = {
     Name      = local.ingest_upsert_archive_folders_lambda_name
-    CreatedBy = "dr2-terraform-environments"
+    CreatedBy = local.creator
   }
 }
