@@ -5,7 +5,7 @@
 The prototype is divided into separate files corresponding to one part of the infrastructure.
 All of these files are run at once when terraform runs. 
 
-`common.tf` Common modules like VPCs, shared security groups and system wide secrets
+`common.tf` Common modules like VPCs, shared security groups and system-wide secrets
 `download_metadata_and_files_lambda.tf` Resources for the disaster recovery lambda.
 `disaster_recovery` Shared resources for the disaster recovery workflow.
 `slack_notifications_lambda` Resources for the notifications lambda.
@@ -71,12 +71,25 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
    [location of project] $ terraform get -update
    ```
 
-6. Run Terraform to view changes that will be made to the DR2 environment AWS resources
+6. Make your terraform changes
+   1. Add/update a tf file to the root of this project (might be best to copy an existing tf file as a base)
+      * If you are creating a Lambda, add its arn to the `deploy_lambda_policy` in the `deploy_roles` file at the root of this project
+   2. Add an IAM policy
+   3. If what you've created is part of a step function (e.g. a lambda):
+      1. add it to the step function's module in the `common.tf`
+      2. add it to the step function's policy module in the `common.tf`
+      3. add it to the step function's `json.tpl` file in the `iam_policy` folder
+      4. add it to the step function's `json.tpl` file in the `sfn` folder
+   4. If item created needs a KMS key, add it to the `dr2_kms_key` module in the `common.tf` file
 
+7. Run Terraform to view changes that will be made to the DR2 environment AWS resources
+    * Make sure your credentials are valid
+      * If you have the AWS CLI installed, run `aws sso login --profile [account name where credentials are] && export AWS_PROFILE=[account name where credentials are]`
    ```
    [location of project] $ terraform plan
    ```
-7. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
+
+8. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
 
 ## Further Information
 
