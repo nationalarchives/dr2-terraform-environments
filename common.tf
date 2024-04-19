@@ -16,7 +16,7 @@ locals {
   tre_prod_judgment_role                        = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
   java_runtime                                  = "java21"
   java_lambda_memory_size                       = 512
-  python_runtime                                = "python3.11"
+  python_runtime                                = "python3.12"
   python_lambda_memory_size                     = 128
   step_function_failure_log_group               = "step-function-failures"
   preservica_tenant                             = local.environment == "prod" ? "tna" : "tnatest"
