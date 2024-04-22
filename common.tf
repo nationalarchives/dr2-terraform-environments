@@ -104,6 +104,7 @@ module "dr2_kms_key" {
       module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.download_metadata_and_files_lambda.lambda_role_arn,
       module.ingest_mapper_lambda.lambda_role_arn,
+      module.ingest_check_preservica_for_existing_io_lambda.lambda_role_arn,
       module.ingest_asset_opex_creator_lambda.lambda_role_arn,
       module.ingest_folder_opex_creator_lambda.lambda_role_arn,
       module.ingest_upsert_archive_folders_lambda.lambda_role_arn,
@@ -179,6 +180,7 @@ module "ingest_step_function" {
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
     ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
+    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name
     ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
@@ -240,6 +242,7 @@ module "ingest_step_function_policy" {
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
     ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
+    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name
     ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name

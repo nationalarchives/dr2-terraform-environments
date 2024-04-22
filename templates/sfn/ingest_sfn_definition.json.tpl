@@ -70,8 +70,54 @@
         "ProcessorConfig": {
           "Mode": "INLINE"
         },
-        "StartAt": "Create Asset OPEX",
+        "StartAt": "Check if asset has already been ingested",
         "States": {
+          "Check if asset has already been ingested": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_check_preservica_for_existing_io}",
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException",
+                  "Lambda.Unknown"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              },
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "ResultPath": "$.AssetExistsResult",
+            "Next": "Decide whether to continue ingesting asset or skip"
+          },
+          "Decide whether to continue ingesting asset or skip": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.AssetExistsResult.assetExists",
+                "BooleanEquals": true,
+                "Next": "Skip ingesting asset"
+              },
+              {
+                "Variable": "$.AssetExistsResult.assetExists",
+                "BooleanEquals": false,
+                "Next": "Create Asset OPEX"
+              }
+            ]
+          },
+          "Skip ingesting asset": {
+            "Type": "Succeed"
+          },
           "Create Asset OPEX": {
             "Type": "Task",
             "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_asset_opex_creator_lambda_name}",
