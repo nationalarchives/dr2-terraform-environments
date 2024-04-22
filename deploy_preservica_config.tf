@@ -50,8 +50,7 @@ module "preservica_config_lambda" {
   lambda_sqs_queue_mappings = [{
     sqs_queue_arn = module.preservica_config_queue.sqs_arn
   }]
-  timeout_seconds       = 60
-  log_group_kms_key_arn = module.dr2_developer_key.kms_key_arn
+  timeout_seconds = 60
   policies = {
     "${local.preservica_config_lambda_name}-policy" = templatefile("./templates/iam_policy/preservica_config_policy.json.tpl", {
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
