@@ -53,7 +53,7 @@ module "ingest_parsed_court_document_event_handler_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.ingest_parsed_court_document_event_handler_lambda_name
   handler         = "uk.gov.nationalarchives.Lambda::handleRequest"
-  timeout_seconds = 60
+  timeout_seconds = local.java_timeout_seconds
   lambda_sqs_queue_mappings = [
     { sqs_queue_arn = module.ingest_parsed_court_document_event_handler_sqs.sqs_arn, ignore_enabled_status = true }
   ]
@@ -76,7 +76,7 @@ module "ingest_parsed_court_document_event_handler_lambda" {
   }
   tags = {
     Name      = local.ingest_parsed_court_document_event_handler_lambda_name
-    CreatedBy = "dr2-terraform-environments"
+    CreatedBy = local.creator
   }
 }
 

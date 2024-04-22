@@ -16,12 +16,15 @@ locals {
   tre_prod_judgment_role                        = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
   java_runtime                                  = "java21"
   java_lambda_memory_size                       = 512
-  python_runtime                                = "python3.11"
+  java_timeout_seconds                          = 60
+  python_runtime                                = "python3.12"
   python_lambda_memory_size                     = 128
+  python_timeout_seconds                        = 30
   step_function_failure_log_group               = "step-function-failures"
   preservica_tenant                             = local.environment == "prod" ? "tna" : "tnatest"
   preservica_ingest_bucket                      = "com.preservica.${local.preservica_tenant}.bulk1"
   tna_to_preservica_role_arn                    = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
+  creator                                       = "dr2-terraform-environments"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -81,7 +84,7 @@ data "aws_eip" "eip" {
 
 module "outbound_https_access_only" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = "dr2-terraform-environments" }
+  common_tags = { CreatedBy = local.creator }
   description = "A security group to allow outbound access only"
   name        = "${local.environment}-outbound-https"
   vpc_id      = module.vpc.vpc_id

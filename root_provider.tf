@@ -27,7 +27,7 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = local.environment
-      CreatedBy   = "dr2-terraform-environments"
+      CreatedBy   = local.creator
     }
   }
 }
@@ -42,7 +42,7 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = local.environment
-      CreatedBy   = "dr2-terraform-environments"
+      CreatedBy   = local.creator
     }
   }
 }
