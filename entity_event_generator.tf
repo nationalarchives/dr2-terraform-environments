@@ -7,12 +7,20 @@ locals {
   entity_event_queue_name      = "${local.environment}-dr2-entity-event-queue"
   last_polled_table_name_old   = "${local.environment}-entity-event-lambda-updated-since-query-start-datetime"
   last_polled_table_name       = "${local.environment}-dr2-entity-event-lambda-updated-since-query-start-datetime"
-  entity_event_topic_arn       = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.entity_event_topic_name_old}"
+  entity_event_topic_arn_old   = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.entity_event_topic_name_old}"
+  entity_event_topic_arn       = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.entity_event_topic_name}"
 }
 
 module "entity_event_cloudwatch_event" {
   source                  = "git::https://github.com/nationalarchives/da-terraform-modules//cloudwatch_events"
   rule_name               = "${local.environment}-entity-event-schedule"
+  schedule                = "rate(1 minute)"
+  lambda_event_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.entity_event_lambda_name_old}"
+}
+
+module "dr2_entity_event_cloudwatch_event" {
+  source                  = "git::https://github.com/nationalarchives/da-terraform-modules//cloudwatch_events"
+  rule_name               = "${local.environment}-dr2-entity-event-schedule"
   schedule                = "rate(1 minute)"
   lambda_event_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.entity_event_lambda_name_old}"
 }
@@ -27,7 +35,7 @@ module "entity_event_generator_lambda" {
       lambda_name                = local.entity_event_lambda_name_old
       dynamo_db_arn              = module.entity_event_lambda_updated_since_query_start_datetime_table.table_arn
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
-      sns_arn                    = local.entity_event_topic_arn
+      sns_arn                    = local.entity_event_topic_arn_old
     })
   }
   timeout_seconds = 180
@@ -43,7 +51,7 @@ module "entity_event_generator_lambda" {
   }
   plaintext_env_vars = {
     PRESERVICA_SECRET_NAME       = aws_secretsmanager_secret.preservica_secret.name
-    ENTITY_EVENT_TOPIC_ARN       = local.entity_event_topic_arn
+    ENTITY_EVENT_TOPIC_ARN       = local.entity_event_topic_arn_old
     LAST_EVENT_ACTION_TABLE_NAME = local.last_polled_table_name_old
     PRESERVICA_API_URL           = data.aws_ssm_parameter.preservica_url.value
   }
@@ -67,7 +75,7 @@ module "dr2_entity_event_generator_lambda" {
   runtime         = local.java_runtime
   tags            = {}
   lambda_invoke_permissions = {
-    "events.amazonaws.com" = module.entity_event_cloudwatch_event.event_arn
+    "events.amazonaws.com" = module.dr2_entity_event_cloudwatch_event.event_arn
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
@@ -106,12 +114,25 @@ module "entity_event_generator_topic" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sns"
   sns_policy = templatefile("${path.module}/templates/sns/entity_event_topic_policy.json.tpl", {
     lambda_role_arn = module.entity_event_generator_lambda.lambda_role_arn
-    sns_topic       = local.entity_event_topic_arn
+    sns_topic       = local.entity_event_topic_arn_old
   })
   tags       = {}
   topic_name = local.entity_event_topic_name_old
   sqs_subscriptions = {
     entity_event_queue = module.entity_event_generator_queue.sqs_arn
+  }
+}
+
+module "dr2_entity_event_generator_topic" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//sns"
+  sns_policy = templatefile("${path.module}/templates/sns/entity_event_topic_policy.json.tpl", {
+    lambda_role_arn = module.dr2_entity_event_generator_lambda.lambda_role_arn
+    sns_topic       = local.entity_event_topic_arn
+  })
+  tags       = {}
+  topic_name = local.entity_event_topic_name
+  sqs_subscriptions = {
+    entity_event_queue = module.dr2_entity_event_generator_queue.sqs_arn
   }
 }
 
@@ -121,7 +142,7 @@ module "entity_event_generator_queue" {
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = var.account_number,
     queue_name = local.entity_event_queue_name_old
-    topic_arn  = local.entity_event_topic_arn
+    topic_arn  = local.entity_event_topic_arn_old
   })
   encryption_type = "sse"
 }

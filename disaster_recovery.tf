@@ -1,5 +1,5 @@
 locals {
-  disaster_recovery_name = "dr2-${local.environment}-disaster-recovery"
+  disaster_recovery_name = "${local.environment}-dr2-disaster-recovery"
 }
 
 resource "aws_iam_user" "disaster_recovery_user" {

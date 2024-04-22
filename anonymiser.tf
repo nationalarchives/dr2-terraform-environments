@@ -59,7 +59,7 @@ module "dr2_court_document_package_anonymiser_lambda" {
   runtime     = "provided.al2023"
   plaintext_env_vars = {
     OUTPUT_BUCKET = local.ingest_parsed_court_document_event_handler_test_bucket_name_old
-    OUTPUT_QUEUE  = module.ingest_parsed_court_document_event_handler_sqs.sqs_queue_url
+    OUTPUT_QUEUE  = module.dr2_ingest_parsed_court_document_event_handler_sqs.sqs_queue_url
   }
   tags = {}
 }

@@ -222,7 +222,7 @@ module "dr2_ingest_step_function" {
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     preservica_bucket_name                        = local.preservica_ingest_bucket
-    datasync_task_arn                             = aws_datasync_task.dr2_tna_to_preservica_copy.arn
+    datasync_task_arn                             = aws_datasync_task.dr2_copy_tna_to_preservica.arn
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
   step_function_name = local.ingest_step_function_name
@@ -268,7 +268,7 @@ resource "aws_datasync_task" "tna_to_preservica_copy" {
   name = "${local.environment}-tna-to-preservica-copy"
 }
 
-resource "aws_datasync_task" "dr2_tna_to_preservica_copy" {
+resource "aws_datasync_task" "dr2_copy_tna_to_preservica" {
   provider                 = aws.datasync_tna_to_preservica
   destination_location_arn = aws_datasync_location_s3.preservica_staging_location.arn
   source_location_arn      = aws_datasync_location_s3.tna_staging_location.arn

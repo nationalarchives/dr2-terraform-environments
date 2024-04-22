@@ -2,6 +2,10 @@ locals {
   preservica_config_bucket_name     = "${local.environment}-dr2-preservica-config"
   preservica_config_lambda_name_old = "${local.environment}-preservica-config"
   preservica_config_lambda_name     = "${local.environment}-dr2-preservica-config"
+  preservica_config_sqs_name        = "${local.environment}-dr2-preservica-config"
+  preservica_config_sqs_name_old    = "${local.environment}-preservica-config"
+  preservica_config_sns_name        = "${local.environment}-dr2-preservica-config"
+  preservica_config_sns_name_old    = "${local.environment}-preservica-config"
 }
 module "preservica_config_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
@@ -18,8 +22,8 @@ module "preservica_config_bucket" {
 module "preservica_config_sns" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sns"
   sns_policy = templatefile("${path.module}/templates/sns/s3_notifications_policy.json.tpl", {
-    topic_name  = "${local.environment}-preservica-config"
-    bucket_name = "${local.environment}-dr2-preservica-config"
+    topic_name  = local.preservica_config_sns_name_old
+    bucket_name = local.preservica_config_bucket_name
     account_id  = data.aws_caller_identity.current.account_id
   })
   tags = {
@@ -35,7 +39,7 @@ module "preservica_config_sns" {
 module "dr2_preservica_config_sns" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sns"
   sns_policy = templatefile("${path.module}/templates/sns/s3_notifications_policy.json.tpl", {
-    topic_name  = "${local.environment}-preservica-config"
+    topic_name  = local.preservica_config_sns_name
     bucket_name = "${local.environment}-dr2-preservica-config"
     account_id  = data.aws_caller_identity.current.account_id
   })
@@ -51,10 +55,10 @@ module "dr2_preservica_config_sns" {
 
 module "preservica_config_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  queue_name = "${local.environment}-preservica-config"
+  queue_name = local.preservica_config_sqs_name_old
   sqs_policy = templatefile("${path.module}/templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id, queue_name = "${local.environment}-preservica-config"
-    queue_name = "${local.environment}-preservica-config"
+    queue_name = local.preservica_config_sqs_name_old
     topic_arn  = module.preservica_config_sns.sns_arn
   })
   kms_key_id         = module.dr2_developer_key.kms_key_arn
@@ -63,11 +67,11 @@ module "preservica_config_queue" {
 
 module "dr2_preservica_config_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  queue_name = "${local.environment}-dr2-preservica-config"
+  queue_name = local.preservica_config_sqs_name
   sqs_policy = templatefile("${path.module}/templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id, queue_name = "${local.environment}-preservica-config"
-    queue_name = "${local.environment}-dr2-preservica-config"
-    topic_arn  = module.preservica_config_sns.sns_arn
+    queue_name = local.preservica_config_sqs_name
+    topic_arn  = module.dr2_preservica_config_sns.sns_arn
   })
   kms_key_id         = module.dr2_developer_key.kms_key_arn
   visibility_timeout = 360
