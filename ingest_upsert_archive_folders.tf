@@ -37,7 +37,7 @@ module "dr2_ingest_upsert_archive_folders_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.ingest_upsert_archive_folders_lambda_name
   handler         = "uk.gov.nationalarchives.Lambda::handleRequest"
-  timeout_seconds = 60
+  timeout_seconds = local.java_timeout_seconds
   policies = {
     "${local.ingest_upsert_archive_folders_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_upsert_archive_folders_policy.json.tpl", {
       account_id                 = var.account_number
@@ -60,6 +60,6 @@ module "dr2_ingest_upsert_archive_folders_lambda" {
   reserved_concurrency = 1
   tags = {
     Name      = local.ingest_upsert_archive_folders_lambda_name
-    CreatedBy = "dr2-terraform-environments"
+    CreatedBy = local.creator
   }
 }

@@ -102,7 +102,7 @@ module "preservica_config_lambda" {
   }
   tags = {
     Name      = local.preservica_config_lambda_name_old
-    CreatedBy = "dr2-terraform-environments"
+    CreatedBy = local.creator
   }
 }
 
@@ -136,6 +136,6 @@ module "dr2_preservica_config_lambda" {
   }
   tags = {
     Name      = local.preservica_config_lambda_name_old
-    CreatedBy = "dr2-terraform-environments"
+    CreatedBy = local.creator
   }
 }

@@ -17,12 +17,15 @@ locals {
   tre_prod_judgment_role                        = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
   java_runtime                                  = "java21"
   java_lambda_memory_size                       = 512
-  python_runtime                                = "python3.11"
+  java_timeout_seconds                          = 60
+  python_runtime                                = "python3.12"
   python_lambda_memory_size                     = 128
+  python_timeout_seconds                        = 30
   step_function_failure_log_group               = "step-function-failures"
   preservica_tenant                             = local.environment == "prod" ? "tna" : "tnatest"
   preservica_ingest_bucket                      = "com.preservica.${local.preservica_tenant}.bulk1"
   tna_to_preservica_role_arn                    = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
+  creator                                       = "dr2-terraform-environments"
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -82,7 +85,7 @@ data "aws_eip" "eip" {
 
 module "outbound_https_access_only" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = "dr2-terraform-environments" }
+  common_tags = { CreatedBy = local.creator }
   description = "A security group to allow outbound access only"
   name        = "${local.environment}-outbound-https"
   vpc_id      = module.vpc.vpc_id
@@ -101,6 +104,7 @@ module "dr2_kms_key" {
     user_roles = concat([
       module.ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.ingest_mapper_lambda.lambda_role_arn,
+      module.ingest_check_preservica_for_existing_io_lambda.lambda_role_arn,
       module.ingest_asset_opex_creator_lambda.lambda_role_arn,
       module.ingest_folder_opex_creator_lambda.lambda_role_arn,
       module.ingest_upsert_archive_folders_lambda.lambda_role_arn,
@@ -209,6 +213,7 @@ module "dr2_ingest_step_function" {
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
     ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
+    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name
     ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
@@ -282,14 +287,15 @@ module "ingest_step_function_policy" {
   name   = "${local.environment_title}-dr2-ingest-step-function-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
     account_id                                    = var.account_number
-    ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name_old
-    ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name_old
-    ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name_old
-    ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name_old
-    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name_old
-    ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name_old
-    ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name_old
-    ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name_old
+    ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
+    ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
+    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name
+    ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
+    ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
+    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
+    ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
+    ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
+    ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     ingest_sfn_name                               = local.ingest_step_function_name_old
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
