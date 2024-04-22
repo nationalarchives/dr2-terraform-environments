@@ -195,6 +195,7 @@ module "ingest_step_function" {
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name_old
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name_old
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name_old
+    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     preservica_bucket_name                        = local.preservica_ingest_bucket
     datasync_task_arn                             = aws_datasync_task.tna_to_preservica_copy.arn
