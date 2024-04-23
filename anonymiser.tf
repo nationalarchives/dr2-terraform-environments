@@ -48,7 +48,7 @@ module "dr2_court_document_package_anonymiser_lambda" {
     "${local.court_document_anonymiser_lambda_name}-policy" = templatefile("./templates/iam_policy/anonymiser_lambda_policy.json.tpl", {
       anonymiser_test_input_queue         = module.dr2_court_document_package_anonymiser_sqs[count.index].sqs_arn
       ingest_court_document_handler_queue = module.dr2_ingest_parsed_court_document_event_handler_sqs.sqs_arn
-      output_bucket_name                  = local.ingest_parsed_court_document_event_handler_test_bucket_name_old
+      output_bucket_name                  = local.ingest_parsed_court_document_event_handler_test_bucket_name
       account_id                          = var.account_number
       lambda_name                         = local.court_document_anonymiser_lambda_name
       tre_bucket_arn                      = local.tre_terraform_prod_config["s3_court_document_pack_out_arn"]
@@ -58,7 +58,7 @@ module "dr2_court_document_package_anonymiser_lambda" {
   memory_size = 128
   runtime     = "provided.al2023"
   plaintext_env_vars = {
-    OUTPUT_BUCKET = local.ingest_parsed_court_document_event_handler_test_bucket_name_old
+    OUTPUT_BUCKET = local.ingest_parsed_court_document_event_handler_test_bucket_name
     OUTPUT_QUEUE  = module.dr2_ingest_parsed_court_document_event_handler_sqs.sqs_queue_url
   }
   tags = {}
