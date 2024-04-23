@@ -228,7 +228,7 @@ module "dr2_ingest_step_function" {
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
-    step_function_policy = module.ingest_step_function_policy.policy_arn
+    step_function_policy = module.dr2_ingest_step_function_policy.policy_arn
   }
 }
 
@@ -285,7 +285,7 @@ resource "aws_datasync_task" "dr2_copy_tna_to_preservica" {
 
 module "ingest_step_function_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
-  name   = "${local.environment_title}-dr2-ingest-step-function-policy"
+  name   = "${local.environment_title}-ingest-step-function-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name_old
@@ -299,6 +299,26 @@ module "ingest_step_function_policy" {
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name_old
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     ingest_sfn_name                               = local.ingest_step_function_name_old
+    tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
+  })
+}
+
+module "dr2_ingest_step_function_policy" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
+  name   = "${local.environment}-dr2-ingest-step-function-policy"
+  policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
+    account_id                                    = var.account_number
+    ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
+    ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
+    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name
+    ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
+    ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
+    ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
+    ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
+    ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
+    ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
+    ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
+    ingest_sfn_name                               = local.ingest_step_function_name
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
 }
