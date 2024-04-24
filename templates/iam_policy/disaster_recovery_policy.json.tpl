@@ -40,6 +40,11 @@
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery"
       ],
       "Sid": "writeLogs"
+    },
+    {
+      "Action" : "ecr:GetAuthorizationToken",
+      "Effect": "Allow",
+      "Resource": "*"
     }
   ],
   "Version": "2012-10-17"
