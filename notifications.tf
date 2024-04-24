@@ -26,4 +26,3 @@ module "dr2_notifications_sns" {
   topic_name  = local.notifications_topic_name
   kms_key_arn = module.dr2_notifications_kms_key.kms_key_arn
 }
-
