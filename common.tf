@@ -25,6 +25,18 @@ locals {
   preservica_ingest_bucket                      = "com.preservica.${local.preservica_tenant}.bulk1"
   tna_to_preservica_role_arn                    = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
   creator                                       = "dr2-terraform-environments"
+  dashboard_lambdas = [
+    local.ingest_asset_opex_creator_lambda_name,
+    local.ingest_asset_reconciler_lambda_name,
+    local.ingest_check_preservica_for_existing_io_lambda_name,
+    local.ingest_folder_opex_creator_lambda_name,
+    local.ingest_mapper_lambda_name,
+    local.ingest_parent_folder_opex_creator_lambda_name,
+    local.ingest_parsed_court_document_event_handler_lambda_name,
+    local.ingest_start_workflow_lambda_name,
+    local.ingest_upsert_archive_folders_lambda_name,
+    local.ingest_workflow_monitor_lambda_name
+  ]
 }
 resource "random_password" "preservica_password" {
   length = 20
@@ -431,6 +443,8 @@ resource "aws_cloudwatch_dashboard" "ingest_dashboard" {
     account_id                      = data.aws_caller_identity.current.account_id,
     environment                     = local.environment,
     step_function_failure_log_group = local.step_function_failure_log_group
+    source_list                     = join(" | ", [for lambda in local.dashboard_lambdas : format("SOURCE '/aws/lambda/%s'", lambda)])
   })
   dashboard_name = "${local.environment}-dr2-ingest-dashboard"
+
 }

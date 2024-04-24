@@ -81,6 +81,7 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
       3. add it to the step function's `json.tpl` file in the `iam_policy` folder
       4. add it to the step function's `json.tpl` file in the `sfn` folder
    4. If item created needs a KMS key, add it to the `dr2_kms_key` module in the `common.tf` file
+   5. If this is a lambda which needs to be added to the ingest dashboard, add the lambda name to `local.dashboard_lambdas` in `common.tf`
 
 7. Run Terraform to view changes that will be made to the DR2 environment AWS resources
     * Make sure your credentials are valid
