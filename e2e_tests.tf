@@ -22,9 +22,9 @@ module "e2e_tests_task_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name   = "${local.environment}-dr2-e2e-tests-task-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/e2e_tests_task_policy.json.tpl", {
-    court_document_test_input_bucket = local.ingest_parsed_court_document_event_handler_test_bucket_name_old,
+    court_document_test_input_bucket = local.ingest_parsed_court_document_event_handler_test_bucket_name,
     secret_arn                       = aws_secretsmanager_secret.preservica_secret.arn,
-    sqs_arn                          = module.ingest_parsed_court_document_event_handler_sqs.sqs_arn
+    sqs_arn                          = module.dr2_ingest_parsed_court_document_event_handler_sqs.sqs_arn
   })
 }
 
