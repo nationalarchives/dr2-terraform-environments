@@ -14,20 +14,7 @@ module "deploy_lambda_policy" {
   policy_string = templatefile("${path.module}/templates/iam_policy/deploy_lambda_policy.json.tpl", {
     lambda_arns = jsonencode(flatten(
       [
-        module.ip_lock_checker_lambda.lambda_arn,
-        module.ingest_parsed_court_document_event_handler_lambda.lambda_arn,
-        module.entity_event_generator_lambda.lambda_arn,
-        module.ingest_mapper_lambda.lambda_arn,
-        module.ingest_asset_opex_creator_lambda.lambda_arn,
         module.ingest_check_preservica_for_existing_io_lambda.lambda_arn,
-        module.ingest_folder_opex_creator_lambda.lambda_arn,
-        module.ingest_upsert_archive_folders_lambda.lambda_arn,
-        module.ingest_parent_folder_opex_creator_lambda.lambda_arn,
-        module.ingest_start_workflow_lambda.lambda_arn,
-        module.ingest_asset_reconciler_lambda.lambda_arn,
-        module.ingest_workflow_monitor_lambda.lambda_arn,
-        module.get_latest_preservica_version_lambda.lambda_arn,
-        module.preservica_config_lambda.lambda_arn,
         module.dr2_ip_lock_checker_lambda.lambda_arn,
         module.dr2_ingest_parsed_court_document_event_handler_lambda.lambda_arn,
         module.dr2_entity_event_generator_lambda.lambda_arn,
