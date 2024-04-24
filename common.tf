@@ -21,6 +21,7 @@ locals {
   python_lambda_memory_size                     = 128
   python_timeout_seconds                        = 30
   step_function_failure_log_group               = "step-function-failures"
+  terraform_role_arn                            = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"
   preservica_tenant                             = local.environment == "prod" ? "tna" : "tnatest"
   preservica_ingest_bucket                      = "com.preservica.${local.preservica_tenant}.bulk1"
   tna_to_preservica_role_arn                    = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
@@ -113,7 +114,7 @@ module "dr2_kms_key" {
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
     ], local.additional_user_roles, local.anonymiser_roles)
-    ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
+    ci_roles = [local.terraform_role_arn]
     service_details = [
       { service_name = "cloudwatch" },
       { service_name = "sns", service_source_account = module.tre_config.account_numbers["prod"] },
@@ -131,7 +132,7 @@ module "dr2_developer_key" {
       data.aws_ssm_parameter.dev_admin_role.value,
       module.dr2_preservica_config_lambda.lambda_role_arn
     ]
-    ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
+    ci_roles      = [local.terraform_role_arn]
     service_names = ["s3", "sns", "logs.eu-west-2", "cloudwatch"]
   }
 }
