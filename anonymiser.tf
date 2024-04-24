@@ -52,7 +52,7 @@ module "dr2_court_document_package_anonymiser_sqs" {
 
 resource "aws_sns_topic_subscription" "tre_topic_subscription" {
   count                = local.court_document_anonymiser_count
-  endpoint             = local.ingest_parsed_court_document_event_handler_queue_arn
+  endpoint             = local.court_document_anonymiser_queue_arn
   protocol             = "sqs"
   topic_arn            = local.tre_terraform_prod_config["da_eventbus"]
   raw_message_delivery = true
