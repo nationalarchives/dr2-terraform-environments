@@ -45,6 +45,14 @@
       "Action" : "ecr:GetAuthorizationToken",
       "Effect": "Allow",
       "Resource": "*"
+    },
+    {
+      "Action" : [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-disaster-recovery"
     }
   ],
   "Version": "2012-10-17"
