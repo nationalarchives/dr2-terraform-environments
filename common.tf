@@ -1,30 +1,32 @@
 locals {
-  az_count                                      = local.environment == "prod" ? 2 : 1
-  ingest_raw_cache_bucket_name                  = "${local.environment}-dr2-ingest-raw-cache"
-  sample_files_bucket_name                      = "${local.environment}-dr2-sample-files"
-  ingest_staging_cache_bucket_name              = "${local.environment}-dr2-ingest-staging-cache"
-  ingest_step_function_name                     = "${local.environment}-dr2-ingest"
-  additional_user_roles                         = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
-  anonymiser_roles                              = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_role_arn]) : []
-  anonymiser_lambda_arns                        = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
-  files_dynamo_table_name                       = "${local.environment}-dr2-files"
-  ingest_lock_dynamo_table_name                 = "${local.environment}-dr2-ingest-lock"
-  files_table_global_secondary_index_name       = "BatchParentPathIdx"
-  ingest_lock_table_global_secondary_index_name = "IngestLockBatchIdx"
-  dev_notifications_channel_id                  = local.environment == "prod" ? "C06EDJPF0VB" : "C052LJASZ08"
-  general_notifications_channel_id              = local.environment == "prod" ? "C06E20AR65V" : "C068RLCPZFE"
-  tre_prod_judgment_role                        = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
-  java_runtime                                  = "java21"
-  java_lambda_memory_size                       = 512
-  java_timeout_seconds                          = 60
-  python_runtime                                = "python3.12"
-  python_lambda_memory_size                     = 128
-  python_timeout_seconds                        = 30
-  step_function_failure_log_group               = "step-function-failures"
-  preservica_tenant                             = local.environment == "prod" ? "tna" : "tnatest"
-  preservica_ingest_bucket                      = "com.preservica.${local.preservica_tenant}.bulk1"
-  tna_to_preservica_role_arn                    = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
-  creator                                       = "dr2-terraform-environments"
+  az_count                                             = local.environment == "prod" ? 2 : 1
+  ingest_raw_cache_bucket_name                         = "${local.environment}-dr2-ingest-raw-cache"
+  sample_files_bucket_name                             = "${local.environment}-dr2-sample-files"
+  ingest_staging_cache_bucket_name                     = "${local.environment}-dr2-ingest-staging-cache"
+  ingest_step_function_name                            = "${local.environment}-dr2-ingest"
+  additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  anonymiser_roles                                     = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_role_arn]) : []
+  anonymiser_lambda_arns                               = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
+  files_dynamo_table_name                              = "${local.environment}-dr2-files"
+  ingest_lock_dynamo_table_name                        = "${local.environment}-dr2-ingest-lock"
+  files_table_batch_parent_global_secondary_index_name = "BatchParentPathIdx"
+  files_table_ingest_ps_global_secondary_index_name    = "IngestPSIdx"
+  ingest_lock_table_global_secondary_index_name        = "IngestLockBatchIdx"
+  dev_notifications_channel_id                         = local.environment == "prod" ? "C06EDJPF0VB" : "C052LJASZ08"
+  general_notifications_channel_id                     = local.environment == "prod" ? "C06E20AR65V" : "C068RLCPZFE"
+  tre_prod_judgment_role                               = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
+  java_runtime                                         = "java21"
+  java_lambda_memory_size                              = 512
+  java_timeout_seconds                                 = 60
+  python_runtime                                       = "python3.12"
+  python_lambda_memory_size                            = 128
+  python_timeout_seconds                               = 30
+  step_function_failure_log_group                      = "step-function-failures"
+  terraform_role_arn                                   = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"
+  preservica_tenant                                    = local.environment == "prod" ? "tna" : "tnatest"
+  preservica_ingest_bucket                             = "com.preservica.${local.preservica_tenant}.bulk1"
+  tna_to_preservica_role_arn                           = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
+  creator                                              = "dr2-terraform-environments"
   dashboard_lambdas = [
     local.ingest_asset_opex_creator_lambda_name,
     local.ingest_asset_reconciler_lambda_name,
@@ -125,7 +127,7 @@ module "dr2_kms_key" {
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
     ], local.additional_user_roles, local.anonymiser_roles)
-    ci_roles = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
+    ci_roles = [local.terraform_role_arn]
     service_details = [
       { service_name = "cloudwatch" },
       { service_name = "sns", service_source_account = module.tre_config.account_numbers["prod"] },
@@ -143,7 +145,7 @@ module "dr2_developer_key" {
       data.aws_ssm_parameter.dev_admin_role.value,
       module.dr2_preservica_config_lambda.lambda_role_arn
     ]
-    ci_roles      = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment_title}TerraformRole"]
+    ci_roles      = [local.terraform_role_arn]
     service_names = ["s3", "sns", "logs.eu-west-2", "cloudwatch"]
   }
 }
@@ -287,13 +289,19 @@ module "files_table" {
   kms_key_arn                    = module.dr2_kms_key.kms_key_arn
   additional_attributes = [
     { name = "batchId", type = "S" },
-    { name = "parentPath", type = "S" }
+    { name = "parentPath", type = "S" },
+    { name = "ingested_PS", type = "S" }
   ]
   global_secondary_indexes = [
     {
-      name            = local.files_table_global_secondary_index_name
+      name            = local.files_table_batch_parent_global_secondary_index_name
       hash_key        = "batchId"
       range_key       = "parentPath"
+      projection_type = "ALL"
+    },
+    {
+      name            = local.files_table_ingest_ps_global_secondary_index_name
+      hash_key        = "ingested_PS"
       projection_type = "ALL"
     }
   ]

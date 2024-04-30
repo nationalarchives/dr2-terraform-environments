@@ -14,7 +14,7 @@ module "dr2_ingest_asset_opex_creator_lambda" {
       account_id              = var.account_number
       lambda_name             = local.ingest_asset_opex_creator_lambda_name
       dynamo_db_arn           = module.files_table.table_arn
-      gsi_name                = local.files_table_global_secondary_index_name
+      gsi_name                = local.files_table_batch_parent_global_secondary_index_name
 
     })
   }
@@ -22,7 +22,7 @@ module "dr2_ingest_asset_opex_creator_lambda" {
   runtime     = local.java_runtime
   plaintext_env_vars = {
     DYNAMO_TABLE_NAME  = local.files_dynamo_table_name
-    DYNAMO_GSI_NAME    = local.files_table_global_secondary_index_name
+    DYNAMO_GSI_NAME    = local.files_table_batch_parent_global_secondary_index_name
     DESTINATION_BUCKET = local.ingest_staging_cache_bucket_name
   }
   tags = {
