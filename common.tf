@@ -472,9 +472,3 @@ module "tdr_export_notifications_subscription_policy" {
   name          = "${local.environment}-tdr-export-notifications-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/subscribe_to_tdr_export_notifications.json.tpl", { tdr_sns_arn = local.tdr_export_notifications_role })
 }
-
-module "test_renamed_bucket1" {
-  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3?ref=add-suffix-to-bucket-name"
-  bucket_name = local.ingest_raw_cache_bucket_name
-
-}
