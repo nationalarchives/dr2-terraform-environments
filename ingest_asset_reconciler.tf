@@ -12,7 +12,7 @@ module "dr2_ingest_asset_reconciler_lambda" {
       account_id                 = var.account_number
       lambda_name                = local.ingest_asset_reconciler_lambda_name
       dynamo_db_arn              = module.files_table.table_arn
-      gsi_name                   = local.files_table_global_secondary_index_name
+      gsi_name                   = local.files_table_batch_parent_global_secondary_index_name
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
     })
   }
@@ -22,7 +22,7 @@ module "dr2_ingest_asset_reconciler_lambda" {
     PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_secret.name
     PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
     DYNAMO_TABLE_NAME      = local.files_dynamo_table_name
-    DYNAMO_GSI_NAME        = local.files_table_global_secondary_index_name
+    DYNAMO_GSI_NAME        = local.files_table_batch_parent_global_secondary_index_name
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
