@@ -15,6 +15,7 @@ locals {
   dev_notifications_channel_id                         = local.environment == "prod" ? "C06EDJPF0VB" : "C052LJASZ08"
   general_notifications_channel_id                     = local.environment == "prod" ? "C06E20AR65V" : "C068RLCPZFE"
   tre_prod_judgment_role                               = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
+  tdr_export_notifications_role                        = "arn:aws:sns:eu-west-2:${module.tdr_config.account_numbers[local.environment]}:tdr-export-notifications-${local.environment}"
   java_runtime                                         = "java21"
   java_lambda_memory_size                              = 512
   java_timeout_seconds                                 = 60
@@ -454,5 +455,26 @@ resource "aws_cloudwatch_dashboard" "ingest_dashboard" {
     source_list                     = join(" | ", [for lambda in local.dashboard_lambdas : format("SOURCE '/aws/lambda/%s'", lambda)])
   })
   dashboard_name = "${local.environment}-dr2-ingest-dashboard"
+}
+
+module "tdr_export_notifications_subscription_role" {
+  source             = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
+  assume_role_policy = templatefile("${path.module}/templates/iam_role/aws_principal_assume_role.json.tpl", { aws_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root" })
+  name               = "${local.environment}-tdr-export-notifications-role"
+  policy_attachments = {
+    subscribe_policy = module.tdr_export_notifications_subscription_policy.policy_arn
+  }
+  tags = {}
+}
+
+module "tdr_export_notifications_subscription_policy" {
+  source        = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
+  name          = "${local.environment}-tdr-export-notifications-policy"
+  policy_string = templatefile("${path.module}/templates/iam_policy/subscribe_to_tdr_export_notifications.json.tpl", { tdr_sns_arn = local.tdr_export_notifications_role })
+}
+
+module "test_renamed_bucket1" {
+  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3?ref=add-suffix-to-bucket-name"
+  bucket_name = local.ingest_raw_cache_bucket_name
 
 }
