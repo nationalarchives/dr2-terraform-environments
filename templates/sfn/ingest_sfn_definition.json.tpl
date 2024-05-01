@@ -462,13 +462,24 @@
               {
                 "Variable": "$.wasReconciled",
                 "BooleanEquals": true,
-                "Next": "Do nothing"
+                "Next": "Publish reconciliation update to dr2-notifications"
               }
             ],
             "Default": "Throw Reconciler job error"
           },
-          "Do nothing": {
-            "Type": "Pass",
+          "Publish reconciliation update to dr2-notifications": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::sns:publish",
+            "Parameters": {
+              "Message": {
+                "reconciliationUpdate": "Asset was reconciled",
+                "assetId.$": "$.AssetInfo.assetId",
+                "messageId": "$.messageId",
+                "parentMessageId": "$.parentMessageId",
+                "executionId": "$.executionId"
+              },
+              "TopicArn": "arn:aws:sns:eu-west-2:${account_id}:${ingest_dr2_notifications_name}"
+            },
             "End": true
           },
           "Post failure message to Slack": {
