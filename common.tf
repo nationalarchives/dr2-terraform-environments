@@ -199,6 +199,8 @@ module "dr2_ingest_step_function" {
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
+    ingest_lock_table_name                        = local.ingest_lock_dynamo_table_name
+    ingest_lock_table_gsi_name                    = local.ingest_lock_table_global_secondary_index_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     preservica_bucket_name                        = local.preservica_ingest_bucket
     datasync_task_arn                             = aws_datasync_task.dr2_copy_tna_to_preservica.arn
@@ -275,6 +277,8 @@ module "dr2_ingest_step_function_policy" {
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
+    ingest_lock_table_name                        = local.ingest_lock_dynamo_table_name
+    ingest_lock_table_gsi_name                    = local.ingest_lock_table_global_secondary_index_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     ingest_sfn_name                               = local.ingest_step_function_name
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
