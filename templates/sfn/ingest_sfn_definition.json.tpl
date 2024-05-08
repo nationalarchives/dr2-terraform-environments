@@ -516,7 +516,7 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.ScannedCount",
+          "Variable": "$.Count",
           "NumericEquals": 0,
           "Next": "Do nothing, as items have been removed from lock table"
         }
