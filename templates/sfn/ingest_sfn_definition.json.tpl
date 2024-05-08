@@ -495,7 +495,42 @@
           }
         }
       },
+      "Next": "Get number of items in lock table that have this batchId"
+    },
+    "Get number of items in lock table that have this batchId": {
+      "Type": "Task",
+      "Parameters": {
+        "TableName": "${ingest_lock_table_name}",
+        "IndexName": "${ingest_lock_table_batch_id_gsi_name}",
+        "KeyConditionExpression": "batchId = :lookUpId",
+        "ExpressionAttributeValues": {
+          ":lookUpId": {
+            "S.$": "$$.Execution.Input.batchId"
+          }
+        }
+      },
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+      "Next": "Check if number of items is 0"
+    },
+    "Check if number of items is 0": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Count",
+          "NumericEquals": 0,
+          "Next": "Do nothing, as items have been removed from lock table"
+        }
+      ],
+      "Default": "Throw error, as items haven't been removed from lock table"
+    },
+    "Do nothing, as items have been removed from lock table": {
+      "Type": "Pass",
       "End": true
+    },
+    "Throw error, as items haven't been removed from lock table": {
+      "Type": "Fail",
+      "Cause": "Items with batchId still exist in lock table",
+      "Error": "Items with batchId still exist in lock table"
     }
   }
 }
