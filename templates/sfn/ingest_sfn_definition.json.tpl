@@ -478,7 +478,7 @@
                 "parentMessageId": "$.parentMessageId",
                 "executionId": "$.executionId"
               },
-              "TopicArn": "arn:aws:sns:eu-west-2:${account_id}:${ingest_dr2_notifications_name}"
+              "TopicArn": "arn:aws:sns:eu-west-2:${account_id}:${notifications_topic_name}"
             },
             "End": true
           },

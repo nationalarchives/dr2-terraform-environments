@@ -24,7 +24,7 @@
         "arn:aws:states:eu-west-2:${account_id}:stateMachine:${ingest_sfn_name}",
         "arn:aws:states:eu-west-2:${account_id}:execution:${ingest_sfn_name}/StagingCacheS3ObjectKeys:*",
         "arn:aws:states:eu-west-2:${account_id}:execution:${ingest_sfn_name}:*",
-        "arn:aws:sns:eu-west-2:${account_id}:${ingest_dr2_notifications_name}",
+        "arn:aws:sns:eu-west-2:${account_id}:${notifications_topic_name}",
         "arn:aws:events:eu-west-2:${account_id}:event-bus/default",
         "${tna_to_preservica_role_arn}"
       ]
