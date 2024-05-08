@@ -501,7 +501,7 @@
       "Type": "Task",
       "Parameters": {
         "TableName": "${ingest_lock_table_name}",
-        "IndexName": "${ingest_lock_table_gsi_name}",
+        "IndexName": "${ingest_lock_table_batch_id_gsi_name}",
         "KeyConditionExpression": "batchId = :lookUpId",
         "ExpressionAttributeValues": {
           ":lookUpId": {
