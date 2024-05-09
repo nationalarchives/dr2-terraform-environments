@@ -23,6 +23,7 @@ module "dr2_ingest_asset_reconciler_lambda" {
     PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
     DYNAMO_TABLE_NAME      = local.files_dynamo_table_name
     DYNAMO_GSI_NAME        = local.files_table_batch_parent_global_secondary_index_name
+    DYNAMO_LOCK_TABLE_NAME = local.ingest_lock_dynamo_table_name
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
