@@ -474,9 +474,11 @@
               "Message": {
                 "reconciliationUpdate": "Asset was reconciled",
                 "assetId.$": "$.AssetInfo.assetId",
-                "messageId": "$.messageId",
-                "parentMessageId": "$.parentMessageId",
-                "executionId": "$.executionId"
+                "properties": {
+                  "messageId.$": "$.messageId",
+                  "parentMessageId.$": "$.parentMessageId",
+                  "executionId.$": "$.executionId"
+                }
               },
               "TopicArn": "arn:aws:sns:eu-west-2:${account_id}:${notifications_topic_name}"
             },
