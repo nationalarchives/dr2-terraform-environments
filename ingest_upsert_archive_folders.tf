@@ -11,7 +11,7 @@ module "dr2_ingest_upsert_archive_folders_lambda" {
     "${local.ingest_upsert_archive_folders_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_upsert_archive_folders_policy.json.tpl", {
       account_id                 = var.account_number
       lambda_name                = local.ingest_upsert_archive_folders_lambda_name
-      dynamo_db_arn              = module.files_table.table_arn
+      dynamo_db_file_table_arn   = module.files_table.table_arn
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
     })
   }
