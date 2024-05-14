@@ -1,7 +1,18 @@
+locals {
+  repositories = ["dr2-ingest", "dr2-ip-lock-checker"]
+  all_repository_filters = flatten([
+    for repository in local.repositories : [
+      "repo:nationalarchives/${repository}:environment:${local.environment}",
+      "repo:nationalarchives/${repository}:ref:refs/heads/main"
+    ]
+  ])
+}
 module "deploy_lambda_role" {
-  source             = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
-  assume_role_policy = templatefile("${path.module}/templates/iam_role/github_assume_role.json.tpl", { account_id = data.aws_caller_identity.current.account_id, repo_filter = "dr2-*" })
-  name               = "${local.environment_title}DPGithubActionsDeployLambdaRole"
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
+  assume_role_policy = templatefile("${path.module}/templates/iam_role/github_assume_role.json.tpl", {
+    account_id = data.aws_caller_identity.current.account_id,
+  repo_filters = jsonencode(local.all_repository_filters) })
+  name = "${local.environment_title}DPGithubActionsDeployLambdaRole"
   policy_attachments = {
     deploy_policy = module.deploy_lambda_policy.policy_arn
   }
