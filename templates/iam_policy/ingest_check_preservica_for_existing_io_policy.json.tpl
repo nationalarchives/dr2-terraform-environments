@@ -7,7 +7,7 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "${dynamo_db_arn}"
+        "${dynamo_db_file_table_arn}"
       ],
       "Sid": "getAndUpdateDynamoDB"
     },

@@ -11,7 +11,7 @@ module "ingest_check_preservica_for_existing_io_lambda" {
       "./templates/iam_policy/ingest_check_preservica_for_existing_io_policy.json.tpl", {
         account_id                 = var.account_number
         lambda_name                = local.ingest_check_preservica_for_existing_io_lambda_name
-        dynamo_db_arn              = module.files_table.table_arn
+        dynamo_db_file_table_arn   = module.files_table.table_arn
         secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
       }
     )
