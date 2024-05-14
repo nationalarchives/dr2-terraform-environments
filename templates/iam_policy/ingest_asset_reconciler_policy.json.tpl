@@ -7,8 +7,9 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "${dynamo_db_arn}",
-        "${dynamo_db_arn}/index/${gsi_name}"
+        "${dynamo_db_file_table_arn}",
+        "${dynamo_db_file_table_arn}/index/${gsi_name}",
+        "${dynamo_db_lock_table_arn}"
       ],
       "Sid": "getAndQueryDynamoDB"
     },
