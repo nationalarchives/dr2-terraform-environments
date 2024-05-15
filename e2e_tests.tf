@@ -1,7 +1,13 @@
 module "run_e2e_tests_role" {
-  source             = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
-  assume_role_policy = templatefile("${path.module}/templates/iam_role/github_assume_role.json.tpl", { account_id = data.aws_caller_identity.current.account_id, repo_filter = "dr2-*" })
-  name               = "${local.environment}-dr2-run-e2e-tests-role"
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
+  assume_role_policy = templatefile("${path.module}/templates/iam_role/github_assume_role.json.tpl", {
+    account_id = data.aws_caller_identity.current.account_id,
+    repo_filters = jsonencode([
+      "repo:nationalarchives/dr2-e2e-tests:environment:${local.environment}",
+      "repo:nationalarchives/dr2-e2e-tests:ref:refs/heads/main"
+    ])
+  })
+  name = "${local.environment}-dr2-run-e2e-tests-role"
   policy_attachments = {
     run_e2e_tests_policy = module.run_e2e_tests_policy.policy_arn
   }
