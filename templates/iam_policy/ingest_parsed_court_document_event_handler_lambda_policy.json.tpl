@@ -33,6 +33,14 @@
     },
     {
       "Action": [
+        "dynamodb:PutItem"
+      ],
+      "Effect": "Allow",
+      "Resource": "${dynamo_db_lock_table_arn}",
+      "Sid": "writeDynamoDB"
+    },
+    {
+      "Action": [
         "logs:PutLogEvents",
         "logs:CreateLogStream",
         "logs:CreateLogGroup"
