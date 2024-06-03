@@ -22,7 +22,7 @@ module "dr2_get_latest_preservica_version_lambda" {
       account_id                 = data.aws_caller_identity.current.account_id
       lambda_name                = local.get_latest_preservica_version
       dynamo_db_file_table_arn   = module.get_latest_preservica_version_lambda_dr2_preservica_version_table.table_arn
-      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
+      secrets_manager_secret_arn = aws_secretsmanager_secret.demo_preservica_secret.arn
       sns_arn                    = local.latest_preservica_version_event_topic_arn
     })
   }
