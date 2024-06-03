@@ -3,6 +3,7 @@ locals {
   latest_preservica_version_event_topic_name = "${local.environment}-dr2-latest-preservica-version-topic"
   dr2_preservica_version_table_name          = "${local.environment}-dr2-preservica-version"
   latest_preservica_version_event_topic_arn  = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.latest_preservica_version_event_topic_name}"
+  preservica_secret                          = local.environment != "prod" ? aws_secretsmanager_secret.demo_preservica_secret : aws_secretsmanager_secret.preservica_secret
 }
 
 
@@ -22,7 +23,7 @@ module "dr2_get_latest_preservica_version_lambda" {
       account_id                 = data.aws_caller_identity.current.account_id
       lambda_name                = local.get_latest_preservica_version
       dynamo_db_file_table_arn   = module.get_latest_preservica_version_lambda_dr2_preservica_version_table.table_arn
-      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
+      secrets_manager_secret_arn = local.preservica_secret.arn
       sns_arn                    = local.latest_preservica_version_event_topic_arn
     })
   }
@@ -35,7 +36,7 @@ module "dr2_get_latest_preservica_version_lambda" {
   }
 
   plaintext_env_vars = {
-    PRESERVICA_SECRET_NAME                = aws_secretsmanager_secret.demo_preservica_secret.name
+    PRESERVICA_SECRET_NAME                = local.preservica_secret.name
     PRESERVICA_VERSION_EVENT_TOPIC_ARN    = local.latest_preservica_version_event_topic_arn
     CURRENT_PRESERVICA_VERSION_TABLE_NAME = local.dr2_preservica_version_table_name
     PRESERVICA_DEMO_API_URL               = data.aws_ssm_parameter.demo_preservica_url.value
