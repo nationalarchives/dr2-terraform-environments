@@ -462,13 +462,28 @@
               {
                 "Variable": "$.wasReconciled",
                 "BooleanEquals": true,
-                "Next": "Do nothing"
+                "Next": "Update ingested_PS attribute in Dynamo"
               }
             ],
             "Default": "Throw Reconciler job error"
           },
-          "Do nothing": {
-            "Type": "Pass",
+          "Update ingested_PS attribute in Dynamo": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:updateItem",
+            "Parameters": {
+              "TableName": "${ingest_files_table_name}",
+              "Key": {
+                "id": {
+                  "S.$": "$.reconciliationSnsMessage.assetId"
+                }
+              },
+              "UpdateExpression": "SET ingested_PS = :ingestedPSValue",
+              "ExpressionAttributeValues": {
+                ":ingestedPSValue": {
+                  "S": "true"
+                }
+              }
+            },
             "End": true
           },
           "Post failure message to Slack": {
