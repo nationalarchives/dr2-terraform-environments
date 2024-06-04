@@ -204,6 +204,7 @@ module "dr2_ingest_step_function" {
     ingest_lock_table_batch_id_gsi_name           = local.ingest_lock_table_batch_id_gsi_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     preservica_bucket_name                        = local.preservica_ingest_bucket
+    ingest_files_table_name                       = local.files_dynamo_table_name
     datasync_task_arn                             = aws_datasync_task.dr2_copy_tna_to_preservica.arn
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
@@ -282,6 +283,7 @@ module "dr2_ingest_step_function_policy" {
     ingest_lock_table_batch_id_gsi_name           = local.ingest_lock_table_batch_id_gsi_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     ingest_sfn_name                               = local.ingest_step_function_name
+    ingest_files_table_name                       = local.files_dynamo_table_name
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
 }

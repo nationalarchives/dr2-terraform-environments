@@ -29,6 +29,16 @@
         "arn:aws:events:eu-west-2:${account_id}:event-bus/default",
         "${tna_to_preservica_role_arn}"
       ]
+    },
+    {
+      "Sid": "updateFilesTable",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:UpdateItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:eu-west-2:${account_id}:table/${ingest_files_table_name}"
+      ]
     }
   ],
   "Version": "2012-10-17"
