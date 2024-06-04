@@ -462,7 +462,7 @@
               {
                 "Variable": "$.wasReconciled",
                 "BooleanEquals": true,
-                "Next": "Update ingested_PS attribute in Dynamo"
+                "Next": "Update ingested_PS attribute in Files table"
               }
             ],
             "Default": "Throw Reconciler job error"
