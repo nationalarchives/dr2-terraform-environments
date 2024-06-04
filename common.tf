@@ -9,6 +9,7 @@ locals {
   anonymiser_lambda_arns                               = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
   files_dynamo_table_name                              = "${local.environment}-dr2-files"
   ingest_lock_dynamo_table_name                        = "${local.environment}-dr2-ingest-lock"
+  enable_point_in_time_recovery                        = true
   files_table_batch_parent_global_secondary_index_name = "BatchParentPathIdx"
   files_table_ingest_ps_global_secondary_index_name    = "IngestPSIdx"
   ingest_lock_table_batch_id_gsi_name                  = "IngestLockBatchIdx"
@@ -312,6 +313,7 @@ module "files_table" {
       projection_type = "ALL"
     }
   ]
+  point_in_time_recovery_enabled = local.enable_point_in_time_recovery
 }
 
 module "ingest_lock_table" {
@@ -330,6 +332,7 @@ module "ingest_lock_table" {
       projection_type = "ALL"
     }
   ]
+  point_in_time_recovery_enabled = local.enable_point_in_time_recovery
 }
 
 data "aws_ssm_parameter" "slack_token" {
