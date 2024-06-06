@@ -74,7 +74,7 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
 6. Make your terraform changes
    1. Add/update a tf file to the root of this project (might be best to copy an existing tf file as a base)
       * If you are creating a Lambda, add its arn to the `deploy_lambda_policy` in the `deploy_roles` file at the root of this project
-   2. Add an IAM policy
+   2. Add/update an IAM policy, depending on the change you are making
    3. If what you've created is part of a step function (e.g. a lambda):
       1. add it to the step function's module in the `common.tf`
       2. add it to the step function's policy module in the `common.tf`
