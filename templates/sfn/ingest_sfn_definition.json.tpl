@@ -467,7 +467,7 @@
             ],
             "Default": "Throw Reconciler job error"
           },
-          "Update ingested_PS attribute in Dynamo": {
+          "Update ingested_PS attribute in Files table": {
             "Type": "Task",
             "Resource": "arn:aws:states:::dynamodb:updateItem",
             "Parameters": {
