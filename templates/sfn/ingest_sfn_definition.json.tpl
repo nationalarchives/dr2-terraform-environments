@@ -485,7 +485,7 @@
               }
             },
             "ResultPath": null,
-            "End": true
+            "Next": "Delete asset item from lock table"
           },
           "Delete asset item from lock table": {
             "Type": "Task",
