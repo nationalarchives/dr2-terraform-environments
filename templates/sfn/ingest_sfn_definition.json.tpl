@@ -467,7 +467,7 @@
             ],
             "Default": "Throw Reconciler job error"
           },
-          "Update ingested_PS attribute in Dynamo": {
+          "Update ingested_PS attribute in Files table": {
             "Type": "Task",
             "Resource": "arn:aws:states:::dynamodb:updateItem",
             "Parameters": {
@@ -484,6 +484,27 @@
                 }
               }
             },
+            "ResultPath": null,
+            "End": true
+          },
+          "Delete asset item from lock table": {
+            "Type": "Task",
+            "Parameters": {
+              "RequestItems": {
+                "${ingest_lock_table_name}": [
+                  {
+                    "DeleteRequest": {
+                      "Key": {
+                        "${ingest_lock_table_hash_key}": {
+                          "S.$": "$.assetName"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "Resource": "arn:aws:states:::aws-sdk:dynamodb:batchWriteItem",
             "End": true
           },
           "Post failure message to Slack": {

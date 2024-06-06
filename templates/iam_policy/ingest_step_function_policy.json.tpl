@@ -9,7 +9,8 @@
         "states:StartExecution",
         "sts:AssumeRole",
         "events:PutEvents",
-        "dynamodb:Query"
+        "dynamodb:Query",
+        "dynamodb:BatchWriteItem"
       ],
       "Resource": [
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
