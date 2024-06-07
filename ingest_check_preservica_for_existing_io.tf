@@ -4,7 +4,7 @@ locals {
 module "ingest_check_preservica_for_existing_io_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.ingest_check_preservica_for_existing_io_lambda_name
-  handler         = "uk.gov.nationalarchives.Lambda::handleRequest"
+  handler         = "uk.gov.nationalarchives.ingestfindexistingasset.Lambda::handleRequest"
   timeout_seconds = 60
   policies = {
     "${local.ingest_check_preservica_for_existing_io_lambda_name}-policy" = templatefile(
