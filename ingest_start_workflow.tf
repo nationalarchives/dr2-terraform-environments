@@ -5,7 +5,7 @@ locals {
 module "dr2_ingest_start_workflow_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.ingest_start_workflow_lambda_name
-  handler         = "uk.gov.nationalarchives.Lambda::handleRequest"
+  handler         = "uk.gov.nationalarchives.ingeststartworkflow.Lambda::handleRequest"
   timeout_seconds = local.java_timeout_seconds
   policies = {
     "${local.ingest_start_workflow_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_start_workflow_policy.json.tpl", {

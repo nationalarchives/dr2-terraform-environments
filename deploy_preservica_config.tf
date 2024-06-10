@@ -48,7 +48,7 @@ module "dr2_preservica_config_queue" {
 module "dr2_preservica_config_lambda" {
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name = local.preservica_config_lambda_name
-  handler       = "uk.gov.nationalarchives.dp.Lambda::handleRequest"
+  handler       = "uk.gov.nationalarchives.preservicaconfig.Lambda::handleRequest"
   lambda_sqs_queue_mappings = [{
     sqs_queue_arn = "arn:aws:sqs:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.environment}-dr2-preservica-config"
   }]
