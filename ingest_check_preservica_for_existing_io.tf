@@ -1,6 +1,6 @@
 locals {
   ingest_check_preservica_for_existing_io_lambda_name_old = "${local.environment}-dr2-ingest-check-preservica-for-existing-io"
-  ingest_check_preservica_for_existing_io_lambda_name = "${local.environment}-dr2-ingest-find-existing-asset"
+  ingest_check_preservica_for_existing_io_lambda_name     = "${local.environment}-dr2-ingest-find-existing-asset"
 }
 module "ingest_check_preservica_for_existing_io_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
