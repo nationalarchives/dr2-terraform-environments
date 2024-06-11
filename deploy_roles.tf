@@ -26,6 +26,7 @@ module "deploy_lambda_policy" {
     lambda_arns = jsonencode(flatten(
       [
         module.ingest_check_preservica_for_existing_io_lambda.lambda_arn,
+        module.ingest_find_existing_asset.lambda_arn,
         module.dr2_ip_lock_checker_lambda.lambda_arn,
         module.dr2_ingest_parsed_court_document_event_handler_lambda.lambda_arn,
         module.dr2_entity_event_generator_lambda.lambda_arn,
