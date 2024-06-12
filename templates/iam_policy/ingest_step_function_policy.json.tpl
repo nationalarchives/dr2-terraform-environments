@@ -15,7 +15,7 @@
       "Resource": [
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archive_folders_lambda_name}",
-        "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_check_preservica_for_existing_io}",
+        "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_find_existing_asset_lambda_name}",
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_asset_opex_creator_lambda_name}",
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_folder_opex_creator_lambda_name}",
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_parent_folder_opex_creator_lambda_name}",

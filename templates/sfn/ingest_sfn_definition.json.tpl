@@ -74,7 +74,7 @@
         "States": {
           "Check if asset has already been ingested": {
             "Type": "Task",
-            "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_check_preservica_for_existing_io}",
+            "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_find_existing_asset_name_lambda_name}",
             "Retry": [
               {
                 "ErrorEquals": [
