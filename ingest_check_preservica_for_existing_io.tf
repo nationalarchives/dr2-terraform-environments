@@ -1,6 +1,6 @@
 locals {
   ingest_check_preservica_for_existing_io_lambda_name_old = "${local.environment}-dr2-ingest-check-preservica-for-existing-io"
-  ingest_check_preservica_for_existing_io_lambda_name     = "${local.environment}-dr2-ingest-find-existing-asset"
+  ingest_find_existing_asset_name                         = "${local.environment}-dr2-ingest-find-existing-asset"
 }
 module "ingest_check_preservica_for_existing_io_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
@@ -37,14 +37,14 @@ module "ingest_check_preservica_for_existing_io_lambda" {
 
 module "ingest_find_existing_asset" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
-  function_name   = local.ingest_check_preservica_for_existing_io_lambda_name
+  function_name   = local.ingest_find_existing_asset_name
   handler         = "uk.gov.nationalarchives.ingestfindexistingasset.Lambda::handleRequest"
   timeout_seconds = 60
   policies = {
-    "${local.ingest_check_preservica_for_existing_io_lambda_name}-policy" = templatefile(
+    "${local.ingest_find_existing_asset_name}-policy" = templatefile(
       "./templates/iam_policy/ingest_check_preservica_for_existing_io_policy.json.tpl", {
         account_id                 = var.account_number
-        lambda_name                = local.ingest_check_preservica_for_existing_io_lambda_name
+        lambda_name                = local.ingest_find_existing_asset_name
         dynamo_db_file_table_arn   = module.files_table.table_arn
         secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
       }
@@ -62,7 +62,7 @@ module "ingest_find_existing_asset" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   tags = {
-    Name      = local.ingest_check_preservica_for_existing_io_lambda_name
+    Name      = local.ingest_find_existing_asset_name
     CreatedBy = "dp-terraform-environments"
   }
 }
