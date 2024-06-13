@@ -32,7 +32,7 @@ locals {
   dashboard_lambdas = [
     local.ingest_asset_opex_creator_lambda_name,
     local.ingest_asset_reconciler_lambda_name,
-    local.ingest_check_preservica_for_existing_io_lambda_name_old,
+    local.ingest_find_existing_asset_name,
     local.ingest_folder_opex_creator_lambda_name,
     local.ingest_mapper_lambda_name,
     local.ingest_parent_folder_opex_creator_lambda_name,
@@ -117,7 +117,7 @@ module "dr2_kms_key" {
   key_name = "${local.environment}-kms-dr2"
   default_policy_variables = {
     user_roles = concat([
-      module.ingest_check_preservica_for_existing_io_lambda.lambda_role_arn,
+      module.ingest_find_existing_asset.lambda_role_arn,
       module.ingest_find_existing_asset.lambda_role_arn,
       module.dr2_ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.dr2_ingest_mapper_lambda.lambda_role_arn,
@@ -196,7 +196,7 @@ module "dr2_ingest_step_function" {
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
     ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
-    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name_old
+    ingest_find_existing_asset_name_lambda_name   = local.ingest_find_existing_asset_name
     ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
@@ -262,7 +262,7 @@ module "dr2_ingest_step_function_policy" {
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
     ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
-    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name_old
+    ingest_find_existing_asset_lambda_name        = local.ingest_find_existing_asset_name
     ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
