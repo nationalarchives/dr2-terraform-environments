@@ -9,7 +9,7 @@ module "ingest_find_existing_asset" {
   timeout_seconds = 60
   policies = {
     "${local.ingest_find_existing_asset_name}-policy" = templatefile(
-      "./templates/iam_policy/ingest_check_preservica_for_existing_io_policy.json.tpl", {
+      "ingest_find_existing_asset_policy.json.tpl", {
         account_id                 = var.account_number
         lambda_name                = local.ingest_find_existing_asset_name
         dynamo_db_file_table_arn   = module.files_table.table_arn
