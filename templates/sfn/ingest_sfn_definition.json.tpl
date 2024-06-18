@@ -472,12 +472,15 @@
             "Resource": "arn:aws:states:::sns:publish",
             "Parameters": {
               "Message": {
-                "reconciliationUpdate": "Asset was reconciled",
-                "assetId.$": "$.AssetInfo.assetId",
                 "properties": {
-                  "messageId.$": "$.messageId",
-                  "parentMessageId.$": "$.parentMessageId",
-                  "executionId.$": "$.executionId"
+                  "messageId": "$.reconciliationSnsMessage.properties.messageId",
+                  "parentMessageId": "$.reconciliationSnsMessage.properties.parentMessageId",
+                  "timestamp": "$.reconciliationSnsMessage.properties.timestamp",
+                  "type": "preserve.digital.asset.ingest.update"
+                },
+                "parameters": {
+                  "assetId": "$.reconciliationSnsMessage.parameters.assetId",
+                  "status": "Asset has been ingested to the Preservation system."
                 }
               },
               "TopicArn": "arn:aws:sns:eu-west-2:${account_id}:${notifications_topic_name}"
@@ -491,7 +494,7 @@
               "TableName": "${ingest_files_table_name}",
               "Key": {
                 "id": {
-                  "S.$": "$.reconciliationSnsMessage.assetId"
+                  "S.$": "$.assetId"
                 }
               },
               "UpdateExpression": "SET ingested_PS = :ingestedPSValue",
