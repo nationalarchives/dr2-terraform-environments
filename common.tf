@@ -9,9 +9,11 @@ locals {
   anonymiser_lambda_arns                               = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
   files_dynamo_table_name                              = "${local.environment}-dr2-files"
   ingest_lock_dynamo_table_name                        = "${local.environment}-dr2-ingest-lock"
+  enable_point_in_time_recovery                        = true
   files_table_batch_parent_global_secondary_index_name = "BatchParentPathIdx"
   files_table_ingest_ps_global_secondary_index_name    = "IngestPSIdx"
-  ingest_lock_table_global_secondary_index_name        = "IngestLockBatchIdx"
+  ingest_lock_table_batch_id_gsi_name                  = "IngestLockBatchIdx"
+  ingest_lock_table_hash_key                           = "ioId"
   dev_notifications_channel_id                         = local.environment == "prod" ? "C06EDJPF0VB" : "C052LJASZ08"
   general_notifications_channel_id                     = local.environment == "prod" ? "C06E20AR65V" : "C068RLCPZFE"
   tre_prod_judgment_role                               = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
@@ -30,7 +32,7 @@ locals {
   dashboard_lambdas = [
     local.ingest_asset_opex_creator_lambda_name,
     local.ingest_asset_reconciler_lambda_name,
-    local.ingest_check_preservica_for_existing_io_lambda_name,
+    local.ingest_find_existing_asset_name,
     local.ingest_folder_opex_creator_lambda_name,
     local.ingest_mapper_lambda_name,
     local.ingest_parent_folder_opex_creator_lambda_name,
@@ -115,7 +117,8 @@ module "dr2_kms_key" {
   key_name = "${local.environment}-kms-dr2"
   default_policy_variables = {
     user_roles = concat([
-      module.ingest_check_preservica_for_existing_io_lambda.lambda_role_arn,
+      module.ingest_find_existing_asset.lambda_role_arn,
+      module.ingest_find_existing_asset.lambda_role_arn,
       module.dr2_ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.dr2_ingest_mapper_lambda.lambda_role_arn,
       module.dr2_ingest_asset_opex_creator_lambda.lambda_role_arn,
@@ -123,6 +126,7 @@ module "dr2_kms_key" {
       module.dr2_ingest_upsert_archive_folders_lambda.lambda_role_arn,
       module.dr2_ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.dr2_ingest_asset_reconciler_lambda.lambda_role_arn,
+      module.dr2_ingest_step_function.step_function_role_arn,
       module.dr2_notifications_sns.sns_arn,
       module.e2e_tests_ecs_task_role.role_arn,
       local.tna_to_preservica_role_arn,
@@ -193,16 +197,20 @@ module "dr2_ingest_step_function" {
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
     ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
-    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name
+    ingest_find_existing_asset_name_lambda_name   = local.ingest_find_existing_asset_name
     ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
+    ingest_lock_table_name                        = local.ingest_lock_dynamo_table_name
+    ingest_lock_table_batch_id_gsi_name           = local.ingest_lock_table_batch_id_gsi_name
+    ingest_lock_table_hash_key                    = local.ingest_lock_table_hash_key
     notifications_topic_name                      = local.notifications_topic_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     preservica_bucket_name                        = local.preservica_ingest_bucket
+    ingest_files_table_name                       = local.files_dynamo_table_name
     datasync_task_arn                             = aws_datasync_task.dr2_copy_tna_to_preservica.arn
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
@@ -235,20 +243,6 @@ resource "aws_cloudwatch_log_group" "datasync_log_group" {
   name = "/aws/datasync/tna-to-preservica-copy"
 }
 
-resource "aws_datasync_task" "tna_to_preservica_copy" {
-  provider                 = aws.datasync_tna_to_preservica
-  destination_location_arn = aws_datasync_location_s3.preservica_staging_location.arn
-  source_location_arn      = aws_datasync_location_s3.tna_staging_location.arn
-  cloudwatch_log_group_arn = aws_cloudwatch_log_group.datasync_log_group.arn
-  options {
-    log_level         = "TRANSFER"
-    posix_permissions = "NONE"
-    uid               = "NONE"
-    gid               = "NONE"
-  }
-  name = "${local.environment}-tna-to-preservica-copy"
-}
-
 resource "aws_datasync_task" "dr2_copy_tna_to_preservica" {
   provider                 = aws.datasync_tna_to_preservica
   destination_location_arn = aws_datasync_location_s3.preservica_staging_location.arn
@@ -270,16 +264,19 @@ module "dr2_ingest_step_function_policy" {
     account_id                                    = var.account_number
     ingest_mapper_lambda_name                     = local.ingest_mapper_lambda_name
     ingest_upsert_archive_folders_lambda_name     = local.ingest_upsert_archive_folders_lambda_name
-    ingest_check_preservica_for_existing_io       = local.ingest_check_preservica_for_existing_io_lambda_name
+    ingest_find_existing_asset_lambda_name        = local.ingest_find_existing_asset_name
     ingest_asset_opex_creator_lambda_name         = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name        = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
     ingest_start_workflow_lambda_name             = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
+    ingest_lock_table_name                        = local.ingest_lock_dynamo_table_name
+    ingest_lock_table_batch_id_gsi_name           = local.ingest_lock_table_batch_id_gsi_name
     notifications_topic_name                      = local.notifications_topic_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     ingest_sfn_name                               = local.ingest_step_function_name
+    ingest_files_table_name                       = local.files_dynamo_table_name
     tna_to_preservica_role_arn                    = local.tna_to_preservica_role_arn
   })
 }
@@ -308,11 +305,12 @@ module "files_table" {
       projection_type = "ALL"
     }
   ]
+  point_in_time_recovery_enabled = local.enable_point_in_time_recovery
 }
 
 module "ingest_lock_table" {
   source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
-  hash_key                       = { name = "ioId", type = "S" }
+  hash_key                       = { name = local.ingest_lock_table_hash_key, type = "S" }
   table_name                     = local.ingest_lock_dynamo_table_name
   server_side_encryption_enabled = true
   kms_key_arn                    = module.dr2_kms_key.kms_key_arn
@@ -321,11 +319,12 @@ module "ingest_lock_table" {
   ]
   global_secondary_indexes = [
     {
-      name            = local.ingest_lock_table_global_secondary_index_name
+      name            = local.ingest_lock_table_batch_id_gsi_name
       hash_key        = "batchId"
       projection_type = "ALL"
     }
   ]
+  point_in_time_recovery_enabled = local.enable_point_in_time_recovery
 }
 
 data "aws_ssm_parameter" "slack_token" {

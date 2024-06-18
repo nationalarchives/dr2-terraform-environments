@@ -74,7 +74,7 @@
         "States": {
           "Check if asset has already been ingested": {
             "Type": "Task",
-            "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_check_preservica_for_existing_io}",
+            "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_find_existing_asset_name_lambda_name}",
             "Retry": [
               {
                 "ErrorEquals": [
@@ -482,6 +482,46 @@
               },
               "TopicArn": "arn:aws:sns:eu-west-2:${account_id}:${notifications_topic_name}"
             },
+            "Next": "Update ingested_PS attribute in Files table"
+          },
+          "Update ingested_PS attribute in Files table": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:updateItem",
+            "Parameters": {
+              "TableName": "${ingest_files_table_name}",
+              "Key": {
+                "id": {
+                  "S.$": "$.reconciliationSnsMessage.assetId"
+                }
+              },
+              "UpdateExpression": "SET ingested_PS = :ingestedPSValue",
+              "ExpressionAttributeValues": {
+                ":ingestedPSValue": {
+                  "S": "true"
+                }
+              }
+            },
+            "ResultPath": null,
+            "Next": "Delete asset item from lock table"
+          },
+          "Delete asset item from lock table": {
+            "Type": "Task",
+            "Parameters": {
+              "RequestItems": {
+                "${ingest_lock_table_name}": [
+                  {
+                    "DeleteRequest": {
+                      "Key": {
+                        "${ingest_lock_table_hash_key}": {
+                          "S.$": "$.assetName"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "Resource": "arn:aws:states:::aws-sdk:dynamodb:batchWriteItem",
             "End": true
           },
           "Post failure message to Slack": {
@@ -508,7 +548,42 @@
           }
         }
       },
+      "Next": "Get number of items in lock table that have this batchId"
+    },
+    "Get number of items in lock table that have this batchId": {
+      "Type": "Task",
+      "Parameters": {
+        "TableName": "${ingest_lock_table_name}",
+        "IndexName": "${ingest_lock_table_batch_id_gsi_name}",
+        "KeyConditionExpression": "batchId = :lookUpId",
+        "ExpressionAttributeValues": {
+          ":lookUpId": {
+            "S.$": "$$.Execution.Input.batchId"
+          }
+        }
+      },
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+      "Next": "Check if number of items is 0"
+    },
+    "Check if number of items is 0": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Count",
+          "NumericEquals": 0,
+          "Next": "Do nothing, as items have been removed from lock table"
+        }
+      ],
+      "Default": "Throw error, as items haven't been removed from lock table"
+    },
+    "Do nothing, as items have been removed from lock table": {
+      "Type": "Pass",
       "End": true
+    },
+    "Throw error, as items haven't been removed from lock table": {
+      "Type": "Fail",
+      "Cause": "Items with batchId still exist in lock table",
+      "Error": "Items with batchId still exist in lock table"
     }
   }
 }

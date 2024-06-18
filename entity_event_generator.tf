@@ -16,12 +16,12 @@ module "dr2_entity_event_cloudwatch_event" {
 module "dr2_entity_event_generator_lambda" {
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name = local.entity_event_lambda_name
-  handler       = "uk.gov.nationalarchives.Lambda::handleRequest"
+  handler       = "uk.gov.nationalarchives.entityeventgenerator.Lambda::handleRequest"
   policies = {
     dr2_entity_event_policy = templatefile("${path.module}/templates/iam_policy/entity_event_lambda_policy.json.tpl", {
       account_id                 = data.aws_caller_identity.current.account_id
       lambda_name                = local.entity_event_lambda_name
-      dynamo_db_arn              = module.dr2_entity_event_lambda_updated_since_query_start_datetime_table.table_arn
+      dynamo_db_file_table_arn   = module.dr2_entity_event_lambda_updated_since_query_start_datetime_table.table_arn
       secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
       sns_arn                    = local.entity_event_topic_arn
     })

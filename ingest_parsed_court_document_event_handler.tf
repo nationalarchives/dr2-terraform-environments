@@ -54,7 +54,7 @@ module "dr2_ingest_parsed_court_document_event_handler_sqs" {
 module "dr2_ingest_parsed_court_document_event_handler_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.ingest_parsed_court_document_event_handler_lambda_name
-  handler         = "uk.gov.nationalarchives.Lambda::handleRequest"
+  handler         = "uk.gov.nationalarchives.ingestparsedcourtdocumenteventhandler.Lambda::handleRequest"
   timeout_seconds = 60
   lambda_sqs_queue_mappings = [
     { sqs_queue_arn = "arn:aws:sqs:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.ingest_parsed_court_document_event_handler_queue_name}", ignore_enabled_status = true }
@@ -68,13 +68,15 @@ module "dr2_ingest_parsed_court_document_event_handler_lambda" {
       step_function_arn                                    = module.dr2_ingest_step_function.step_function_arn
       tre_kms_arn                                          = module.tre_config.terraform_config["prod_s3_court_document_pack_out_kms_arn"]
       tre_bucket_arn                                       = local.tre_terraform_prod_config["s3_court_document_pack_out_arn"]
+      dynamo_db_lock_table_arn                             = module.ingest_lock_table.table_arn
     })
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    OUTPUT_BUCKET = local.ingest_raw_cache_bucket_name
-    SFN_ARN       = module.dr2_ingest_step_function.step_function_arn
+    OUTPUT_BUCKET          = local.ingest_raw_cache_bucket_name
+    SFN_ARN                = module.dr2_ingest_step_function.step_function_arn
+    DYNAMO_LOCK_TABLE_NAME = local.ingest_lock_dynamo_table_name
   }
   tags = {
     Name      = local.ingest_parsed_court_document_event_handler_lambda_name

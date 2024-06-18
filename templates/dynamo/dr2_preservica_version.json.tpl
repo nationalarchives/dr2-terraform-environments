@@ -3,6 +3,6 @@
     "S": "DR2PreservicaVersion"
   },
   "version": {
-    "S": "6.9"
+    "N": "6.9"
   }
 }

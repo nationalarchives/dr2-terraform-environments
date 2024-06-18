@@ -6,7 +6,7 @@
         "dynamodb:BatchGetItem"
       ],
       "Effect": "Allow",
-      "Resource": "${dynamo_db_arn}",
+      "Resource": "${dynamo_db_file_table_arn}",
       "Sid": "readWriteDynamoDB"
     },
     {
