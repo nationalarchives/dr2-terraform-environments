@@ -137,7 +137,6 @@ module "dr2_kms_key" {
       { service_name = "sns", service_source_account = module.tre_config.account_numbers["prod"] },
       { service_name = "sns" },
     ]
-    service_names = ["cloudwatch", "sns"]
   }
 }
 
@@ -149,8 +148,13 @@ module "dr2_developer_key" {
       data.aws_ssm_parameter.dev_admin_role.value,
       module.dr2_preservica_config_lambda.lambda_role_arn
     ]
-    ci_roles      = [local.terraform_role_arn]
-    service_names = ["s3", "sns", "logs.eu-west-2", "cloudwatch"]
+    ci_roles = [local.terraform_role_arn]
+    service_details = [
+      { service_name = "s3" },
+      { service_name = "sns" },
+      { service_name = "logs.eu-west-2" },
+      { service_name = "cloudwatch" }
+    ]
   }
 }
 
