@@ -29,7 +29,6 @@ module "dr2_rotate_preservation_system_password_lambda" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   tags = {
-    Name      = local.rotate_preservation_system_password_name
-    CreatedBy = "dp-terraform-environments"
+    Name = local.rotate_preservation_system_password_name
   }
 }

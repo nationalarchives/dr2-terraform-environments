@@ -26,7 +26,6 @@ module "dr2_ingest_asset_opex_creator_lambda" {
     DESTINATION_BUCKET = local.ingest_staging_cache_bucket_name
   }
   tags = {
-    Name      = local.ingest_asset_opex_creator_lambda_name
-    CreatedBy = "dp-terraform-environments"
+    Name = local.ingest_asset_opex_creator_lambda_name
   }
 }
