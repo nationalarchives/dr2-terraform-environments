@@ -479,7 +479,7 @@
                   "type": "preserve.digital.asset.ingest.update"
                 },
                 "parameters": {
-                  "assetId": "$.reconciliationSnsMessage.parameters.assetId",
+                  "assetName": "$.reconciliationSnsMessage.parameters.assetName",
                   "status": "Asset has been ingested to the Preservation system."
                 }
               },
