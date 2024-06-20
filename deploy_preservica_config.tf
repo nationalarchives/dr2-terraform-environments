@@ -26,7 +26,7 @@ module "dr2_preservica_config_sns" {
   tags = {
     Name = "Preservica Config SNS"
   }
-  topic_name  = "${local.environment}-preservica-config"
+  topic_name  = local.preservica_config_sqs_name
   kms_key_arn = module.dr2_developer_key.kms_key_arn
   sqs_subscriptions = {
     preservica_config_queue = module.dr2_preservica_config_queue.sqs_arn
