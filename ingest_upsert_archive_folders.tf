@@ -28,7 +28,6 @@ module "dr2_ingest_upsert_archive_folders_lambda" {
   }
   reserved_concurrency = 1
   tags = {
-    Name      = local.ingest_upsert_archive_folders_lambda_name
-    CreatedBy = local.creator
+    Name = local.ingest_upsert_archive_folders_lambda_name
   }
 }
