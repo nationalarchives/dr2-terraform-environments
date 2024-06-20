@@ -73,7 +73,6 @@ module "dr2_preservica_config_lambda" {
     PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
   }
   tags = {
-    Name      = local.preservica_config_lambda_name
-    CreatedBy = local.creator
+    Name = local.preservica_config_lambda_name
   }
 }

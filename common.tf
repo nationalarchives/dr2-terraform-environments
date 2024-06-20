@@ -37,6 +37,7 @@ locals {
     local.ingest_mapper_lambda_name,
     local.ingest_parent_folder_opex_creator_lambda_name,
     local.ingest_parsed_court_document_event_handler_lambda_name,
+    local.rotate_preservation_system_password_name,
     local.ingest_start_workflow_lambda_name,
     local.ingest_upsert_archive_folders_lambda_name,
     local.ingest_workflow_monitor_lambda_name
@@ -100,7 +101,7 @@ data "aws_eip" "eip" {
 
 module "outbound_https_access_only" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = local.creator }
+  common_tags = {}
   description = "A security group to allow outbound access only"
   name        = "${local.environment}-outbound-https"
   vpc_id      = module.vpc.vpc_id
@@ -127,6 +128,7 @@ module "dr2_kms_key" {
       module.dr2_ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.dr2_ingest_asset_reconciler_lambda.lambda_role_arn,
       module.dr2_ingest_step_function.step_function_role_arn,
+      module.dr2_notifications_sns.sns_arn,
       module.e2e_tests_ecs_task_role.role_arn,
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
@@ -210,6 +212,7 @@ module "dr2_ingest_step_function" {
     ingest_lock_table_name                        = local.ingest_lock_dynamo_table_name
     ingest_lock_table_batch_id_gsi_name           = local.ingest_lock_table_batch_id_gsi_name
     ingest_lock_table_hash_key                    = local.ingest_lock_table_hash_key
+    notifications_topic_name                      = local.notifications_topic_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     preservica_bucket_name                        = local.preservica_ingest_bucket
     ingest_files_table_name                       = local.files_dynamo_table_name
@@ -275,6 +278,7 @@ module "dr2_ingest_step_function_policy" {
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
     ingest_lock_table_name                        = local.ingest_lock_dynamo_table_name
     ingest_lock_table_batch_id_gsi_name           = local.ingest_lock_table_batch_id_gsi_name
+    notifications_topic_name                      = local.notifications_topic_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     ingest_sfn_name                               = local.ingest_step_function_name
     ingest_files_table_name                       = local.files_dynamo_table_name
