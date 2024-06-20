@@ -462,10 +462,30 @@
               {
                 "Variable": "$.wasReconciled",
                 "BooleanEquals": true,
-                "Next": "Update ingested_PS attribute in Files table"
+                "Next": "Publish reconciliation update to dr2-notifications"
               }
             ],
             "Default": "Throw Reconciler job error"
+          },
+          "Publish reconciliation update to dr2-notifications": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::sns:publish",
+            "Parameters": {
+              "Message": {
+                "properties": {
+                  "messageId": "$.reconciliationSnsMessage.properties.messageId",
+                  "parentMessageId": "$.reconciliationSnsMessage.properties.parentMessageId",
+                  "timestamp": "$.reconciliationSnsMessage.properties.timestamp",
+                  "type": "preserve.digital.asset.ingest.update"
+                },
+                "parameters": {
+                  "assetName": "$.reconciliationSnsMessage.parameters.assetName",
+                  "status": "Asset has been ingested to the Preservation system."
+                }
+              },
+              "TopicArn": "arn:aws:sns:eu-west-2:${account_id}:${notifications_topic_name}"
+            },
+            "Next": "Update ingested_PS attribute in Files table"
           },
           "Update ingested_PS attribute in Files table": {
             "Type": "Task",
@@ -474,7 +494,7 @@
               "TableName": "${ingest_files_table_name}",
               "Key": {
                 "id": {
-                  "S.$": "$.reconciliationSnsMessage.assetId"
+                  "S.$": "$.assetId"
                 }
               },
               "UpdateExpression": "SET ingested_PS = :ingestedPSValue",
