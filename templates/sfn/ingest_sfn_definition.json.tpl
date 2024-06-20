@@ -485,6 +485,7 @@
               },
               "TopicArn": "arn:aws:sns:eu-west-2:${account_id}:${notifications_topic_name}"
             },
+            "ResultPath": null,
             "Next": "Update ingested_PS attribute in Files table"
           },
           "Update ingested_PS attribute in Files table": {
