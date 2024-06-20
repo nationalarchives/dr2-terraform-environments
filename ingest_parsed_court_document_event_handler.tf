@@ -79,8 +79,7 @@ module "dr2_ingest_parsed_court_document_event_handler_lambda" {
     DYNAMO_LOCK_TABLE_NAME = local.ingest_lock_dynamo_table_name
   }
   tags = {
-    Name      = local.ingest_parsed_court_document_event_handler_lambda_name
-    CreatedBy = local.creator
+    Name = local.ingest_parsed_court_document_event_handler_lambda_name
   }
 }
 

@@ -29,7 +29,6 @@ module "ingest_find_existing_asset" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   tags = {
-    Name      = local.ingest_find_existing_asset_name
-    CreatedBy = "dp-terraform-environments"
+    Name = local.ingest_find_existing_asset_name
   }
 }

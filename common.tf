@@ -37,6 +37,7 @@ locals {
     local.ingest_mapper_lambda_name,
     local.ingest_parent_folder_opex_creator_lambda_name,
     local.ingest_parsed_court_document_event_handler_lambda_name,
+    local.rotate_preservation_system_password_name,
     local.ingest_start_workflow_lambda_name,
     local.ingest_upsert_archive_folders_lambda_name,
     local.ingest_workflow_monitor_lambda_name
@@ -100,7 +101,7 @@ data "aws_eip" "eip" {
 
 module "outbound_https_access_only" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//security_group"
-  common_tags = { CreatedBy = local.creator }
+  common_tags = {}
   description = "A security group to allow outbound access only"
   name        = "${local.environment}-outbound-https"
   vpc_id      = module.vpc.vpc_id

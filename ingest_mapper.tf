@@ -21,7 +21,6 @@ module "dr2_ingest_mapper_lambda" {
     DYNAMO_TABLE_NAME = local.files_dynamo_table_name
   }
   tags = {
-    Name      = local.ingest_mapper_lambda_name
-    CreatedBy = "dp-terraform-environments"
+    Name = local.ingest_mapper_lambda_name
   }
 }
