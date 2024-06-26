@@ -11,5 +11,5 @@ module "dr2_notifications_sns" {
   tags = {
     Name = local.notifications_topic_name
   }
-  topic_name  = local.notifications_topic_name
+  topic_name = local.notifications_topic_name
 }
