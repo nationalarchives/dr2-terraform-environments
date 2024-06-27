@@ -39,6 +39,7 @@ module "deploy_lambda_policy" {
         module.dr2_ingest_workflow_monitor_lambda.lambda_arn,
         module.dr2_get_latest_preservica_version_lambda.lambda_arn,
         module.dr2_preservica_config_lambda.lambda_arn,
+        module.dr2_rotate_preservation_system_password_lambda.lambda_arn,
         local.anonymiser_lambda_arns
       ]
     ))
