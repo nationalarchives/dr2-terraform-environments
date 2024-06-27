@@ -291,6 +291,7 @@ module "files_table" {
   table_name                     = local.files_dynamo_table_name
   server_side_encryption_enabled = true
   kms_key_arn                    = module.dr2_kms_key.kms_key_arn
+  ttl_attribute_name             = "ttl"
   additional_attributes = [
     { name = "batchId", type = "S" },
     { name = "parentPath", type = "S" },
