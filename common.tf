@@ -7,7 +7,7 @@ locals {
   additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   anonymiser_roles                                     = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_role_arn]) : []
   anonymiser_lambda_arns                               = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
-  files_dynamo_table_name                              = "${local.environment}-dr2-files"
+  files_dynamo_table_name                              = "${local.environment}-dr2-ingest-files"
   ingest_lock_dynamo_table_name                        = "${local.environment}-dr2-ingest-lock"
   enable_point_in_time_recovery                        = true
   files_table_batch_parent_global_secondary_index_name = "BatchParentPathIdx"
@@ -288,25 +288,20 @@ module "dr2_ingest_step_function_policy" {
 module "files_table" {
   source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
   hash_key                       = { name = "id", type = "S" }
+  range_key                      = { name = "batchId", type = "S" }
   table_name                     = local.files_dynamo_table_name
   server_side_encryption_enabled = true
   kms_key_arn                    = module.dr2_kms_key.kms_key_arn
   ttl_attribute_name             = "ttl"
   additional_attributes = [
     { name = "batchId", type = "S" },
-    { name = "parentPath", type = "S" },
-    { name = "ingested_PS", type = "S" }
+    { name = "parentPath", type = "S" }
   ]
   global_secondary_indexes = [
     {
       name            = local.files_table_batch_parent_global_secondary_index_name
       hash_key        = "batchId"
       range_key       = "parentPath"
-      projection_type = "ALL"
-    },
-    {
-      name            = local.files_table_ingest_ps_global_secondary_index_name
-      hash_key        = "ingested_PS"
       projection_type = "ALL"
     }
   ]
