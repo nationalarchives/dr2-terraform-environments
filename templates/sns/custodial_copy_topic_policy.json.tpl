@@ -1,6 +1,6 @@
 {
   "Version": "2008-10-17",
-  "Id": "disaster_recovery_topic",
+  "Id": "custodial_copy_topic",
   "Statement": [
     {
       "Sid": "SNSAllowLambdaToPublish",
