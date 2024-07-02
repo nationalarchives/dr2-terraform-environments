@@ -295,19 +295,13 @@ module "files_table" {
   ttl_attribute_name             = "ttl"
   additional_attributes = [
     { name = "batchId", type = "S" },
-    { name = "parentPath", type = "S" },
-    { name = "ingested_PS", type = "S" }
+    { name = "parentPath", type = "S" }
   ]
   global_secondary_indexes = [
     {
       name            = local.files_table_batch_parent_global_secondary_index_name
       hash_key        = "batchId"
       range_key       = "parentPath"
-      projection_type = "ALL"
-    },
-    {
-      name            = local.files_table_ingest_ps_global_secondary_index_name
-      hash_key        = "ingested_PS"
       projection_type = "ALL"
     }
   ]
