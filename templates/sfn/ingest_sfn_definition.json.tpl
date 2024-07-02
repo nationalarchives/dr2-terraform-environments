@@ -496,6 +496,9 @@
               "Key": {
                 "id": {
                   "S.$": "$.assetId"
+                },
+                "batchId" : {
+                  "S.$": "$$.Execution.Input.batchId"
                 }
               },
               "UpdateExpression": "SET ingested_PS = :ingestedPSValue",
