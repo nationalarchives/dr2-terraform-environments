@@ -3,7 +3,8 @@
     {
       "Action": [
         "dynamodb:UpdateItem",
-        "dynamodb:BatchGetItem"
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query"
       ],
       "Effect": "Allow",
       "Resource": "${dynamo_db_file_table_arn}",
