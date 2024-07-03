@@ -15,7 +15,7 @@ module "dr2_custodial_copy_topic" {
   topic_name = local.custodial_copy_topic_name
 
   sqs_subscriptions = {
-    custodial_copy_queue = module.dr2_custodial_copy_queue
+    custodial_copy_queue = module.dr2_custodial_copy_queue.sqs_arn
   }
 }
 
