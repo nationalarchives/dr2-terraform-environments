@@ -33,7 +33,7 @@ module "dr2_custodial_copy_queue" {
 module "dr2_custodial_copy_ingest_lambda" {
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name = local.custodial_copy_ingest_lambda_name
-  handler         = "lambda_function.lambda_handler"
+  handler       = "lambda_function.lambda_handler"
   policies = {
     dr2_custodial_copy_policy = templatefile("${path.module}/templates/iam_policy/custodial_copy_lambda_policy.json.tpl", {
       account_id               = data.aws_caller_identity.current.account_id
