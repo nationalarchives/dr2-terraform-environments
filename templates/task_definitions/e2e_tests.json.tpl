@@ -34,6 +34,7 @@
         "readOnly": false
       }
     ],
+    "readonlyRootFilesystem": true,
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
