@@ -13,6 +13,10 @@ module "dr2_custodial_copy_topic" {
   })
   tags       = {}
   topic_name = local.custodial_copy_topic_name
+  sqs_subscriptions = {
+    custodial_copy_queue   = module.dr2_custodial_copy_queue.sqs_arn
+    database_builder_queue = module.dr2_database_builder_queue.sqs_arn
+  }
 }
 
 module "dr2_custodial_copy_queue" {
@@ -24,12 +28,6 @@ module "dr2_custodial_copy_queue" {
     topic_arn  = local.custodial_copy_topic_arn
   })
   encryption_type = "sse"
-}
-
-resource "aws_sns_topic_subscription" "dr2_custodial_copy_queue_subscription" {
-  topic_arn = local.custodial_copy_topic_arn
-  protocol  = "sqs"
-  endpoint  = module.dr2_custodial_copy_queue.sqs_arn
 }
 
 module "dr2_custodial_copy_lambda" {

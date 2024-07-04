@@ -13,7 +13,10 @@
         "sqs:DeleteMessage"
       ],
       "Effect": "Allow",
-      "Resource": "${entity_event_queue}",
+      "Resource": [
+        "${entity_event_queue}",
+        "${database_builder_queue}"
+      ],
       "Sid": "readSqs"
     },
     {
@@ -52,7 +55,11 @@
         "ecr:GetDownloadUrlForLayer"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-disaster-recovery"
+      "Resource": [
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-disaster-recovery",
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-disaster-recovery-builder",
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-disaster-recovery-webapp"
+      ]
     }
   ],
   "Version": "2012-10-17"
