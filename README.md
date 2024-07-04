@@ -96,4 +96,3 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
 
 * Terraform website: https://www.terraform.io/
 * Terraform basic tutorial: https://learn.hashicorp.com/terraform/getting-started/build
-
