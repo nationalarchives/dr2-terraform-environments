@@ -40,7 +40,13 @@
       "Resource": [
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery"
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-webapp:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-webapp:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-webapp",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-builder:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-builder:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-builder"
       ],
       "Sid": "writeLogs"
     },
