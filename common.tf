@@ -345,6 +345,7 @@ module "cloudwatch_alarm_event_bridge_rule" {
     cloudwatch_alarms = jsonencode(flatten([
       module.dr2_ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_alarm_arn,
       module.dr2_preservica_config_queue.dlq_cloudwatch_alarm_arn,
+      module.dr2_database_builder_queue.dlq_cloudwatch_alarm_arn,
       module.dr2_custodial_copy_queue.dlq_cloudwatch_alarm_arn
     ])),
     state_value = each.value
