@@ -56,6 +56,14 @@ resource "aws_secretsmanager_secret" "preservica_secret" {
   name = "${local.environment}-preservica-api-login-details-${random_string.preservica_user.result}"
 }
 
+resource "aws_secretsmanager_secret_rotation" "secret_rotation" {
+  rotation_lambda_arn = module.dr2_rotate_preservation_system_password_lambda.lambda_arn
+  secret_id           = aws_secretsmanager_secret.preservica_secret.id
+  rotation_rules {
+    schedule_expression = "rate(4 hours)"
+  }
+}
+
 resource "aws_secretsmanager_secret" "demo_preservica_secret" {
   name = "${local.environment}-demo-preservica-api-login-details-${random_string.preservica_user.result}"
 }
@@ -410,6 +418,25 @@ module "guard_duty_findings_eventbridge_rule" {
       "title" : "$.detail.title"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/guard_duty_slack_message.json.tpl", {})
+  }
+}
+
+module "secret_rotation_eventbridge_rule" {
+  for_each = toset(["failed", "succeeded"])
+  source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
+  event_pattern = templatefile("${path.module}/templates/eventbridge/secrets_manager_rotation.json.tpl", {
+    rotation_event = "Rotation${title(each.value)}"
+  })
+  name                = "${local.environment}-dr2-${each.value}-secrets-manager-rotation"
+  api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
+  api_destination_input_transformer = {
+    input_paths = {
+      "secretId" : "$.detail.additionalEventData.SecretId"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
+      channel_id   = local.dev_notifications_channel_id
+      slackMessage = ":${each.value == "succeeded" ? "green-tick" : "alert-noflash-slow"}: Secret rotation for secret `<secretId>` has ${each.value}"
+    })
   }
 }
 
