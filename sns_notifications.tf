@@ -12,4 +12,7 @@ module "dr2_notifications_sns" {
     Name = local.notifications_topic_name
   }
   topic_name = local.notifications_topic_name
+  sqs_subscriptions = {
+    log_external_notifications_queue = module.dr2_external_notifications_queue.sqs_arn
+  }
 }
