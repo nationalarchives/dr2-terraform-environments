@@ -1,4 +1,5 @@
 {
   "body": <$.body>,
-  "timestamp": <$.attributes.SentTimestamp>
+  "timestamp": <$.attributes.SentTimestamp>,
+  "topicArn": "${topic_arn}"
 }

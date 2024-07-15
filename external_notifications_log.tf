@@ -1,10 +1,8 @@
 locals {
-  external_notifications_queue_name     = "${local.environment}-external-notifications"
-  external_notifications_pipe_name      = "${local.environment}-external-notifications"
-  external_notifications_log_group_name = "/${local.environment}-external-notifications"
+  external_notifications_name = "${local.environment}-external-notifications"
 }
 resource "aws_cloudwatch_log_group" "external_notification_log_group" {
-  name = local.external_notifications_log_group_name
+  name = "/${local.external_notifications_name}"
 }
 
 module "dr2_external_notifications_pipes_role" {
@@ -22,10 +20,10 @@ module "dr2_external_notifications_pipes_role" {
 
 module "dr2_external_notifications_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  queue_name = local.external_notifications_queue_name
+  queue_name = local.external_notifications_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = var.account_number,
-    queue_name = local.external_notifications_queue_name
+    queue_name = local.external_notifications_name
     topic_arn  = module.dr2_notifications_sns.sns_arn
   })
   encryption_type = "sse"
@@ -37,17 +35,19 @@ module "dr2_external_notifications_pipes_policy" {
   policy_string = templatefile("${path.module}/templates/iam_policy/external_notification_log_pipe_policy.json.tpl", {
     queue_arn      = module.dr2_external_notifications_queue.sqs_arn
     account_id     = data.aws_caller_identity.current.account_id
-    log_group_name = local.external_notifications_log_group_name
+    log_group_name = aws_cloudwatch_log_group.external_notification_log_group.name
   })
 }
 
 resource "aws_pipes_pipe" "dr2_external_notifications_log_pipe" {
   depends_on = [module.dr2_external_notifications_pipes_policy.policy_arn]
-  name       = local.external_notifications_pipe_name
+  name       = local.external_notifications_name
   role_arn   = module.dr2_external_notifications_pipes_role.role_arn
   source     = module.dr2_external_notifications_queue.sqs_arn
   target     = aws_cloudwatch_log_group.external_notification_log_group.arn
   target_parameters {
-    input_template = templatefile("${path.module}/templates/pipes/sqs_to_cloudwatch_target_transformer.json.tpl", {})
+    input_template = templatefile("${path.module}/templates/pipes/sqs_to_cloudwatch_target_transformer.json.tpl", {
+      topic_arn = module.dr2_notifications_sns.sns_arn
+    })
   }
 }
