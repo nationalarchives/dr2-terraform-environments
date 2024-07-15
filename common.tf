@@ -302,6 +302,7 @@ module "files_table" {
   kms_key_arn                    = module.dr2_kms_key.kms_key_arn
   ttl_attribute_name             = "ttl"
   stream_enabled                 = true
+  stream_view_type               = "NEW_IMAGE"
   additional_attributes = [
     { name = "batchId", type = "S" },
     { name = "parentPath", type = "S" }
