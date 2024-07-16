@@ -304,6 +304,7 @@ module "files_table" {
   ttl_attribute_name             = "ttl"
   stream_enabled                 = true
   stream_view_type               = "NEW_IMAGE"
+  deletion_protection_enabled    = true
   additional_attributes = [
     { name = "batchId", type = "S" },
     { name = "parentPath", type = "S" }
