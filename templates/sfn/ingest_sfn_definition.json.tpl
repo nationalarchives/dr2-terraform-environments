@@ -63,8 +63,7 @@
       "ItemSelector": {
         "id.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
-        "executionName.$": "$$.Execution.Name",
-        "sourceBucket.$": "$.s3Bucket"
+        "executionName.$": "$$.Execution.Name"
       },
       "ItemProcessor": {
         "ProcessorConfig": {
