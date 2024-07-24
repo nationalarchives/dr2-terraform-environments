@@ -17,7 +17,7 @@ module "dr2_rotate_preservation_system_password_lambda" {
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
+    PRESERVICA_API_URL = data.aws_ssm_parameter.preservica_url.value
   }
   lambda_invoke_permissions = {
     "secretsmanager.amazonaws.com" = aws_secretsmanager_secret.preservica_secret.arn
