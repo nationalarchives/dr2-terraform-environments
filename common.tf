@@ -138,6 +138,7 @@ module "dr2_kms_key" {
       module.dr2_ingest_step_function.step_function_role_arn,
       module.dr2_custodial_copy_ingest_lambda.lambda_role_arn,
       module.e2e_tests_ecs_task_role.role_arn,
+      module.dr2_ingest_files_change_handler_lambda.lambda_role_arn,
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
     ], local.additional_user_roles, local.anonymiser_roles)
