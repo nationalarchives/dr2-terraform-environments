@@ -38,15 +38,15 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery:*:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-webapp:*:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-webapp:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-webapp",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-builder:*:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-builder:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/disaster-recovery-builder"
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-builder:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-builder:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-builder"
       ],
       "Sid": "writeLogs"
     },
@@ -62,9 +62,9 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-disaster-recovery",
-        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-disaster-recovery-builder",
-        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-disaster-recovery-webapp"
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy",
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-builder",
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-webapp"
       ]
     }
   ],
