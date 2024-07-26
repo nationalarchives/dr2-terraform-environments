@@ -48,6 +48,8 @@ module "dr2_ingest_parsed_court_document_event_handler_sqs" {
   })
   redrive_maximum_receives = 5
   visibility_timeout       = 180
+  encryption_type          = "sse"
+
 }
 
 module "dr2_ingest_parsed_court_document_event_handler_lambda" {
