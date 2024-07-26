@@ -14,12 +14,12 @@ module "dr2_custodial_copy_topic" {
   tags       = {}
   topic_name = local.custodial_copy_topic_name
   sqs_subscriptions = {
-    custodial_copy_queue   = module.dr2_custodial_copy_queue.sqs_arn
+    custodial_copy_queue   = module.dr2_custodial_copy_notifications_queue.sqs_arn
     database_builder_queue = module.dr2_database_builder_queue.sqs_arn
   }
 }
 
-module "dr2_custodial_copy_queue" {
+module "dr2_custodial_copy_notifications_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.custodial_copy_ingest_queue_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
@@ -39,7 +39,7 @@ module "dr2_custodial_copy_ingest_lambda" {
       account_id               = data.aws_caller_identity.current.account_id
       lambda_name              = local.custodial_copy_ingest_lambda_name
       dynamo_db_file_table_arn = module.files_table.table_arn
-      custodial_copy_queue_arn = module.dr2_custodial_copy_queue.sqs_arn
+      custodial_copy_queue_arn = module.dr2_custodial_copy_notifications_queue.sqs_arn
     })
   }
   timeout_seconds = local.python_timeout_seconds
