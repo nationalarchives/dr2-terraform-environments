@@ -68,6 +68,6 @@ module "dr2_entity_event_generator_topic" {
   tags       = {}
   topic_name = local.entity_event_topic_name
   sqs_subscriptions = {
-    custodial_copy_queue = module.dr2_custodial_copy_notifications_queue.sqs_arn
+    custodial_copy_queue = module.dr2_custodial_copy_queue.sqs_arn
   }
 }
