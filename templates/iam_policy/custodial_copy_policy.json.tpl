@@ -14,7 +14,7 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "${entity_event_queue}",
+        "${custodial_copy_queue}",
         "${database_builder_queue}"
       ],
       "Sid": "readSqs"
