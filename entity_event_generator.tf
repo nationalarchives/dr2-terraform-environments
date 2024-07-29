@@ -1,7 +1,6 @@
 locals {
   entity_event_lambda_name = "${local.environment}-dr2-entity-event-generator-lambda"
   entity_event_topic_name  = "${local.environment}-dr2-entity-event-generator-topic"
-  entity_event_queue_name  = "${local.environment}-dr2-entity-event-queue"
   last_polled_table_name   = "${local.environment}-dr2-entity-event-lambda-updated-since-query-start-datetime"
   entity_event_topic_arn   = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.entity_event_topic_name}"
 }
@@ -69,18 +68,6 @@ module "dr2_entity_event_generator_topic" {
   tags       = {}
   topic_name = local.entity_event_topic_name
   sqs_subscriptions = {
-    entity_event_queue = module.dr2_entity_event_generator_queue.sqs_arn
+    custodial_copy_queue = module.dr2_custodial_copy_notifications_queue.sqs_arn
   }
 }
-
-module "dr2_entity_event_generator_queue" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  queue_name = local.entity_event_queue_name
-  sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
-    queue_name = local.entity_event_queue_name
-    topic_arn  = local.entity_event_topic_arn
-  })
-  encryption_type = "sse"
-}
-

@@ -29,6 +29,7 @@ locals {
   preservica_ingest_bucket                             = "com.preservica.${local.preservica_tenant}.bulk1"
   tna_to_preservica_role_arn                           = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
   creator                                              = "dr2-terraform-environments"
+  sse_encryption                                       = "sse"
   dashboard_lambdas = [
     local.ingest_asset_opex_creator_lambda_name,
     local.ingest_asset_reconciler_lambda_name,
@@ -360,8 +361,8 @@ module "cloudwatch_alarm_event_bridge_rule" {
     cloudwatch_alarms = jsonencode(flatten([
       module.dr2_ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_alarm_arn,
       module.dr2_preservica_config_queue.dlq_cloudwatch_alarm_arn,
-      module.dr2_database_builder_queue.dlq_cloudwatch_alarm_arn,
-      module.dr2_custodial_copy_queue.dlq_cloudwatch_alarm_arn,
+      module.dr2_custodial_copy_db_builder_queue.dlq_cloudwatch_alarm_arn,
+      module.dr2_custodial_copy_notifications_queue.dlq_cloudwatch_alarm_arn,
       module.dr2_external_notifications_queue.dlq_cloudwatch_alarm_arn
     ])),
     state_value = each.value

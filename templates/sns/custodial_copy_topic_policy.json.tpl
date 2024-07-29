@@ -6,7 +6,7 @@
       "Sid": "SNSAllowLambdaToPublish",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${dr_user_arn}"
+        "AWS": "${cc_user_arn}"
       },
       "Action": "SNS:Publish",
       "Resource": "${sns_topic}"

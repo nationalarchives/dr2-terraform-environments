@@ -26,7 +26,7 @@ module "dr2_external_notifications_queue" {
     queue_name = local.external_notifications_name
     topic_arn  = module.dr2_notifications_sns.sns_arn
   })
-  encryption_type = "sse"
+  encryption_type = local.sse_encryption
 }
 
 module "dr2_external_notifications_pipes_policy" {

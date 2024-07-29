@@ -6,8 +6,7 @@ The prototype is divided into separate files corresponding to one part of the in
 All of these files are run at once when terraform runs. 
 
 `common.tf` Common modules like VPCs, shared security groups and system-wide secrets
-`download_metadata_and_files_lambda.tf` Resources for the disaster recovery lambda.
-`disaster_recovery` Shared resources for the disaster recovery workflow.
+`custodial_copy.tf` Shared resources for the custodial copy workflow.
 `slack_notifications_lambda` Resources for the notifications lambda.
 `deploy_preservica_config` A lambda, queue, topic and bucket for deploying XML config to Preservica.
 
