@@ -29,6 +29,7 @@ locals {
   preservica_ingest_bucket                             = "com.preservica.${local.preservica_tenant}.bulk1"
   tna_to_preservica_role_arn                           = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.environment}-tna-to-preservica-ingest-s3-${local.preservica_tenant}"
   creator                                              = "dr2-terraform-environments"
+  sse_encryption                                       = "sse"
   dashboard_lambdas = [
     local.ingest_asset_opex_creator_lambda_name,
     local.ingest_asset_reconciler_lambda_name,

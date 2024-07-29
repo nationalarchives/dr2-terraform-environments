@@ -40,7 +40,7 @@ module "dr2_custodial_copy_db_builder_queue" {
     queue_name = local.custodial_copy_db_builder_queue_name
     topic_arn  = local.custodial_copy_topic_arn
   })
-  encryption_type = "sse"
+  encryption_type = local.sse_encryption
 }
 
 module "dr2_custodial_copy_queue" {
@@ -51,5 +51,5 @@ module "dr2_custodial_copy_queue" {
     queue_name = local.custodial_copy_name
     topic_arn  = local.entity_event_topic_arn
   })
-  encryption_type = "sse"
+  encryption_type = local.sse_encryption
 }
