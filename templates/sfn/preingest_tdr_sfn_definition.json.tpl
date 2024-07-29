@@ -7,7 +7,7 @@
       "SecondsPath": "$.waitFor",
       "Next": "Invoke Package Builder Lambda"
     },
-    "Lambda Invoke": {
+    "Invoke Package Builder Lambda": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",
@@ -37,7 +37,7 @@
         "packageMetadata.$": "$.Payload.packageMetadata"
       }
     },
-    "Step Functions StartExecution": {
+    "Start Ingest Step Function": {
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution",
       "Parameters": {
