@@ -1,5 +1,5 @@
 locals {
-  repositories = ["dr2-ingest", "dr2-ip-lock-checker"]
+  repositories = ["dr2-ingest", "dr2-ip-lock-checker", "dr2-ingest-cc-notification-handler"]
   all_repository_filters = flatten([
     for repository in local.repositories : [
       "repo:nationalarchives/${repository}:environment:${local.environment}",
@@ -39,6 +39,7 @@ module "deploy_lambda_policy" {
         module.dr2_ingest_workflow_monitor_lambda.lambda_arn,
         module.dr2_get_latest_preservica_version_lambda.lambda_arn,
         module.dr2_preservica_config_lambda.lambda_arn,
+        module.dr2_custodial_copy_ingest_lambda.lambda_arn,
         module.dr2_rotate_preservation_system_password_lambda.lambda_arn,
         module.dr2_ingest_files_change_handler_lambda.lambda_arn,
         module.dr2_preingest_tdr_aggregator_lambda.lambda_arn,
