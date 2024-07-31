@@ -43,7 +43,7 @@ module "dr2_custodial_copy_ingest_lambda" {
     })
   }
   lambda_sqs_queue_mappings = [{
-    sqs_queue_arn = module.dr2_custodial_copy_queue.sqs_arn
+    sqs_queue_arn = module.dr2_custodial_copy_notifications_queue.sqs_arn
   }]
   timeout_seconds = local.python_timeout_seconds
   memory_size     = local.python_lambda_memory_size
