@@ -39,7 +39,7 @@ module "copy_from_tre_bucket_policy" {
 }
 
 module "dr2_ingest_parsed_court_document_event_handler_sqs" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs?ref=DR2-1794-DLQ-alarms-not-working"
   queue_name = local.ingest_parsed_court_document_event_handler_queue_name
   sqs_policy = templatefile("./templates/sqs/${local.court_document_queue_sqs_policy}.json.tpl", {
     account_id = var.account_number,
@@ -53,7 +53,7 @@ module "dr2_ingest_parsed_court_document_event_handler_sqs" {
 }
 
 module "dr2_ingest_parsed_court_document_event_handler_lambda" {
-  source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
+  source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda?ref=DR2-1794-DLQ-alarms-not-working"
   function_name   = local.ingest_parsed_court_document_event_handler_lambda_name
   handler         = "uk.gov.nationalarchives.ingestparsedcourtdocumenteventhandler.Lambda::handleRequest"
   timeout_seconds = 60
