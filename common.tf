@@ -12,8 +12,8 @@ locals {
   enable_point_in_time_recovery                        = true
   files_table_batch_parent_global_secondary_index_name = "BatchParentPathIdx"
   files_table_ingest_ps_global_secondary_index_name    = "IngestPSIdx"
-  ingest_lock_table_batch_id_gsi_name                  = "IngestLockBatchIdx"
-  ingest_lock_table_hash_key                           = "ioId"
+  ingest_lock_table_group_id_gsi_name                  = "IngestLockGroupIdx"
+  ingest_lock_table_hash_key                           = "assetId"
   dev_notifications_channel_id                         = local.environment == "prod" ? "C06EDJPF0VB" : "C052LJASZ08"
   general_notifications_channel_id                     = local.environment == "prod" ? "C06E20AR65V" : "C068RLCPZFE"
   tre_prod_judgment_role                               = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
@@ -222,7 +222,7 @@ module "dr2_ingest_step_function" {
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
     ingest_lock_table_name                        = local.ingest_lock_dynamo_table_name
-    ingest_lock_table_batch_id_gsi_name           = local.ingest_lock_table_batch_id_gsi_name
+    ingest_lock_table_group_id_gsi_name           = local.ingest_lock_table_group_id_gsi_name
     ingest_lock_table_hash_key                    = local.ingest_lock_table_hash_key
     notifications_topic_name                      = local.notifications_topic_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
@@ -289,7 +289,7 @@ module "dr2_ingest_step_function_policy" {
     ingest_workflow_monitor_lambda_name           = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name           = local.ingest_asset_reconciler_lambda_name
     ingest_lock_table_name                        = local.ingest_lock_dynamo_table_name
-    ingest_lock_table_batch_id_gsi_name           = local.ingest_lock_table_batch_id_gsi_name
+    ingest_lock_table_group_id_gsi_name           = local.ingest_lock_table_group_id_gsi_name
     notifications_topic_name                      = local.notifications_topic_name
     ingest_staging_cache_bucket_name              = local.ingest_staging_cache_bucket_name
     ingest_sfn_name                               = local.ingest_step_function_name
@@ -331,12 +331,12 @@ module "ingest_lock_table" {
   server_side_encryption_enabled = true
   kms_key_arn                    = module.dr2_kms_key.kms_key_arn
   additional_attributes = [
-    { name = "batchId", type = "S" }
+    { name = "groupId", type = "S" }
   ]
   global_secondary_indexes = [
     {
-      name            = local.ingest_lock_table_batch_id_gsi_name
-      hash_key        = "batchId"
+      name            = local.ingest_lock_table_group_id_gsi_name
+      hash_key        = "groupId"
       projection_type = "ALL"
     }
   ]

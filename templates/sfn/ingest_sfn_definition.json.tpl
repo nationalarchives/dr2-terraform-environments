@@ -554,14 +554,14 @@
           }
         }
       },
-      "Next": "Get number of items in lock table that have this batchId"
+      "Next": "Get number of items in lock table that have this groupId"
     },
-    "Get number of items in lock table that have this batchId": {
+    "Get number of items in lock table that have this groupId": {
       "Type": "Task",
       "Parameters": {
         "TableName": "${ingest_lock_table_name}",
-        "IndexName": "${ingest_lock_table_batch_id_gsi_name}",
-        "KeyConditionExpression": "batchId = :lookUpId",
+        "IndexName": "${ingest_lock_table_group_id_gsi_name}",
+        "KeyConditionExpression": "groupId = :lookUpId",
         "ExpressionAttributeValues": {
           ":lookUpId": {
             "S.$": "$$.Execution.Input.batchId"
@@ -588,8 +588,8 @@
     },
     "Throw error, as items haven't been removed from lock table": {
       "Type": "Fail",
-      "Cause": "Items with batchId still exist in lock table",
-      "Error": "Items with batchId still exist in lock table"
+      "Cause": "Items with groupId still exist in lock table",
+      "Error": "Items with groupId still exist in lock table"
     }
   }
 }
