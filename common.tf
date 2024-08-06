@@ -431,12 +431,11 @@ module "guard_duty_findings_eventbridge_rule" {
 }
 
 module "secret_rotation_eventbridge_rule" {
-  for_each = toset(["failed", "succeeded"])
-  source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/secrets_manager_rotation.json.tpl", {
-    rotation_event = "Rotation${title(each.value)}"
+    rotation_event = "RotationFailed"
   })
-  name                = "${local.environment}-dr2-${each.value}-secrets-manager-rotation"
+  name                = "${local.environment}-dr2-failed-secrets-manager-rotation"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   api_destination_input_transformer = {
     input_paths = {
@@ -444,7 +443,7 @@ module "secret_rotation_eventbridge_rule" {
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
       channel_id   = local.dev_notifications_channel_id
-      slackMessage = ":${each.value == "succeeded" ? "green-tick" : "alert-noflash-slow"}: Secret rotation for secret `<secretId>` has ${each.value}"
+      slackMessage = ":alert-noflash-slow: Secret rotation for secret `<secretId>` has failed"
     })
   }
 }
