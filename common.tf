@@ -142,6 +142,7 @@ module "dr2_kms_key" {
       module.dr2_ingest_files_change_handler_lambda.lambda_role_arn,
       module.dr2_preingest_tdr_aggregator_lambda.lambda_role_arn,
       module.dr2_preingest_tdr_package_builder_lambda.lambda_role_arn,
+      module.dr2_copy_files_from_tdr_lambda.lambda_role_arn,
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
     ], local.additional_user_roles, local.anonymiser_roles)
@@ -363,7 +364,8 @@ module "cloudwatch_alarm_event_bridge_rule" {
       module.dr2_preservica_config_queue.dlq_cloudwatch_alarm_arn,
       module.dr2_custodial_copy_db_builder_queue.dlq_cloudwatch_alarm_arn,
       module.dr2_custodial_copy_notifications_queue.dlq_cloudwatch_alarm_arn,
-      module.dr2_external_notifications_queue.dlq_cloudwatch_alarm_arn
+      module.dr2_external_notifications_queue.dlq_cloudwatch_alarm_arn,
+      module.dr2_copy_files_from_tdr_sqs.dlq_cloudwatch_alarm_arn
     ])),
     state_value = each.value
   })
