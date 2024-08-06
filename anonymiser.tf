@@ -38,7 +38,7 @@ module "dr2_court_document_package_anonymiser_lambda" {
 
 module "dr2_court_document_package_anonymiser_sqs" {
   count      = local.court_document_anonymiser_count
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs?ref=DR2-1794-DLQ-alarms-not-working"
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.court_document_anonymiser_queue_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = var.account_number,
