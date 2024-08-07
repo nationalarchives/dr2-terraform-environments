@@ -364,7 +364,7 @@ module "cloudwatch_alarm_event_bridge_rule" {
       module.dr2_preservica_config_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_db_builder_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_notifications_queue.dlq_cloudwatch_message_visible_alarm_arn,
-      module.dr2_external_notifications_queue.dlq_cloudwatch_message_visible_alarm_arn
+      module.dr2_external_notifications_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_copy_files_from_tdr_sqs.dlq_cloudwatch_message_visible_alarm_arn
     ])),
     state_value = each.value
