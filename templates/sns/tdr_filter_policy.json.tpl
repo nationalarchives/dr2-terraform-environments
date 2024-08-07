@@ -1,3 +1,0 @@
-{
-  "bucket": ["tdr-export-${environment}"]
-}

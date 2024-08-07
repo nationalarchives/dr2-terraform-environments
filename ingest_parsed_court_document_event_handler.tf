@@ -46,8 +46,8 @@ module "dr2_ingest_parsed_court_document_event_handler_sqs" {
     queue_name = local.ingest_parsed_court_document_event_handler_queue_name
     topic_arn  = local.tre_prod_event_bus
   })
-  redrive_maximum_receives = 5
-  visibility_timeout       = 180
+  redrive_maximum_receives = local.redrive_maximum_receives
+  visibility_timeout       = local.visibility_timeout
   encryption_type          = local.sse_encryption
 
 }
