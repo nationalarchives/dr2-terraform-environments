@@ -45,8 +45,8 @@ module "dr2_court_document_package_anonymiser_sqs" {
     queue_name = local.court_document_anonymiser_queue_name
     topic_arn  = local.tre_terraform_prod_config["da_eventbus"]
   })
-  redrive_maximum_receives = 5
-  visibility_timeout       = 180
+  redrive_maximum_receives = local.redrive_maximum_receives
+  visibility_timeout       = local.visibility_timeout
   kms_key_id               = module.dr2_kms_key.kms_key_arn
 }
 

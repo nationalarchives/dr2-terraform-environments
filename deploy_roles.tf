@@ -44,6 +44,7 @@ module "deploy_lambda_policy" {
         module.dr2_ingest_files_change_handler_lambda.lambda_arn,
         module.dr2_preingest_tdr_aggregator_lambda.lambda_arn,
         module.dr2_preingest_tdr_package_builder_lambda.lambda_arn,
+        module.dr2_copy_files_from_tdr_lambda.lambda_arn,
         local.anonymiser_lambda_arns
       ]
     ))

@@ -2,6 +2,7 @@ locals {
   tdr_preingest_name              = "${local.environment}-dr2-preingest-tdr"
   tdr_aggregator_name             = "${local.tdr_preingest_name}-aggregator"
   tdr_aggregator_queue_arn        = "arn:aws:sqs:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.tdr_aggregator_name}"
+  tdr_aggregator_queue_url        = "https://sqs.eu-west-2.amazonaws.com/${data.aws_caller_identity.current.account_id}/${local.tdr_aggregator_name}"
   tdr_package_builder_lambda_name = "${local.tdr_preingest_name}-package-builder"
   preingest_sfn_arn               = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.tdr_preingest_name}"
   ingest_sfn_arn                  = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.ingest_step_function_name}"
