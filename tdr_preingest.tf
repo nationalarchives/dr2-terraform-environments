@@ -84,14 +84,14 @@ module "dr2_preingest_tdr_package_builder_lambda" {
       account_id               = data.aws_caller_identity.current.account_id
       lambda_name              = local.tdr_package_builder_lambda_name
       dynamo_db_lock_table_arn = module.ingest_lock_table.table_arn
-      gsi_name                 = local.ingest_lock_table_batch_id_gsi_name
+      gsi_name                 = local.ingest_lock_table_group_id_gsi_name
     })
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
     DDB_LOCK_TABLE              = local.ingest_lock_dynamo_table_name
-    LOCK_DDB_TABLE_BATCH_ID_IDX = local.ingest_lock_table_batch_id_gsi_name
+    LOCK_DDB_TABLE_GROUP_ID_IDX = local.ingest_lock_table_group_id_gsi_name
   }
   tags = {
     Name = local.tdr_package_builder_lambda_name
