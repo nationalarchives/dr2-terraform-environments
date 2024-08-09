@@ -20,6 +20,7 @@ module "dr2_copy_files_from_tdr_lambda" {
       aggregator_queue_arn          = local.tdr_aggregator_queue_arn
       account_id                    = data.aws_caller_identity.current.account_id
       lambda_name                   = local.copy_files_from_tdr_name
+      tdr_export_kms_arn            = module.tdr_config.terraform_config["${local.environment}_s3_export_bucket_kms_key_arn"]
     })
   }
   memory_size = local.python_lambda_memory_size
