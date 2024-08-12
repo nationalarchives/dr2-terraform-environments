@@ -44,6 +44,9 @@
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reindexer:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reindexer:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reindexer",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-db-builder:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-db-builder:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-builder"
@@ -64,7 +67,8 @@
       "Resource": [
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-backend",
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-db-builder",
-        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-webapp"
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-webapp",
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-reindexer"
       ]
     }
   ],
