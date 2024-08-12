@@ -2,6 +2,14 @@
   "Statement": [
     {
       "Action": [
+        "kms:Decrypt"
+      ],
+      "Effect": "Allow",
+      "Resource": "${tdr_export_kms_arn}",
+      "Sid": "DecryptWithTDRKey"
+    },
+    {
+      "Action": [
         "sqs:ReceiveMessage",
         "sqs:GetQueueAttributes",
         "sqs:DeleteMessage"
