@@ -68,7 +68,7 @@
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-backend",
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-db-builder",
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-webapp",
-        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-reindexer"
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-re-indexer"
       ]
     }
   ],
