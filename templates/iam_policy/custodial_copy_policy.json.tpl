@@ -44,9 +44,9 @@
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-webapp",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reindexer:*:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reindexer:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reindexer",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-re-indexer:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-re-indexer:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-re-indexer",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-db-builder:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-db-builder:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-builder"
