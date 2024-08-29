@@ -1,13 +1,13 @@
 locals {
-  tdr_preingest_name              = "${local.environment}-dr2-preingest-tdr"
-  tdr_aggregator_name             = "${local.tdr_preingest_name}-aggregator"
-  tdr_aggregator_queue_arn        = "arn:aws:sqs:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.tdr_aggregator_name}"
-  tdr_aggregator_batching_window  = 300
-  tdr_aggregator_batch_size       = 10000
-  tdr_aggregator_queue_url        = "https://sqs.eu-west-2.amazonaws.com/${data.aws_caller_identity.current.account_id}/${local.tdr_aggregator_name}"
-  tdr_package_builder_lambda_name = "${local.tdr_preingest_name}-package-builder"
-  preingest_sfn_arn               = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.tdr_preingest_name}"
-  ingest_sfn_arn                  = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.ingest_step_function_name}"
+  tdr_preingest_name                     = "${local.environment}-dr2-preingest-tdr"
+  tdr_aggregator_name                    = "${local.tdr_preingest_name}-aggregator"
+  tdr_aggregator_queue_arn               = "arn:aws:sqs:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.tdr_aggregator_name}"
+  tdr_aggregator_batching_window_seconds = 300
+  tdr_aggregator_batch_size              = 10000
+  tdr_aggregator_queue_url               = "https://sqs.eu-west-2.amazonaws.com/${data.aws_caller_identity.current.account_id}/${local.tdr_aggregator_name}"
+  tdr_package_builder_lambda_name        = "${local.tdr_preingest_name}-package-builder"
+  preingest_sfn_arn                      = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.tdr_preingest_name}"
+  ingest_sfn_arn                         = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.ingest_step_function_name}"
 }
 
 module "dr2_preingest_tdr_aggregator_queue" {
@@ -26,7 +26,7 @@ module "dr2_preingest_tdr_aggregator_lambda" {
   source                       = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name                = local.tdr_aggregator_name
   handler                      = "uk.gov.nationalarchives.tdrpreingestaggregator.Lambda::handleRequest"
-  sqs_queue_batching_window    = local.tdr_aggregator_batching_window
+  sqs_queue_batching_window    = local.tdr_aggregator_batching_window_seconds
   sqs_queue_mapping_batch_size = local.tdr_aggregator_batch_size
   lambda_sqs_queue_mappings = [{
     sqs_queue_arn         = local.tdr_aggregator_queue_arn
@@ -47,7 +47,7 @@ module "dr2_preingest_tdr_aggregator_lambda" {
   plaintext_env_vars = {
     DDB_LOCK_TABLE                = local.ingest_lock_dynamo_table_name
     PREINGEST_SFN_ARN             = local.preingest_sfn_arn
-    MAX_SECONDARY_BATCHING_WINDOW = local.tdr_aggregator_batching_window
+    MAX_SECONDARY_BATCHING_WINDOW = local.tdr_aggregator_batching_window_seconds
     MAX_BATCH_SIZE                = local.tdr_aggregator_batch_size
     SOURCE_SYSTEM                 = "TDR"
   }
