@@ -331,8 +331,7 @@ module "ingest_lock_table" {
   source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
   hash_key                       = { name = local.ingest_lock_table_hash_key, type = "S" }
   table_name                     = local.ingest_lock_dynamo_table_name
-  server_side_encryption_enabled = true
-  kms_key_arn                    = module.dr2_kms_key.kms_key_arn
+  server_side_encryption_enabled = false
   additional_attributes = [
     { name = "groupId", type = "S" }
   ]
