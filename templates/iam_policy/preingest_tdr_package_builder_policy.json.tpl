@@ -14,6 +14,18 @@
     },
     {
       "Action": [
+        "s3:PutObject*",
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::${raw_cache_bucket_name}",
+        "arn:aws:s3:::${raw_cache_bucket_name}/*"
+      ],
+      "Sid": "readWriteIngestRawCache"
+    },
+    {
+      "Action": [
         "logs:PutLogEvents",
         "logs:CreateLogStream",
         "logs:CreateLogGroup"

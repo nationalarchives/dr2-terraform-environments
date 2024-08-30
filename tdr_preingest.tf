@@ -90,6 +90,7 @@ module "dr2_preingest_tdr_package_builder_lambda" {
       lambda_name              = local.tdr_package_builder_lambda_name
       dynamo_db_lock_table_arn = module.ingest_lock_table.table_arn
       gsi_name                 = local.ingest_lock_table_group_id_gsi_name
+      raw_cache_bucket_name    = local.ingest_raw_cache_bucket_name
     })
   }
   memory_size = local.java_lambda_memory_size
@@ -97,6 +98,7 @@ module "dr2_preingest_tdr_package_builder_lambda" {
   plaintext_env_vars = {
     DDB_LOCK_TABLE              = local.ingest_lock_dynamo_table_name
     LOCK_DDB_TABLE_GROUP_ID_IDX = local.ingest_lock_table_group_id_gsi_name
+    RAW_CACHE_BUCKET            = local.ingest_raw_cache_bucket_name
   }
   tags = {
     Name = local.tdr_package_builder_lambda_name
