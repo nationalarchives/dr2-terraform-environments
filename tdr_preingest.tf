@@ -25,7 +25,7 @@ module "dr2_preingest_tdr_aggregator_queue" {
 module "dr2_preingest_tdr_aggregator_lambda" {
   source                       = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name                = local.tdr_aggregator_name
-  handler                      = "uk.gov.nationalarchives.tdrpreingestaggregator.Lambda::handleRequest"
+  handler                      = "uk.gov.nationalarchives.preingesttdraggregator.Lambda::handleRequest"
   sqs_queue_batching_window    = local.tdr_aggregator_batching_window_seconds
   sqs_queue_mapping_batch_size = local.tdr_aggregator_batch_size
   lambda_sqs_queue_mappings = [{
@@ -82,7 +82,7 @@ module "dr2_preingest_tdr_step_function_policy" {
 module "dr2_preingest_tdr_package_builder_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.tdr_package_builder_lambda_name
-  handler         = "uk.gov.nationalarchives.tdrpreingestpackagebuilder.Lambda::handleRequest"
+  handler         = "uk.gov.nationalarchives.preingesttdrpackagebuilder.Lambda::handleRequest"
   timeout_seconds = local.java_timeout_seconds
   policies = {
     "${local.tdr_package_builder_lambda_name}-policy" = templatefile("./templates/iam_policy/preingest_tdr_package_builder_policy.json.tpl", {

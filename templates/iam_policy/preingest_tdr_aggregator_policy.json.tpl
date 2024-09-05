@@ -4,7 +4,8 @@
       "Action": [
         "dynamodb:BatchGetItem",
         "dynamodb:Query",
-        "dynamodb:BatchWriteItem"
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem"
       ],
       "Effect": "Allow",
       "Resource": [
