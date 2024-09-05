@@ -361,11 +361,17 @@ module "cloudwatch_alarm_event_bridge_rule" {
   source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
     cloudwatch_alarms = jsonencode(flatten([
+      module.dr2_ingest_parsed_court_document_event_handler_sqs.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_preservica_config_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_preservica_config_queue.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_db_builder_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_db_builder_queue.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_notifications_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_notifications_queue.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_external_notifications_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_external_notifications_queue.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_copy_files_from_tdr_sqs.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_copy_files_from_tdr_sqs.dlq_cloudwatch_message_visible_alarm_arn
     ])),
     state_value = each.value
