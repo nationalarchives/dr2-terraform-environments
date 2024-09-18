@@ -559,10 +559,36 @@
           "Next": "Do nothing, as items have been removed from lock table"
         }
       ],
-      "Default": "Throw error, as items haven't been removed from lock table"
+      "Default": "Check if retryCount is less than 2"
     },
     "Do nothing, as items have been removed from lock table": {
       "Type": "Pass",
+      "End": true
+    },
+    "Check if retryCount is less than 2": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$$.Execution.Input.retryCount",
+          "NumericLessThan": 2,
+          "Next": "Retry pre-ingest step function"
+        }
+      ],
+      "Default": "Throw error, as items haven't been removed from lock table"
+    },
+    "Retry pre-ingest step function": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution",
+      "Parameters": {
+        "StateMachineArn.$": "$$.Execution.Input.retrySfnArn",
+        "Name.$": "$$.Execution.Name",
+        "Input": {
+          "groupId.$": "$$.Execution.Input.groupId",
+          "batchId.$": "States.Format('{}_{}', $$.Execution.Input.groupId, States.MathAdd($$.Execution.Input.retryCount, 1))",
+          "waitFor.$": 0,
+          "retryCount$": "States.MathAdd($$.Execution.Input.retryCount, 1)"
+        }
+      },
       "End": true
     },
     "Throw error, as items haven't been removed from lock table": {

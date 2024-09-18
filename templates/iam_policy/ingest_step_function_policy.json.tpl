@@ -42,6 +42,16 @@
       "Resource": [
         "arn:aws:dynamodb:eu-west-2:${account_id}:table/${ingest_files_table_name}"
       ]
+    },
+    {
+      "Sid": "callPreingestStepFunction",
+      "Effect": "Allow",
+      "Action": [
+        "states:StartExecution"
+      ],
+      "Resource": [
+        "${preingest_tdr_step_function_arn}"
+      ]
     }
   ],
   "Version": "2012-10-17"
