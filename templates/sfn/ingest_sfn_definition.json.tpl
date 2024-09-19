@@ -600,8 +600,8 @@
         "Input": {
           "groupId.$": "$$.Execution.Input.groupId",
           "batchId.$": "$.newBatchId",
-          "waitFor.$": 0,
-          "retryCount$": "$.newRetryCount"
+          "waitFor": 0,
+          "retryCount.$": "$.newRetryCount"
         }
       },
       "End": true
