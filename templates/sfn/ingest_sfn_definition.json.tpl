@@ -1,8 +1,8 @@
 {
   "Comment": "${step_function_name}: A State machine to ingest DR2 BagIt-like packages into Preservica.",
-  "StartAt": "Validate the metadata.json file",
+  "StartAt": "Validate input",
   "States": {
-    "Validate the metadata.json file": {
+    "Validate input": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_validate_generic_ingest_inputs_lambda_name}",
       "Retry": [
