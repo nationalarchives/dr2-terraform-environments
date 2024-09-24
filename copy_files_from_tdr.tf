@@ -10,7 +10,7 @@ module "dr2_copy_files_from_tdr_lambda" {
   handler         = "lambda_function.lambda_handler"
   timeout_seconds = local.python_timeout_seconds
   lambda_sqs_queue_mappings = [
-    { sqs_queue_arn = local.copy_files_from_tdr_queue_arn }
+    { sqs_queue_arn = local.copy_files_from_tdr_queue_arn, ignore_enabled_status = true }
   ]
   policies = {
     "${local.copy_files_from_tdr_name}-policy" = templatefile("./templates/iam_policy/copy_files_from_tdr_policy.json.tpl", {
