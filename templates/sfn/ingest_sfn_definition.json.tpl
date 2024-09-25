@@ -491,22 +491,15 @@
           },
           "Delete asset item from lock table": {
             "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:deleteItem",
             "Parameters": {
-              "RequestItems": {
-                "${ingest_lock_table_name}": [
-                  {
-                    "DeleteRequest": {
-                      "Key": {
-                        "${ingest_lock_table_hash_key}": {
-                          "S.$": "$.assetName"
-                        }
-                      }
-                    }
-                  }
-                ]
+              "TableName": "${ingest_lock_table_name}",
+              "Key": {
+                "${ingest_lock_table_hash_key}": {
+                  "S.$": "$.assetName"
+                }
               }
             },
-            "Resource": "arn:aws:states:::aws-sdk:dynamodb:batchWriteItem",
             "End": true
           },
           "Post failure message to Slack": {

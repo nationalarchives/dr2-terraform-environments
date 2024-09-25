@@ -10,7 +10,7 @@
         "sts:AssumeRole",
         "events:PutEvents",
         "dynamodb:Query",
-        "dynamodb:BatchWriteItem",
+        "dynamodb:DeleteItem",
         "sns:Publish"
       ],
       "Resource": [
