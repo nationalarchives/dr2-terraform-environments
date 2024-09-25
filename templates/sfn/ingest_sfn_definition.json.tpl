@@ -552,10 +552,51 @@
           "Next": "Do nothing, as items have been removed from lock table"
         }
       ],
-      "Default": "Throw error, as items haven't been removed from lock table"
+      "Default": "Check if retryCount is less than 2"
     },
     "Do nothing, as items have been removed from lock table": {
       "Type": "Pass",
+      "End": true
+    },
+    "Check if retryCount is less than 2": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$$.Execution.Input.retryCount",
+          "NumericLessThan": 2,
+          "Next": "Add 1 to retry count"
+        }
+      ],
+      "Default": "Throw error, as items haven't been removed from lock table"
+    },
+    "Add 1 to retry count": {
+      "Type": "Pass",
+      "Parameters": {
+        "retryCountPlus1.$": "States.MathAdd($$.Execution.Input.retryCount, 1)"
+      },
+      "Next": "Concatenate groupId and retryCount + 1"
+    },
+    "Concatenate groupId and retryCount + 1": {
+      "Type": "Pass",
+      "Parameters": {
+        "newRetryCount.$": "$.retryCountPlus1",
+        "newBatchId.$": "States.Format('{}_{}', $$.Execution.Input.groupId, $.retryCountPlus1)"
+      },
+      "Next": "Retry pre-ingest step function"
+    },
+    "Retry pre-ingest step function": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution",
+      "Parameters": {
+        "StateMachineArn.$": "$$.Execution.Input.retrySfnArn",
+        "Name.$": "$.newBatchId",
+        "Input": {
+          "groupId.$": "$$.Execution.Input.groupId",
+          "batchId.$": "$.newBatchId",
+          "waitFor": 0,
+          "retryCount.$": "$.newRetryCount"
+        }
+      },
       "End": true
     },
     "Throw error, as items haven't been removed from lock table": {
