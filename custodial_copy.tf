@@ -22,7 +22,7 @@ resource "aws_iam_group" "custodial_copy_group" {
 
 resource "aws_iam_group_policy" "custodial_copy_group_policy" {
   group = aws_iam_group.custodial_copy_group.name
-  name  = "${local.environment}-dr2-c.ustodial-copy-policy"
+  name  = "${local.environment}-dr2-custodial-copy-policy"
   policy = templatefile("${path.module}/templates/iam_policy/custodial_copy_policy.json.tpl", {
     account_id                 = data.aws_caller_identity.current.account_id
     secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
