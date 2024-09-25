@@ -46,10 +46,10 @@ module "dr2_custodial_copy_db_builder_queue" {
 module "dr2_custodial_copy_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.custodial_copy_name
-  sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
+  fifo_queue = true
+  sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
     account_id = var.account_number,
     queue_name = local.custodial_copy_name
-    topic_arn  = local.entity_event_topic_arn
   })
   encryption_type = local.sse_encryption
 }

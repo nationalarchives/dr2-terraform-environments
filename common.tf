@@ -43,7 +43,8 @@ locals {
     local.rotate_preservation_system_password_name,
     local.ingest_start_workflow_lambda_name,
     local.ingest_upsert_archive_folders_lambda_name,
-    local.ingest_workflow_monitor_lambda_name
+    local.ingest_workflow_monitor_lambda_name,
+    local.ingest_queue_creator_name
   ]
 }
 resource "random_password" "preservica_password" {
@@ -367,6 +368,8 @@ module "cloudwatch_alarm_event_bridge_rule" {
       module.dr2_preservica_config_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_queue.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_queue_creator_queue.queue_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_queue_creator_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_db_builder_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_db_builder_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_notifications_queue.queue_cloudwatch_message_visible_alarm_arn,
