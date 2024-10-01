@@ -5,6 +5,11 @@
     "Map metadata": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
+      "Parameters": {
+        "batchId.$": "$.batchId",
+        "metadataPackage.$": "$.metadataPackage",
+        "executionName.$": "$$.Execution.Name"
+      },
       "Retry": [
         {
           "ErrorEquals": [
