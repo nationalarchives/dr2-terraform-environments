@@ -1,8 +1,8 @@
 {
   "Comment": "${step_function_name}: A State machine to ingest DR2 BagIt-like packages into Preservica.",
-  "StartAt": "Map metadata",
+  "StartAt": "Get metadata from JSON & Discovery and update Files table",
   "States": {
-    "Map metadata": {
+    "Get metadata from JSON & Discovery and update Files table": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
       "Parameters": {
