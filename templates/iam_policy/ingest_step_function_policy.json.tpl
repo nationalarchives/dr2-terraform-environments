@@ -42,6 +42,17 @@
       "Resource": [
         "arn:aws:dynamodb:eu-west-2:${account_id}:table/${ingest_files_table_name}"
       ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::${ingest_state_bucket_name}",
+        "arn:aws:s3:::${ingest_state_bucket_name}/*"
+      ],
+      "Sid": "readIngestState"
     }
   ],
   "Version": "2012-10-17"
