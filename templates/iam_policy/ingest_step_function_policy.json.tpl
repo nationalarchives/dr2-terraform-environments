@@ -52,6 +52,17 @@
       "Resource": [
         "${preingest_tdr_step_function_arn}"
       ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::${ingest_state_bucket_name}",
+        "arn:aws:s3:::${ingest_state_bucket_name}/*"
+      ],
+      "Sid": "readIngestState"
     }
   ],
   "Version": "2012-10-17"

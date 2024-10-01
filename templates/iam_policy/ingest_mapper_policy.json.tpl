@@ -14,10 +14,21 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:s3:::${bucket_name}",
-        "arn:aws:s3:::${bucket_name}/*"
+        "arn:aws:s3:::${raw_cache_bucket_name}",
+        "arn:aws:s3:::${raw_cache_bucket_name}/*"
       ],
       "Sid": "readIngestRawCache"
+    },
+    {
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::${ingest_state_bucket_name}",
+        "arn:aws:s3:::${ingest_state_bucket_name}/*"
+      ],
+      "Sid": "writeIngestState"
     },
     {
       "Action": [
