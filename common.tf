@@ -249,6 +249,7 @@ module "ingest_state_bucket" {
     lambda_role_arns = jsonencode([module.dr2_ingest_mapper_lambda]),
     bucket_name      = local.ingest_state_bucket_name
   })
+  kms_key_arn = module.dr2_developer_key.kms_key_arn
 }
 
 resource "aws_datasync_location_s3" "tna_staging_location" {
