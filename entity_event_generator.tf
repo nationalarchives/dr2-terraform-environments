@@ -25,10 +25,11 @@ module "dr2_entity_event_generator_lambda" {
       sns_arn                    = local.entity_event_topic_arn
     })
   }
-  timeout_seconds = 180
-  memory_size     = local.java_lambda_memory_size
-  runtime         = local.java_runtime
-  tags            = {}
+  timeout_seconds      = 60
+  memory_size          = local.java_lambda_memory_size
+  runtime              = local.java_runtime
+  tags                 = {}
+  reserved_concurrency = 1
   lambda_invoke_permissions = {
     "events.amazonaws.com" = module.dr2_entity_event_cloudwatch_event.event_arn
   }
@@ -68,6 +69,6 @@ module "dr2_entity_event_generator_topic" {
   tags       = {}
   topic_name = local.entity_event_topic_name
   sqs_subscriptions = {
-    custodial_copy_queue = module.dr2_custodial_copy_queue.sqs_arn
+    custodial_copy_queue_creator_queue = module.dr2_custodial_copy_queue_creator_queue.sqs_arn
   }
 }

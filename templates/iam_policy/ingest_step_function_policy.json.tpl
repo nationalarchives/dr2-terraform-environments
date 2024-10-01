@@ -44,6 +44,16 @@
       ]
     },
     {
+      "Sid": "callPreingestStepFunction",
+      "Effect": "Allow",
+      "Action": [
+        "states:StartExecution"
+      ],
+      "Resource": [
+        "${preingest_tdr_step_function_arn}"
+      ]
+    },
+    {
       "Action": [
         "s3:GetObject"
       ],
