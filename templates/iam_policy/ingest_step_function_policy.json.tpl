@@ -14,6 +14,7 @@
         "sns:Publish"
       ],
       "Resource": [
+        "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_validate_generic_ingest_inputs_lambda_name}",
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archive_folders_lambda_name}",
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_find_existing_asset_lambda_name}",
