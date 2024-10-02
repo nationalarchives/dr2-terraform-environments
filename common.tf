@@ -133,7 +133,7 @@ module "dr2_kms_key" {
     user_roles = concat([
       module.ingest_find_existing_asset.lambda_role_arn,
       module.ingest_find_existing_asset.lambda_role_arn,
-      module.dr2_ingest_validate_generic_ingest_inputs_lambda,
+      module.dr2_ingest_validate_generic_ingest_inputs_lambda.lambda_role_arn,
       module.dr2_ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
       module.dr2_ingest_mapper_lambda.lambda_role_arn,
       module.dr2_ingest_asset_opex_creator_lambda.lambda_role_arn,
@@ -249,7 +249,7 @@ module "ingest_state_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.ingest_state_bucket_name
   bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
-    lambda_role_arns = jsonencode([module.dr2_ingest_mapper_lambda]),
+    lambda_role_arns = jsonencode([module.dr2_ingest_mapper_lambda.lambda_role_arn]),
     bucket_name      = local.ingest_state_bucket_name
   })
   kms_key_arn = module.dr2_developer_key.kms_key_arn
