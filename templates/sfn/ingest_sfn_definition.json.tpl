@@ -27,9 +27,9 @@
           "BackoffRate": 2
         }
       ],
-      "Next": "Get metadata from JSON & Discovery and update Files table"
+      "Next": "Get metadata and update Files table"
     },
-    "Get metadata from JSON & Discovery and update Files table": {
+    "Get metadata and update Files table": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
       "Parameters": {
