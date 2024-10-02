@@ -1,7 +1,34 @@
 {
   "Comment": "${step_function_name}: A State machine to ingest DR2 BagIt-like packages into Preservica.",
-  "StartAt": "Get metadata from JSON & Discovery and update Files table",
+  "StartAt": "Validate input",
   "States": {
+    "Validate input": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_validate_generic_ingest_inputs_lambda_name}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException",
+            "Lambda.Unknown"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Get metadata from JSON & Discovery and update Files table"
+    },
     "Get metadata from JSON & Discovery and update Files table": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_mapper_lambda_name}",
