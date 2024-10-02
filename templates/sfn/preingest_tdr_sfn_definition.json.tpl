@@ -10,7 +10,6 @@
     "Invoke Package Builder Lambda": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${package_builder_lambda_name}"
@@ -34,7 +33,7 @@
         "batchId.$": "$.Payload.batchId",
         "retryCount.$": "$.Payload.retryCount",
         "retrySfnArn.$": "$$.StateMachine.Id",
-        "packageMetadata.$": "$.Payload.packageMetadata"
+        "metadataPackage.$": "$.Payload.packageMetadata"
       }
     },
     "Start Ingest Step Function": {

@@ -3,6 +3,7 @@ locals {
   ingest_raw_cache_bucket_name                         = "${local.environment}-dr2-ingest-raw-cache"
   sample_files_bucket_name                             = "${local.environment}-dr2-sample-files"
   ingest_staging_cache_bucket_name                     = "${local.environment}-dr2-ingest-staging-cache"
+  ingest_state_bucket_name                             = "${local.environment}-dr2-ingest-state"
   ingest_step_function_name                            = "${local.environment}-dr2-ingest"
   additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   anonymiser_roles                                     = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_role_arn]) : []
@@ -19,7 +20,7 @@ locals {
   tre_prod_judgment_role                               = "arn:aws:iam::${module.tre_config.account_numbers["prod"]}:role/prod-tre-editorial-judgment-out-copier"
   java_runtime                                         = "java21"
   java_lambda_memory_size                              = 512
-  java_timeout_seconds                                 = 60
+  java_timeout_seconds                                 = 180
   python_runtime                                       = "python3.12"
   python_lambda_memory_size                            = 128
   python_timeout_seconds                               = 30
@@ -44,7 +45,7 @@ locals {
     local.ingest_start_workflow_lambda_name,
     local.ingest_upsert_archive_folders_lambda_name,
     local.ingest_validate_generic_ingest_inputs_lambda_name,
-    local.ingest_workflow_monitor_lambda_name
+    local.ingest_queue_creator_name
   ]
 }
 resource "random_password" "preservica_password" {
@@ -232,6 +233,7 @@ module "dr2_ingest_step_function" {
     ingest_lock_table_hash_key                        = local.ingest_lock_table_hash_key
     notifications_topic_name                          = local.notifications_topic_name
     ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
+    ingest_state_bucket_name                          = local.ingest_state_bucket_name
     preservica_bucket_name                            = local.preservica_ingest_bucket
     ingest_files_table_name                           = local.files_dynamo_table_name
     datasync_task_arn                                 = aws_datasync_task.dr2_copy_tna_to_preservica.arn
@@ -243,6 +245,15 @@ module "dr2_ingest_step_function" {
   }
 }
 
+module "ingest_state_bucket" {
+  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
+  bucket_name = local.ingest_state_bucket_name
+  bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
+    lambda_role_arns = jsonencode([module.dr2_ingest_mapper_lambda]),
+    bucket_name      = local.ingest_state_bucket_name
+  })
+  kms_key_arn = module.dr2_developer_key.kms_key_arn
+}
 
 resource "aws_datasync_location_s3" "tna_staging_location" {
   provider      = aws.datasync_tna_to_preservica
@@ -299,9 +310,11 @@ module "dr2_ingest_step_function_policy" {
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
     notifications_topic_name                          = local.notifications_topic_name
     ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
+    ingest_state_bucket_name                          = local.ingest_state_bucket_name
     ingest_sfn_name                                   = local.ingest_step_function_name
     ingest_files_table_name                           = local.files_dynamo_table_name
     tna_to_preservica_role_arn                        = local.tna_to_preservica_role_arn
+    preingest_tdr_step_function_arn                   = local.preingest_sfn_arn
   })
 }
 
@@ -369,6 +382,10 @@ module "cloudwatch_alarm_event_bridge_rule" {
       module.dr2_ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_preservica_config_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_preservica_config_queue.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_queue.queue_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_queue.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_queue_creator_queue.queue_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_queue_creator_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_db_builder_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_db_builder_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_notifications_queue.queue_cloudwatch_message_visible_alarm_arn,

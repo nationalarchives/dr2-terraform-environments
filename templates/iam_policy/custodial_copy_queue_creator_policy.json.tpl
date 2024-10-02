@@ -1,34 +1,28 @@
 {
   "Statement": [
     {
-      "Action": [
-        "dynamodb:BatchWriteItem"
-      ],
+      "Action": "secretsmanager:GetSecretValue",
       "Effect": "Allow",
-      "Resource": "${dynamo_db_file_table_arn}",
-      "Sid": "writeDynamoDB"
+      "Resource": "${secrets_manager_secret_arn}",
+      "Sid": "readSecretsManager"
     },
     {
       "Action": [
-        "s3:GetObject"
+        "sqs:SendMessage"
       ],
       "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::${raw_cache_bucket_name}",
-        "arn:aws:s3:::${raw_cache_bucket_name}/*"
-      ],
-      "Sid": "readIngestRawCache"
+      "Resource": "${custodial_copy_fifo_queue}",
+      "Sid": "sendSqsMessage"
     },
     {
       "Action": [
-        "s3:PutObject"
+        "sqs:DeleteMessage",
+        "sqs:ReceiveMessage",
+        "sqs:GetQueueAttributes"
       ],
       "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::${ingest_state_bucket_name}",
-        "arn:aws:s3:::${ingest_state_bucket_name}/*"
-      ],
-      "Sid": "writeIngestState"
+      "Resource": "${queue_creator_input_queue}",
+      "Sid": "deleteSqsMessage"
     },
     {
       "Action": [
@@ -41,7 +35,7 @@
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/aws/lambda/${lambda_name}:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/aws/lambda/${lambda_name}:*"
       ],
-      "Sid": "readWriteLogs"
+      "Sid": "writeLogs"
     }
   ],
   "Version": "2012-10-17"

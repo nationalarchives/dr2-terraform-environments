@@ -10,7 +10,7 @@
         "sts:AssumeRole",
         "events:PutEvents",
         "dynamodb:Query",
-        "dynamodb:BatchWriteItem",
+        "dynamodb:DeleteItem",
         "sns:Publish"
       ],
       "Resource": [
@@ -42,6 +42,27 @@
       "Resource": [
         "arn:aws:dynamodb:eu-west-2:${account_id}:table/${ingest_files_table_name}"
       ]
+    },
+    {
+      "Sid": "callPreingestStepFunction",
+      "Effect": "Allow",
+      "Action": [
+        "states:StartExecution"
+      ],
+      "Resource": [
+        "${preingest_tdr_step_function_arn}"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::${ingest_state_bucket_name}",
+        "arn:aws:s3:::${ingest_state_bucket_name}/*"
+      ],
+      "Sid": "readIngestState"
     }
   ],
   "Version": "2012-10-17"
