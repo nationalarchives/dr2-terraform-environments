@@ -8,7 +8,7 @@ locals {
 module "dr2_entity_event_cloudwatch_event" {
   source                  = "git::https://github.com/nationalarchives/da-terraform-modules//cloudwatch_events"
   rule_name               = "${local.environment}-dr2-entity-event-schedule"
-  schedule                = "rate(1 minute)"
+  schedule                = "rate(5 minutes)"
   lambda_event_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.entity_event_lambda_name}"
 }
 
