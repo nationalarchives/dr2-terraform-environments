@@ -201,7 +201,11 @@
           "archiveHierarchyFolders.$": "$.archiveHierarchyFolders",
           "contentFolders.$": "$.contentFolders"
         },
-        "contentAssets.$": "$.contentAssets"
+        "contentAssets.$": "$.contentAssets",
+        "assetBucket.$": "$.asset.bucket",
+        "assetKey.$": "$.asset.key",
+        "foldersBucket.$": "$.folders.bucket",
+        "foldersKey.$": "$.folders.key"
       }
     },
     "Merge array": {
@@ -209,8 +213,12 @@
       "Next": "Map over each Folder Id",
       "Parameters": {
         "allFolders.$": "$.allFolders.[*]*",
+        "assetsBucket.$": "$.assetsBucket",
+        "assetsKey.$": "$.assetsKey",
         "contentAssets.$": "$.contentAssets",
         "executionId.$": "$$.Execution.Name",
+        "foldersBucket.$": "$.foldersBucket",
+        "foldersKey.$": "$.foldersKey",
         "workflowContextName": "Ingest OPEX (Incremental)",
         "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
         "stagingBucket": "${ingest_staging_cache_bucket_name}"
@@ -218,6 +226,17 @@
     },
     "Map over each Folder Id": {
       "Type": "Map",
+      "Label": "MapOverEachFolderId",
+      "ItemReader": {
+        "Resource": "arn:aws:states:::s3:getObject",
+        "ReaderConfig": {
+          "InputType": "JSON"
+        },
+        "Parameters": {
+          "Bucket": "$.foldersBucket",
+          "Key.$": "$.foldersKey"
+        }
+      },
       "ItemsPath": "$.allFolders",
       "ItemSelector": {
         "id.$": "$$.Map.Item.Value",
@@ -226,7 +245,8 @@
       },
       "ItemProcessor": {
         "ProcessorConfig": {
-          "Mode": "INLINE"
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
         },
         "StartAt": "Create Folder OPEX",
         "States": {
