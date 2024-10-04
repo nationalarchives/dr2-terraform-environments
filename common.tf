@@ -166,7 +166,9 @@ module "dr2_developer_key" {
   default_policy_variables = {
     user_roles = [
       data.aws_ssm_parameter.dev_admin_role.value,
-      module.dr2_preservica_config_lambda.lambda_role_arn
+      module.dr2_preservica_config_lambda.lambda_role_arn,
+      module.dr2_ingest_mapper_lambda.lambda_role_arn,
+      module.dr2_ingest_step_function.step_function_role_arn
     ]
     ci_roles = [local.terraform_role_arn]
     service_details = [
