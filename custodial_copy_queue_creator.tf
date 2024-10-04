@@ -23,7 +23,7 @@ module "dr2_custodial_copy_queue_creator_lambda" {
       lambda_name                = local.ingest_queue_creator_name
       custodial_copy_fifo_queue  = module.dr2_custodial_copy_queue.sqs_arn
       queue_creator_input_queue  = module.dr2_custodial_copy_queue_creator_queue.sqs_arn
-      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
+      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_read_metadata.arn
     })
   }
   timeout_seconds = 180
@@ -35,7 +35,7 @@ module "dr2_custodial_copy_queue_creator_lambda" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   plaintext_env_vars = {
-    PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_secret.name
+    PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_read_metadata.name
     PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
     OUTPUT_QUEUE           = module.dr2_custodial_copy_queue.sqs_queue_url
   }

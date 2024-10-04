@@ -25,7 +25,7 @@ resource "aws_iam_group_policy" "custodial_copy_group_policy" {
   name  = "${local.environment}-dr2-custodial-copy-policy"
   policy = templatefile("${path.module}/templates/iam_policy/custodial_copy_policy.json.tpl", {
     account_id                 = data.aws_caller_identity.current.account_id
-    secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
+    secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_read_metadata_read_content.arn
     custodial_copy_queue       = module.dr2_custodial_copy_queue.sqs_arn
     database_builder_queue     = module.dr2_custodial_copy_db_builder_queue.sqs_arn
     management_account_id      = module.config.account_numbers["mgmt"]

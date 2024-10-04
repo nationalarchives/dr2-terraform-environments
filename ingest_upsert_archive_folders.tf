@@ -12,14 +12,14 @@ module "dr2_ingest_upsert_archive_folders_lambda" {
       account_id                 = var.account_number
       lambda_name                = local.ingest_upsert_archive_folders_lambda_name
       dynamo_db_file_table_arn   = module.files_table.table_arn
-      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
+      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_read_update_metadata_insert_content.arn
     })
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
     ARCHIVE_FOLDER_TABLE_NAME = local.files_dynamo_table_name
-    PRESERVICA_SECRET_NAME    = aws_secretsmanager_secret.preservica_secret.name
+    PRESERVICA_SECRET_NAME    = aws_secretsmanager_secret.preservica_read_update_metadata_insert_content.name
     PRESERVICA_API_URL        = data.aws_ssm_parameter.preservica_url.value
   }
   vpc_config = {
