@@ -190,39 +190,8 @@
           }
         }
       },
-      "Next": "Convert array to object",
-      "ResultPath": null
-    },
-    "Convert array to object": {
-      "Type": "Pass",
-      "Next": "Merge array",
-      "Parameters": {
-        "allFolders": {
-          "archiveHierarchyFolders.$": "$.archiveHierarchyFolders",
-          "contentFolders.$": "$.contentFolders"
-        },
-        "contentAssets.$": "$.contentAssets",
-        "assetBucket.$": "$.asset.bucket",
-        "assetKey.$": "$.asset.key",
-        "foldersBucket.$": "$.folders.bucket",
-        "foldersKey.$": "$.folders.key"
-      }
-    },
-    "Merge array": {
-      "Type": "Pass",
       "Next": "Map over each Folder Id",
-      "Parameters": {
-        "allFolders.$": "$.allFolders.[*]*",
-        "assetsBucket.$": "$.assetsBucket",
-        "assetsKey.$": "$.assetsKey",
-        "contentAssets.$": "$.contentAssets",
-        "executionId.$": "$$.Execution.Name",
-        "foldersBucket.$": "$.foldersBucket",
-        "foldersKey.$": "$.foldersKey",
-        "workflowContextName": "Ingest OPEX (Incremental)",
-        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
-        "stagingBucket": "${ingest_staging_cache_bucket_name}"
-      }
+      "ResultPath": null
     },
     "Map over each Folder Id": {
       "Type": "Map",
@@ -233,8 +202,8 @@
           "InputType": "JSON"
         },
         "Parameters": {
-          "Bucket": "$.foldersBucket",
-          "Key.$": "$.foldersKey"
+          "Bucket.$": "$.folders.bucket",
+          "Key.$": "$.folders.key"
         }
       },
       "ItemsPath": "$.allFolders",
@@ -376,7 +345,10 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_start_workflow_lambda_name}",
-        "Payload.$": "$"
+        "Payload": {
+          "workflowContextName": "Ingest OPEX (Incremental)",
+          "executionId.$": "$$.Execution.Name"
+        }
       },
       "Retry": [
         {
@@ -412,7 +384,10 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "Payload.$": "$",
+        "Payload": {
+          "executionId.$": "$$.Execution.Name",
+          "contentAssets.$": "$.contentAssets"
+        },
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_workflow_monitor_lambda_name}"
       },
       "Retry": [
@@ -479,7 +454,7 @@
       "ItemSelector": {
         "assetId.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
-        "executionId.$": "$.executionId"
+        "executionId.$": "$$.Execution.Name"
       },
       "ItemProcessor": {
         "ProcessorConfig": {
