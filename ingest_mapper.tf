@@ -19,7 +19,8 @@ module "dr2_ingest_mapper_lambda" {
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    DYNAMO_TABLE_NAME = local.files_dynamo_table_name
+    DYNAMO_TABLE_NAME   = local.files_dynamo_table_name
+    INGEST_STATE_BUCKET = local.ingest_state_bucket_name
   }
   tags = {
     Name = local.ingest_mapper_lambda_name
