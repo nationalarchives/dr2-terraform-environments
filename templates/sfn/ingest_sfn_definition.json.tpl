@@ -91,15 +91,29 @@
     },
     "Map over each Asset Id": {
       "Type": "Map",
+      "Label": "MapOverEachAssetId",
       "ItemsPath": "$.contentAssets",
       "ItemSelector": {
         "id.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
-        "executionName.$": "$$.Execution.Name"
+        "executionName.$": "$$.Execution.Name",
+        "bucket.$": "$.assets.bucket",
+        "key.$": "$.assets.key"
+      },
+      "ItemReader": {
+        "Resource": "arn:aws:states:::s3:getObject",
+        "ReaderConfig": {
+          "InputType": "JSON"
+        },
+        "Parameters": {
+          "Bucket.$": "$.bucket",
+          "Key.$": "$.key"
+        }
       },
       "ItemProcessor": {
         "ProcessorConfig": {
-          "Mode": "INLINE"
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
         },
         "StartAt": "Check if asset has already been ingested",
         "States": {
