@@ -1,0 +1,20 @@
+module "remove_all_nacl_rules_role" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
+  assume_role_policy = templatefile("${path.module}/templates/iam_role/github_assume_role.json.tpl", {
+    account_id = data.aws_caller_identity.current.account_id,
+  repo_filters = jsonencode(["repo:nationalarchives/dr2-runbooks:environment:intg", "repo:nationalarchives/dr2-runbooks:environment:staging", "repo:nationalarchives/dr2-runbooks:environment:prod"]) })
+  name = "${local.environment}-dr2-runbook-remove-all-nacl-rules"
+  policy_attachments = {
+    remove_all_nacl_rules_policy = module.remove_all_nacl_rules_policy.policy_arn
+  }
+  tags = {}
+}
+
+module "remove_all_nacl_rules_policy" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
+  name   = "${local.environment}-dr2-runbooks-remove-all-nacl-rules-policy"
+  policy_string = templatefile("${path.module}/templates/iam_policy/remove_all_nacl_rules.json.tpl", {
+    public_nacl_arn  = module.vpc.public_nacl_arn
+    private_nacl_arn = module.vpc.private_nacl_arn
+  })
+}
