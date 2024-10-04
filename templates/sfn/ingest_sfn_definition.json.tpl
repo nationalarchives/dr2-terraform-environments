@@ -96,9 +96,7 @@
       "ItemSelector": {
         "id.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
-        "executionName.$": "$$.Execution.Name",
-        "bucket.$": "$.assets.bucket",
-        "key.$": "$.assets.key"
+        "executionName.$": "$$.Execution.Name"
       },
       "ItemReader": {
         "Resource": "arn:aws:states:::s3:getObject",
@@ -106,8 +104,8 @@
           "InputType": "JSON"
         },
         "Parameters": {
-          "Bucket.$": "$.bucket",
-          "Key.$": "$.key"
+          "Bucket.$": "$.assets.bucket",
+          "Key.$": "$.assets.key"
         }
       },
       "ItemProcessor": {
