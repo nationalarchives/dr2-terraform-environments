@@ -441,7 +441,7 @@ module "failed_ingest_step_function_event_bridge_rule" {
       message = "Step function ${local.ingest_step_function_name} with name <name> has <status>"
     })
   }
-
+  lambda_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.ingest_failure_notifications_lambda_name}"
 }
 
 module "guard_duty_findings_eventbridge_rule" {
