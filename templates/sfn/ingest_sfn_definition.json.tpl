@@ -447,7 +447,18 @@
     },
     "Map over each assetId and reconcile": {
       "Type": "Map",
-      "ItemsPath": "$.contentAssets",
+      "Label": "MapOverEachAssetIdAndReconcile",
+      "ItemReader": {
+        "Resource": "arn:aws:states:::s3:getObject",
+        "ReaderConfig": {
+          "InputType": "JSON"
+        },
+        "Parameters": {
+          "Bucket": "$.assets.bucket",
+          "Key.$": "$.assets.key"
+        }
+      },
+      "MaxConcurrency": 25,
       "ItemSelector": {
         "assetId.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
@@ -455,7 +466,8 @@
       },
       "ItemProcessor": {
         "ProcessorConfig": {
-          "Mode": "INLINE"
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
         },
         "StartAt": "Reconcile assetId and children",
         "States": {
