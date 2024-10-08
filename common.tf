@@ -61,9 +61,27 @@ resource "aws_secretsmanager_secret" "preservica_secret" {
   name = "${local.environment}-preservica-api-login-details-${random_string.preservica_user.result}"
 }
 
+resource "aws_secretsmanager_secret" "preservica_read_metadata_read_content" {
+  name = "${local.environment}-preservica-api-read-metadata-read-content"
+}
+
+resource "aws_secretsmanager_secret" "preservica_read_metadata" {
+  name = "${local.environment}-preservica-api-read-metadata"
+}
+
+resource "aws_secretsmanager_secret" "preservica_read_update_metadata_insert_content" {
+  name = "${local.environment}-preservica-api-read-update-metadata-insert-content"
+}
+
 resource "aws_secretsmanager_secret_rotation" "secret_rotation" {
+  for_each = toset([
+    aws_secretsmanager_secret.preservica_secret.id,
+    aws_secretsmanager_secret.preservica_read_metadata_read_content.id,
+    aws_secretsmanager_secret.preservica_read_metadata.id,
+    aws_secretsmanager_secret.preservica_read_update_metadata_insert_content.id
+  ])
   rotation_lambda_arn = module.dr2_rotate_preservation_system_password_lambda.lambda_arn
-  secret_id           = aws_secretsmanager_secret.preservica_secret.id
+  secret_id           = each.key
   rotation_rules {
     schedule_expression = "rate(4 hours)"
   }
@@ -441,7 +459,7 @@ module "failed_ingest_step_function_event_bridge_rule" {
       message = "Step function ${local.ingest_step_function_name} with name <name> has <status>"
     })
   }
-
+  lambda_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.ingest_failure_notifications_lambda_name}"
 }
 
 module "guard_duty_findings_eventbridge_rule" {
