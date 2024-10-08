@@ -9,18 +9,20 @@ module "dr2_rotate_preservation_system_password_lambda" {
   timeout_seconds = local.java_timeout_seconds
   policies = {
     "${local.rotate_preservation_system_password_name}-policy" = templatefile("./templates/iam_policy/rotate_preservation_system_password_policy.json.tpl", {
-      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn,
-      account_id                 = data.aws_caller_identity.current.account_id
-      lambda_name                = local.rotate_preservation_system_password_name
+      secrets_manager_secret_arns = jsonencode([
+        aws_secretsmanager_secret.preservica_secret.arn,
+        aws_secretsmanager_secret.preservica_read_update_metadata_insert_content.arn,
+        aws_secretsmanager_secret.preservica_read_metadata.arn,
+        aws_secretsmanager_secret.preservica_read_metadata_read_content.arn
+      ]),
+      account_id  = data.aws_caller_identity.current.account_id
+      lambda_name = local.rotate_preservation_system_password_name
     })
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
     PRESERVICA_API_URL = data.aws_ssm_parameter.preservica_url.value
-  }
-  lambda_invoke_permissions = {
-    "secretsmanager.amazonaws.com" = aws_secretsmanager_secret.preservica_secret.arn
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
@@ -29,4 +31,15 @@ module "dr2_rotate_preservation_system_password_lambda" {
   tags = {
     Name = local.rotate_preservation_system_password_name
   }
+}
+
+resource "aws_lambda_permission" "rotate_secrets_permissions" {
+  for_each = toset([aws_secretsmanager_secret.preservica_secret.arn,
+    aws_secretsmanager_secret.preservica_read_update_metadata_insert_content.arn,
+    aws_secretsmanager_secret.preservica_read_metadata.arn,
+  aws_secretsmanager_secret.preservica_read_metadata_read_content.arn])
+  action        = "lambda:InvokeFunction"
+  function_name = local.rotate_preservation_system_password_name
+  principal     = "secretsmanager.amazonaws.com"
+  source_arn    = each.key
 }
