@@ -5,7 +5,7 @@ locals {
 module "dr2_ingest_failure_notifications_lambda" {
   source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name = local.ingest_failure_notifications_lambda_name
-  handler       = "uk.gov.nationalarchives.ingestfileschangehandler.Lambda::handleRequest"
+  handler       = "uk.gov.nationalarchives.ingestfailurenotifications.Lambda::handleRequest"
   policies = {
     dr2_ingest_failure_notifications_policy = templatefile("${path.module}/templates/iam_policy/failure_notifications_policy.json.tpl", {
       account_id               = data.aws_caller_identity.current.account_id
