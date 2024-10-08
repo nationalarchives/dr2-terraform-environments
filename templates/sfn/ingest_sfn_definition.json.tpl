@@ -206,7 +206,6 @@
           "Key.$": "$.folders.key"
         }
       },
-      "ItemsPath": "$.allFolders",
       "ItemSelector": {
         "id.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
