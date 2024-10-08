@@ -339,6 +339,11 @@
       ],
       "Default": "Wait 20 Seconds"
     },
+    "Job Failed": {
+      "Type": "Fail",
+      "Cause": "AWS Batch Job Failed",
+      "Error": "'Check workflow status' task returned Failed"
+    },
     "Start workflow": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
@@ -439,11 +444,6 @@
         }
       ],
       "Default": "Wait 5 minutes before getting status"
-    },
-    "Job Failed": {
-      "Type": "Fail",
-      "Cause": "AWS Batch Job Failed",
-      "Error": "'Check workflow status' task returned Failed"
     },
     "Map over each assetId and reconcile": {
       "Type": "Map",
