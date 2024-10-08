@@ -8,7 +8,7 @@
         "secretsmanager:UpdateSecretVersionStage"
       ],
       "Effect": "Allow",
-      "Resource": "${secrets_manager_secret_arn}",
+      "Resource": ${secrets_manager_secret_arns},
       "Sid": "readSecretsManager"
     },
     {
