@@ -1,15 +1,23 @@
 {
+  "Version": "2012-10-17",
   "Statement": [
     {
       "Action": [
-        "secretsmanager:DescribeSecret",
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecretVersionStage"
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query"
       ],
       "Effect": "Allow",
-      "Resource": ${secrets_manager_secret_arns},
-      "Sid": "readSecretsManager"
+      "Resource": [
+        "${dynamo_db_file_table_arn}",
+        "${dynamo_db_file_table_arn}/index/${gsi_name}"
+      ],
+      "Sid": "getAndQueryDynamoDB"
+    },
+    {
+      "Action": "sns:Publish",
+      "Effect": "Allow",
+      "Resource": "${sns_arn}",
+      "Sid": "publishSNS"
     },
     {
       "Action": [
@@ -21,13 +29,8 @@
       "Resource": [
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/aws/lambda/${lambda_name}:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/aws/lambda/${lambda_name}:*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "secretsmanager:GetRandomPassword",
-      "Resource": "*"
+      ],
+      "Sid": "writeLogs"
     }
-  ],
-  "Version": "2012-10-17"
+  ]
 }

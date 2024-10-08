@@ -21,7 +21,7 @@ module "dr2_entity_event_generator_lambda" {
       account_id                 = data.aws_caller_identity.current.account_id
       lambda_name                = local.entity_event_lambda_name
       dynamo_db_file_table_arn   = module.dr2_entity_event_lambda_updated_since_query_start_datetime_table.table_arn
-      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_secret.arn
+      secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_read_metadata.arn
       sns_arn                    = local.entity_event_topic_arn
     })
   }
@@ -38,7 +38,7 @@ module "dr2_entity_event_generator_lambda" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   plaintext_env_vars = {
-    PRESERVICA_SECRET_NAME       = aws_secretsmanager_secret.preservica_secret.name
+    PRESERVICA_SECRET_NAME       = aws_secretsmanager_secret.preservica_read_metadata.name
     ENTITY_EVENT_TOPIC_ARN       = local.entity_event_topic_arn
     LAST_EVENT_ACTION_TABLE_NAME = local.last_polled_table_name
     PRESERVICA_API_URL           = data.aws_ssm_parameter.preservica_url.value

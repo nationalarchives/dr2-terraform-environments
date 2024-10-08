@@ -420,28 +420,26 @@
         "duplicatedAssets.$": "$.Payload.duplicatedAssets"
       },
       "ResultPath": "$.WorkflowResult",
-      "Next": "Check workflow status and get Succeeded, Failed and Duplicated asset ids"
+      "Next": "Check workflow status"
     },
-    "Check workflow status and get Succeeded, Failed and Duplicated asset ids": {
+    "Check workflow status": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.WorkflowResult.status",
-          "StringEquals": "Failed",
-          "Next": "Job Failed"
-        },
-        {
-          "Variable": "$.WorkflowResult.status",
-          "StringEquals": "Succeeded",
+          "Or": [
+            {
+              "Variable": "$.WorkflowResult.status",
+              "StringEquals": "Failed"
+            },
+            {
+              "Variable": "$.WorkflowResult.status",
+              "StringEquals": "Succeeded"
+            }
+          ],
           "Next": "Map over each assetId and reconcile"
         }
       ],
-      "Default": "Wait 1 minute"
-    },
-    "Wait 1 minute": {
-      "Type": "Wait",
-      "Next": "Get workflow status",
-      "Seconds": 60
+      "Default": "Wait 5 minutes before getting status"
     },
     "Job Failed": {
       "Type": "Fail",
