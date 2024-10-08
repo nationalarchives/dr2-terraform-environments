@@ -190,35 +190,22 @@
           }
         }
       },
-      "Next": "Convert array to object",
-      "ResultPath": null
-    },
-    "Convert array to object": {
-      "Type": "Pass",
-      "Next": "Merge array",
-      "Parameters": {
-        "allFolders": {
-          "archiveHierarchyFolders.$": "$.archiveHierarchyFolders",
-          "contentFolders.$": "$.contentFolders"
-        },
-        "contentAssets.$": "$.contentAssets"
-      }
-    },
-    "Merge array": {
-      "Type": "Pass",
       "Next": "Map over each Folder Id",
-      "Parameters": {
-        "allFolders.$": "$.allFolders.[*]*",
-        "contentAssets.$": "$.contentAssets",
-        "executionId.$": "$$.Execution.Name",
-        "workflowContextName": "Ingest OPEX (Incremental)",
-        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
-        "stagingBucket": "${ingest_staging_cache_bucket_name}"
-      }
+      "ResultPath": null
     },
     "Map over each Folder Id": {
       "Type": "Map",
-      "ItemsPath": "$.allFolders",
+      "Label": "MapOverEachFolderId",
+      "ItemReader": {
+        "Resource": "arn:aws:states:::s3:getObject",
+        "ReaderConfig": {
+          "InputType": "JSON"
+        },
+        "Parameters": {
+          "Bucket.$": "$.folders.bucket",
+          "Key.$": "$.folders.key"
+        }
+      },
       "ItemSelector": {
         "id.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
@@ -226,7 +213,8 @@
       },
       "ItemProcessor": {
         "ProcessorConfig": {
-          "Mode": "INLINE"
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
         },
         "StartAt": "Create Folder OPEX",
         "States": {
@@ -356,7 +344,10 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_start_workflow_lambda_name}",
-        "Payload.$": "$"
+        "Payload": {
+          "workflowContextName": "Ingest OPEX (Incremental)",
+          "executionId.$": "$$.Execution.Name"
+        }
       },
       "Retry": [
         {
@@ -392,7 +383,10 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "Payload.$": "$",
+        "Payload": {
+          "executionId.$": "$$.Execution.Name",
+          "contentAssets.$": "$.contentAssets"
+        },
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_workflow_monitor_lambda_name}"
       },
       "Retry": [
@@ -457,7 +451,7 @@
       "ItemSelector": {
         "assetId.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
-        "executionId.$": "$.executionId"
+        "executionId.$": "$$.Execution.Name"
       },
       "ItemProcessor": {
         "ProcessorConfig": {
