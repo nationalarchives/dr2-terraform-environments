@@ -454,7 +454,7 @@
           "InputType": "JSON"
         },
         "Parameters": {
-          "Bucket": "$.assets.bucket",
+          "Bucket.$": "$.assets.bucket",
           "Key.$": "$.assets.key"
         }
       },
