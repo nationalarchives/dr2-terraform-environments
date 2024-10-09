@@ -434,7 +434,7 @@ module "cloudwatch_alarm_event_bridge_rule" {
 module "failed_ingest_step_function_event_bridge_rule" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/step_function_failed_event_pattern.json.tpl", {
-    step_function_arn = module.dr2_ingest_step_function.step_function_arn
+    step_function_arns = jsonencode([module.dr2_ingest_step_function.step_function_arn, module.dr2_preingest_tdr_step_function.step_function_arn])
   })
   name                = "${local.environment}-dr2-eventbridge-ingest-step-function-failure"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
