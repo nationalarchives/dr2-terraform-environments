@@ -339,6 +339,11 @@
       ],
       "Default": "Wait 20 Seconds"
     },
+    "Job Failed": {
+      "Type": "Fail",
+      "Cause": "AWS Batch Job Failed",
+      "Error": "'Check workflow status' task returned Failed"
+    },
     "Start workflow": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
@@ -440,14 +445,20 @@
       ],
       "Default": "Wait 5 minutes before getting status"
     },
-    "Job Failed": {
-      "Type": "Fail",
-      "Cause": "AWS Batch Job Failed",
-      "Error": "'Check workflow status' task returned Failed"
-    },
     "Map over each assetId and reconcile": {
       "Type": "Map",
-      "ItemsPath": "$.contentAssets",
+      "Label": "MapOverEachAssetIdAndReconcile",
+      "ItemReader": {
+        "Resource": "arn:aws:states:::s3:getObject",
+        "ReaderConfig": {
+          "InputType": "JSON"
+        },
+        "Parameters": {
+          "Bucket.$": "$.assets.bucket",
+          "Key.$": "$.assets.key"
+        }
+      },
+      "MaxConcurrency": 25,
       "ItemSelector": {
         "assetId.$": "$$.Map.Item.Value",
         "batchId.$": "$$.Execution.Input.batchId",
@@ -455,7 +466,8 @@
       },
       "ItemProcessor": {
         "ProcessorConfig": {
-          "Mode": "INLINE"
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
         },
         "StartAt": "Reconcile assetId and children",
         "States": {
