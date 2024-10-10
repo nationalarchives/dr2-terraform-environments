@@ -389,8 +389,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
         "Payload": {
-          "executionId.$": "$$.Execution.Name",
-          "contentAssets.$": "$.contentAssets"
+          "executionId.$": "$$.Execution.Name"
         },
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_workflow_monitor_lambda_name}"
       },
