@@ -417,10 +417,7 @@
       ],
       "ResultSelector": {
         "status.$": "$.Payload.status",
-        "mappedId.$": "$.Payload.mappedId",
-        "succeededAssets.$": "$.Payload.succeededAssets",
-        "failedAssets.$": "$.Payload.failedAssets",
-        "duplicatedAssets.$": "$.Payload.duplicatedAssets"
+        "mappedId.$": "$.Payload.mappedId"
       },
       "ResultPath": "$.WorkflowResult",
       "Next": "Check workflow status"
