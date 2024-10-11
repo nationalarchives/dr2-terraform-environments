@@ -72,7 +72,7 @@ module "dr2_ingest_parsed_court_document_event_handler_lambda" {
       dynamo_db_lock_table_arn                             = module.ingest_lock_table.table_arn
     })
   }
-  memory_size = local.java_lambda_memory_size
+  memory_size = 1024
   runtime     = local.java_runtime
   plaintext_env_vars = {
     OUTPUT_BUCKET          = local.ingest_raw_cache_bucket_name
