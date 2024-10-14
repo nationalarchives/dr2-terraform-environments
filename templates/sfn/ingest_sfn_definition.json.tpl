@@ -540,7 +540,7 @@
               "TableName": "${ingest_lock_table_name}",
               "Key": {
                 "${ingest_lock_table_hash_key}": {
-                  "S.$": "$.assetName"
+                  "S.$": "$.assetId"
                 }
               }
             },
