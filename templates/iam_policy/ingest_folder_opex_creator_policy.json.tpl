@@ -1,6 +1,12 @@
 {
   "Statement": [
     {
+      "Action" : "sts:AssumeRole",
+      "Effect": "Allow",
+      "Resource": "${copy_to_preservica_role}",
+      "Sid": "assumeCopyToPreservicaRole"
+    },
+    {
       "Action": [
         "dynamodb:BatchGetItem",
         "dynamodb:Query"
@@ -11,18 +17,6 @@
         "${dynamo_db_file_table_arn}/index/${gsi_name}"
       ],
       "Sid": "getAndQueryDynamoDB"
-    },
-    {
-      "Action": [
-        "s3:PutObject",
-        "s3:GetObject"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::${bucket_name}",
-        "arn:aws:s3:::${bucket_name}/*"
-      ],
-      "Sid": "readWriteIngestStagingCache"
     },
     {
       "Action": [

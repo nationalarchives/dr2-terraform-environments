@@ -9,15 +9,16 @@ module "dr2_ingest_parent_folder_opex_creator_lambda" {
   timeout_seconds = local.java_timeout_seconds
   policies = {
     "${local.ingest_parent_folder_opex_creator_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_parent_folder_opex_creator_policy.json.tpl", {
-      bucket_name = local.ingest_staging_cache_bucket_name
-      account_id  = var.account_number
-      lambda_name = local.ingest_parent_folder_opex_creator_lambda_name
+      account_id              = var.account_number
+      lambda_name             = local.ingest_parent_folder_opex_creator_lambda_name
+      copy_to_preservica_role = module.copy_tna_to_preservica_role.role_arn
     })
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    STAGING_CACHE_BUCKET = local.ingest_staging_cache_bucket_name
+    DESTINATION_BUCKET = local.preservica_ingest_bucket
+    S3_ROLE_ARN        = module.copy_tna_to_preservica_role.role_arn
   }
   tags = {
     Name = local.ingest_parent_folder_opex_creator_lambda_name
