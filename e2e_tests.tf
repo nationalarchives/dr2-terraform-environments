@@ -1,86 +1,48 @@
-module "run_e2e_tests_role" {
+locals {
+  e2e_tests_name  = "${local.environment}-dr2-e2e-tests"
+  e2e_tests_count = local.environment == "intg" ? 1 : 0
+}
+
+module "dr2_run_e2e_tests_role" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
+  count  = local.e2e_tests_count
   assume_role_policy = templatefile("${path.module}/templates/iam_role/github_assume_role.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id,
     repo_filters = jsonencode([
-      "repo:nationalarchives/dr2-e2e-tests:environment:${local.environment}",
-      "repo:nationalarchives/dr2-e2e-tests:ref:refs/heads/main"
+      "repo:nationalarchives/dr2-ingest:environment:${local.environment}"
     ])
   })
   name = "${local.environment}-dr2-run-e2e-tests-role"
   policy_attachments = {
-    run_e2e_tests_policy = module.run_e2e_tests_policy.policy_arn
+    run_e2e_tests_policy = module.dr2_e2e_tests_policy[count.index].policy_arn
   }
   tags = {}
 }
 
-module "e2e_tests_ecs_task_role" {
-  source             = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
-  assume_role_policy = templatefile("${path.module}/templates/iam_role/service_assume_role.json.tpl", { service = "ecs-tasks" })
-  name               = "${local.environment}-dr2-e2e-tests-task-role"
-  policy_attachments = {
-    e2e_tests_task_policy = module.e2e_tests_task_policy.policy_arn
-  }
-  tags = {}
-}
-
-module "e2e_tests_task_policy" {
+module "dr2_e2e_tests_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
-  name   = "${local.environment}-dr2-e2e-tests-task-policy"
-  policy_string = templatefile("${path.module}/templates/iam_policy/e2e_tests_task_policy.json.tpl", {
-    court_document_test_input_bucket = local.ingest_parsed_court_document_event_handler_test_bucket_name,
-    secret_arn                       = aws_secretsmanager_secret.preservica_secret.arn,
-    sqs_arn                          = module.dr2_ingest_parsed_court_document_event_handler_sqs.sqs_arn
+  count  = local.e2e_tests_count
+  name   = "${local.e2e_tests_name}-policy"
+  policy_string = templatefile("${path.module}/templates/iam_policy/e2e_tests_policy.json.tpl", {
+    input_bucket_name         = local.ingest_raw_cache_bucket_name
+    copy_files_from_tdr_queue = module.dr2_copy_files_from_tdr_sqs.sqs_arn
+    copy_files_dlq            = module.dr2_copy_files_from_tdr_sqs.dlq_sqs_arn
+    e2e_tests_queue           = module.dr2_e2e_tests_queue[count.index].sqs_arn
+    preingest_sfn_arn         = module.dr2_preingest_tdr_step_function.step_function_arn,
+    dynamo_db_lock_table_arn  = module.ingest_lock_table.table_arn
   })
 }
 
-module "e2e_tests_ecs_execution_role" {
-  source             = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
-  assume_role_policy = templatefile("${path.module}/templates/iam_role/service_assume_role.json.tpl", { service = "ecs-tasks" })
-  name               = "${local.environment}-dr2-e2e-tests-execution-role"
-  policy_attachments = {
-    e2e_tests_execution_policy = module.e2e_tests_execution_policy.policy_arn
-  }
-  tags = {}
-}
-
-module "e2e_tests_execution_policy" {
-  source        = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
-  name          = "${local.environment}-dr2-e2e-tests-execution-policy"
-  policy_string = templatefile("${path.module}/templates/iam_policy/e2e_tests_execution_policy.json.tpl", { account_id = data.aws_caller_identity.current.account_id, management_account_id = module.config.account_numbers["mgmt"] })
-}
-
-
-module "run_e2e_tests_policy" {
-  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
-  name   = "${local.environment}-dr2-run-e2e-tests-role"
-  policy_string = templatefile("${path.module}/templates/iam_policy/run_e2e_tests_task.json.tpl", {
-    account_id     = data.aws_caller_identity.current.account_id,
-    execution_role = module.e2e_tests_ecs_execution_role.role_arn,
-    task_role      = module.e2e_tests_ecs_task_role.role_arn,
+module "dr2_e2e_tests_queue" {
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  count      = local.e2e_tests_count
+  queue_name = local.e2e_tests_name
+  sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
+    account_id = var.account_number,
+    queue_name = local.e2e_tests_name
+    topic_arn  = module.dr2_notifications_sns.sns_arn
   })
-}
-
-resource "aws_ecs_task_definition" "e2e_tests" {
-  container_definitions = templatefile("${path.module}/templates/task_definitions/e2e_tests.json.tpl", {
-    task_role_arn         = module.e2e_tests_ecs_task_role.role_arn
-    execution_role_arn    = module.e2e_tests_ecs_execution_role.role_arn
-    secret_name           = aws_secretsmanager_secret.preservica_secret.name
-    environment           = local.environment
-    account_id            = data.aws_caller_identity.current.account_id
-    management_account_id = module.config.account_numbers["mgmt"]
-  })
-  execution_role_arn       = module.e2e_tests_ecs_execution_role.role_arn
-  task_role_arn            = module.e2e_tests_ecs_task_role.role_arn
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = "1024"
-  memory                   = "2048"
-  family                   = "e2e-tests"
-  volume {
-    name = "test"
-  }
-  volume {
-    name = "tmp"
-  }
+  visibility_timeout        = 10
+  message_retention_seconds = 7200
+  encryption_type           = "sse"
 }

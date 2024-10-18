@@ -7,6 +7,7 @@ locals {
   ingest_step_function_name                            = "${local.environment}-dr2-ingest"
   additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   anonymiser_roles                                     = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_role_arn]) : []
+  e2e_test_roles                                       = local.environment == "intg" ? [module.dr2_run_e2e_tests_role[0].role_arn] : []
   anonymiser_lambda_arns                               = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
   files_dynamo_table_name                              = "${local.environment}-dr2-ingest-files"
   ingest_lock_dynamo_table_name                        = "${local.environment}-dr2-ingest-lock"
@@ -161,14 +162,13 @@ module "dr2_kms_key" {
       module.dr2_ingest_asset_reconciler_lambda.lambda_role_arn,
       module.dr2_ingest_step_function.step_function_role_arn,
       module.dr2_custodial_copy_ingest_lambda.lambda_role_arn,
-      module.e2e_tests_ecs_task_role.role_arn,
       module.dr2_ingest_files_change_handler_lambda.lambda_role_arn,
       module.dr2_preingest_tdr_aggregator_lambda.lambda_role_arn,
       module.dr2_preingest_tdr_package_builder_lambda.lambda_role_arn,
       module.dr2_copy_files_from_tdr_lambda.lambda_role_arn,
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
-    ], local.additional_user_roles, local.anonymiser_roles)
+    ], local.additional_user_roles, local.anonymiser_roles, local.e2e_test_roles)
     ci_roles = [local.terraform_role_arn]
     service_details = [
       { service_name = "cloudwatch" },
