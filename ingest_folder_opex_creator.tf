@@ -20,9 +20,12 @@ module "dr2_ingest_folder_opex_creator_lambda" {
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    DYNAMO_TABLE_NAME = local.files_dynamo_table_name
-    DYNAMO_GSI_NAME   = local.files_table_batch_parent_global_secondary_index_name
-    BUCKET_NAME       = local.ingest_staging_cache_bucket_name
+    DYNAMO_TABLE_NAME                    = local.files_dynamo_table_name                              # Remove in DR2-1626/2
+    DYNAMO_GSI_NAME                      = local.files_table_batch_parent_global_secondary_index_name # Remove in DR2-1626/2
+    BUCKET_NAME                          = local.ingest_staging_cache_bucket_name                     # Remove in DR2-1626/2
+    FILES_DDB_TABLE                      = local.files_dynamo_table_name
+    FILES_DDB_TABLE_BATCHPARENT_GSI_NAME = local.files_table_batch_parent_global_secondary_index_name
+    OUTPUT_BUCKET_NAME                   = local.ingest_staging_cache_bucket_name
   }
   tags = {
     Name = local.ingest_folder_opex_creator_lambda_name
