@@ -3,7 +3,7 @@ locals {
   e2e_tests_count = local.environment == "intg" ? 1 : 0
 }
 
-module "run_e2e_tests_role" {
+module "dr2_run_e2e_tests_role" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_role"
   count  = local.e2e_tests_count
   assume_role_policy = templatefile("${path.module}/templates/iam_role/github_assume_role.json.tpl", {
@@ -14,12 +14,12 @@ module "run_e2e_tests_role" {
   })
   name = "${local.environment}-dr2-run-e2e-tests-role"
   policy_attachments = {
-    run_e2e_tests_policy = module.e2e_tests_policy[count.index].policy_arn
+    run_e2e_tests_policy = module.dr2_e2e_tests_policy[count.index].policy_arn
   }
   tags = {}
 }
 
-module "e2e_tests_policy" {
+module "dr2_e2e_tests_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   count  = local.e2e_tests_count
   name   = "${local.e2e_tests_name}-policy"
@@ -42,7 +42,7 @@ module "dr2_e2e_tests_queue" {
     queue_name = local.e2e_tests_name
     topic_arn  = module.dr2_notifications_sns.sns_arn
   })
-  visibility_timeout        = 180
+  visibility_timeout        = 10
   message_retention_seconds = 7200
   encryption_type           = "sse"
 }
