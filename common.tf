@@ -11,6 +11,7 @@ locals {
   anonymiser_lambda_arns                               = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
   files_dynamo_table_name                              = "${local.environment}-dr2-ingest-files"
   ingest_lock_dynamo_table_name                        = "${local.environment}-dr2-ingest-lock"
+  ingest_queue_name                                    = "${local.environment}-dr2-ingest-queue"
   enable_point_in_time_recovery                        = true
   files_table_batch_parent_global_secondary_index_name = "BatchParentPathIdx"
   files_table_ingest_ps_global_secondary_index_name    = "IngestPSIdx"
@@ -256,6 +257,7 @@ module "dr2_ingest_step_function" {
     ingest_state_bucket_name                          = local.ingest_state_bucket_name
     preservica_bucket_name                            = local.preservica_ingest_bucket
     ingest_files_table_name                           = local.files_dynamo_table_name
+    ingest_queue_table_name                           = local.ingest_queue_name
     datasync_task_arn                                 = aws_datasync_task.dr2_copy_tna_to_preservica.arn
     tna_to_preservica_role_arn                        = local.tna_to_preservica_role_arn
   })
@@ -328,6 +330,7 @@ module "dr2_ingest_step_function_policy" {
     ingest_asset_reconciler_lambda_name               = local.ingest_asset_reconciler_lambda_name
     ingest_lock_table_name                            = local.ingest_lock_dynamo_table_name
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
+    ingest_queue_table_name                           = local.ingest_queue_name
     notifications_topic_name                          = local.notifications_topic_name
     ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
     ingest_state_bucket_name                          = local.ingest_state_bucket_name
@@ -379,6 +382,17 @@ module "ingest_lock_table" {
       projection_type = "ALL"
     }
   ]
+  point_in_time_recovery_enabled = local.enable_point_in_time_recovery
+}
+
+module "ingest_queue_table" {
+  source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
+  hash_key                       = { name = "sourceSystem", type = "S" }
+  range_key                      = { name = "queuedAt", type = "S" }
+  table_name                     = local.ingest_queue_name
+  server_side_encryption_enabled = true
+  kms_key_arn                    = module.dr2_kms_key.kms_key_arn
+  deletion_protection_enabled    = true
   point_in_time_recovery_enabled = local.enable_point_in_time_recovery
 }
 
