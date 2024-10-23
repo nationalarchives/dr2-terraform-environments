@@ -5,6 +5,7 @@ locals {
   ingest_staging_cache_bucket_name                     = "${local.environment}-dr2-ingest-staging-cache"
   ingest_state_bucket_name                             = "${local.environment}-dr2-ingest-state"
   ingest_step_function_name                            = "${local.environment}-dr2-ingest"
+  ingest_run_workflow_step_function_name               = "${local.environment}-dr2-ingest-run-workflow"
   additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   anonymiser_roles                                     = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_role_arn]) : []
   e2e_test_roles                                       = local.environment == "intg" ? [module.dr2_run_e2e_tests_role[0].role_arn] : []
@@ -34,6 +35,7 @@ locals {
   sse_encryption                                       = "sse"
   visibility_timeout                                   = 180
   redrive_maximum_receives                             = 5
+  ingest_run_workflow_sfn_arn                          = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.ingest_run_workflow_step_function_name}"
   dashboard_lambdas = [
     local.ingest_asset_opex_creator_lambda_name,
     local.ingest_asset_reconciler_lambda_name,
@@ -240,17 +242,15 @@ module "dr2_ingest_step_function" {
     account_id                                        = var.account_number
     ingest_validate_generic_ingest_inputs_lambda_name = local.ingest_validate_generic_ingest_inputs_lambda_name
     ingest_mapper_lambda_name                         = local.ingest_mapper_lambda_name
-    ingest_upsert_archive_folders_lambda_name         = local.ingest_upsert_archive_folders_lambda_name
     ingest_find_existing_asset_name_lambda_name       = local.ingest_find_existing_asset_name
     ingest_asset_opex_creator_lambda_name             = local.ingest_asset_opex_creator_lambda_name
     ingest_folder_opex_creator_lambda_name            = local.ingest_folder_opex_creator_lambda_name
     ingest_parent_folder_opex_creator_lambda_name     = local.ingest_parent_folder_opex_creator_lambda_name
-    ingest_start_workflow_lambda_name                 = local.ingest_start_workflow_lambda_name
-    ingest_workflow_monitor_lambda_name               = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name               = local.ingest_asset_reconciler_lambda_name
     ingest_lock_table_name                            = local.ingest_lock_dynamo_table_name
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
     ingest_lock_table_hash_key                        = local.ingest_lock_table_hash_key
+    ingest_run_workflow_sfn_name                      = local.ingest_run_workflow_step_function_name
     notifications_topic_name                          = local.notifications_topic_name
     ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
     ingest_state_bucket_name                          = local.ingest_state_bucket_name
@@ -262,6 +262,21 @@ module "dr2_ingest_step_function" {
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
     step_function_policy = module.dr2_ingest_step_function_policy.policy_arn
+  }
+}
+
+module "dr2_ingest_run_workflow_step_function" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
+  step_function_definition = templatefile("${path.module}/templates/sfn/ingest_run_workflow_sfn_definition.json.tpl", {
+    step_function_name                        = local.ingest_run_workflow_step_function_name
+    account_id                                = var.account_number
+    ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
+    ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
+    ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name
+  })
+  step_function_name = local.ingest_run_workflow_step_function_name
+  step_function_role_policy_attachments = {
+    step_function_policy = module.dr2_ingest_run_workflow_step_function_policy.policy_arn
   }
 }
 
@@ -332,9 +347,22 @@ module "dr2_ingest_step_function_policy" {
     ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
     ingest_state_bucket_name                          = local.ingest_state_bucket_name
     ingest_sfn_name                                   = local.ingest_step_function_name
+    ingest_run_workflow_sfn_name                      = local.ingest_run_workflow_step_function_name
     ingest_files_table_name                           = local.files_dynamo_table_name
     tna_to_preservica_role_arn                        = local.tna_to_preservica_role_arn
     preingest_tdr_step_function_arn                   = local.preingest_sfn_arn
+    ingest_run_workflow_sfn_arn                       = local.ingest_run_workflow_sfn_arn
+  })
+}
+
+module "dr2_ingest_run_workflow_step_function_policy" {
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
+  name   = "${local.environment}-dr2-ingest-step-function-policy"
+  policy_string = templatefile("${path.module}/templates/iam_policy/ingest_run_workflow_step_function_policy.json.tpl", {
+    account_id                                = var.account_number
+    ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
+    ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
+    ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name
   })
 }
 
