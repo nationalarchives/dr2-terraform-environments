@@ -328,7 +328,6 @@ module "dr2_ingest_step_function_policy" {
     ingest_asset_reconciler_lambda_name               = local.ingest_asset_reconciler_lambda_name
     ingest_lock_table_name                            = local.ingest_lock_dynamo_table_name
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
-    notifications_topic_name                          = local.notifications_topic_name
     ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
     ingest_state_bucket_name                          = local.ingest_state_bucket_name
     ingest_sfn_name                                   = local.ingest_step_function_name
