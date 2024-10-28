@@ -539,7 +539,7 @@
               "Entries": [
                 {
                   "Detail": {
-                    "slackMessage.$": ":alert-noflash-slow: Reconcile failed for asset $.assetId"
+                    "slackMessage.$": ":alert-noflash-slow: Reconciliation failed for asset $.assetId. See the state output for the result key."
                   },
                   "DetailType": "DR2Message",
                   "EventBusName": "default",
