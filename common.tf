@@ -331,7 +331,6 @@ module "dr2_ingest_step_function_policy" {
     ingest_lock_table_name                            = local.ingest_lock_dynamo_table_name
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
     ingest_queue_table_name                           = local.ingest_queue_dynamo_table_name
-    notifications_topic_name                          = local.notifications_topic_name
     ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
     ingest_state_bucket_name                          = local.ingest_state_bucket_name
     ingest_sfn_name                                   = local.ingest_step_function_name
