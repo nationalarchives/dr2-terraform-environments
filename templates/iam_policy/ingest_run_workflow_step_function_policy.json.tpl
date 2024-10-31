@@ -5,8 +5,7 @@
       "Effect": "Allow",
       "Action": [
         "states:RedriveExecution",
-        "lambda:InvokeFunction",
-        "sts:AssumeRole"
+        "lambda:InvokeFunction"
       ],
       "Resource": [
         "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archive_folders_lambda_name}",
