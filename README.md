@@ -82,14 +82,19 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
    4. If item created needs a KMS key, add it to the `dr2_kms_key` module in the `common.tf` file
    5. If this is a lambda which needs to be added to the ingest dashboard, add the lambda name to `local.dashboard_lambdas` in `common.tf`
 
-7. Run Terraform to view changes that will be made to the DR2 environment AWS resources
+7. (Optional) To quickly validate the changes you made, run
+   ```
+   [location of project] $ terraform validate
+   ```
+
+8. Run Terraform to view changes that will be made to the DR2 environment AWS resources
     * Make sure your credentials are valid
       * If you have the AWS CLI installed, run `aws sso login --profile [account name where credentials are] && export AWS_PROFILE=[account name where credentials are]`
    ```
    [location of project] $ terraform plan
    ```
 
-8. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
+9. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
 
 ## Further Information
 
