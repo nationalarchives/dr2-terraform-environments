@@ -16,7 +16,8 @@ module "dr2_run_e2e_tests_role" {
   policy_attachments = {
     run_e2e_tests_policy = module.dr2_e2e_tests_policy[count.index].policy_arn
   }
-  tags = {}
+  max_session_duration = 7200
+  tags                 = {}
 }
 
 module "dr2_e2e_tests_policy" {
