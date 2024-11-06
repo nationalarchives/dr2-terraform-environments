@@ -26,8 +26,10 @@ module "dr2_copy_files_from_tdr_lambda" {
   memory_size = local.python_lambda_memory_size
   runtime     = local.python_runtime
   plaintext_env_vars = {
-    DESTINATION_BUCKET = local.ingest_raw_cache_bucket_name
-    DESTINATION_QUEUE  = local.tdr_aggregator_queue_url
+    DESTINATION_BUCKET = local.ingest_raw_cache_bucket_name # Remove in DR2-1626/2
+    DESTINATION_QUEUE  = local.tdr_aggregator_queue_url     # Remove in DR2-1626/2
+    OUTPUT_BUCKET_NAME = local.ingest_raw_cache_bucket_name
+    OUTPUT_QUEUE_URL   = local.tdr_aggregator_queue_url
   }
   tags = {
     Name = local.copy_files_from_tdr_name
