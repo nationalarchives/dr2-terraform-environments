@@ -291,7 +291,7 @@
         {
           "Variable": "$.datasyncExecution.Status",
           "StringEquals": "SUCCESS",
-          "Next": "Start workflow"
+          "Next": "Start 'Run Workflow' Step Function"
         }
       ],
       "Default": "Wait 20 Seconds"
