@@ -122,10 +122,14 @@
               "StringEquals": "Succeeded"
             }
           ],
-          "Next": "Map over each assetId and reconcile"
+          "Next": "End Workflow and return WorkflowResult"
         }
       ],
       "Default": "Wait 5 minutes before getting status"
+    },
+    "End Workflow and return WorkflowResult": {
+      "Type": "Pass",
+      "End": true
     }
   }
 }
