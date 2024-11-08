@@ -187,7 +187,6 @@ module "dr2_developer_key" {
   default_policy_variables = {
     user_roles = [
       data.aws_ssm_parameter.dev_admin_role.value,
-      module.dr2_preservica_config_lambda.lambda_role_arn,
       module.dr2_ingest_mapper_lambda.lambda_role_arn,
       module.dr2_ingest_step_function.step_function_role_arn
     ]
@@ -441,8 +440,6 @@ module "cloudwatch_alarm_event_bridge_rule" {
     cloudwatch_alarms = jsonencode(flatten([
       module.dr2_ingest_parsed_court_document_event_handler_sqs.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_message_visible_alarm_arn,
-      module.dr2_preservica_config_queue.queue_cloudwatch_message_visible_alarm_arn,
-      module.dr2_preservica_config_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_queue_creator_queue.queue_cloudwatch_message_visible_alarm_arn,
