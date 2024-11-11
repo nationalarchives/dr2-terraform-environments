@@ -359,7 +359,7 @@ module "dr2_ingest_step_function_policy" {
 
 module "dr2_ingest_run_workflow_step_function_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
-  name   = "${local.environment}-dr2-ingest-step-function-policy"
+  name   = "${local.environment}-dr2-ingest-run-workflow-step-function-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/ingest_run_workflow_step_function_policy.json.tpl", {
     account_id                                = var.account_number
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
