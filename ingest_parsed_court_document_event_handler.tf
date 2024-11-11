@@ -75,12 +75,9 @@ module "dr2_ingest_parsed_court_document_event_handler_lambda" {
   memory_size = 1024
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    OUTPUT_BUCKET          = local.ingest_raw_cache_bucket_name                # Remove in DR2-1626/2
-    SFN_ARN                = module.dr2_ingest_step_function.step_function_arn # Remove in DR2-1626/2
-    DYNAMO_LOCK_TABLE_NAME = local.ingest_lock_dynamo_table_name               # Remove in DR2-1626/2
-    INGEST_SFN_ARN         = module.dr2_ingest_step_function.step_function_arn
-    LOCK_DDB_TABLE         = local.ingest_lock_dynamo_table_name
-    OUTPUT_BUCKET_NAME     = local.ingest_raw_cache_bucket_name
+    INGEST_SFN_ARN     = module.dr2_ingest_step_function.step_function_arn
+    LOCK_DDB_TABLE     = local.ingest_lock_dynamo_table_name
+    OUTPUT_BUCKET_NAME = local.ingest_raw_cache_bucket_name
   }
   tags = {
     Name = local.ingest_parsed_court_document_event_handler_lambda_name

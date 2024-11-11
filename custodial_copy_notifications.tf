@@ -50,7 +50,6 @@ module "dr2_custodial_copy_ingest_lambda" {
   runtime         = local.python_runtime
   tags            = {}
   plaintext_env_vars = {
-    FILES_DDB_TABLE   = local.files_dynamo_table_name
-    DYNAMO_TABLE_NAME = local.files_dynamo_table_name # Remove in DR2-1626/2
+    FILES_DDB_TABLE = local.files_dynamo_table_name
   }
 }

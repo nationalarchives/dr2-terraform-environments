@@ -20,9 +20,6 @@ module "dr2_ingest_failure_notifications_lambda" {
   runtime         = local.java_runtime
   tags            = {}
   plaintext_env_vars = {
-    DDB_LOCK_TABLE                  = local.ingest_lock_dynamo_table_name       # Remove in DR2-1626/2
-    LOCK_DDB_TABLE_GROUP_ID_IDX     = local.ingest_lock_table_group_id_gsi_name # Remove in DR2-1626/2
-    TOPIC_ARN                       = module.dr2_notifications_sns.sns_arn      # Remove in DR2-1626/2
     LOCK_DDB_TABLE                  = local.ingest_lock_dynamo_table_name
     LOCK_DDB_TABLE_GROUPID_GSI_NAME = local.ingest_lock_table_group_id_gsi_name
     OUTPUT_TOPIC_ARN                = module.dr2_notifications_sns.sns_arn
