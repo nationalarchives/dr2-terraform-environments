@@ -28,6 +28,7 @@
         }
       ],
       "Next": "Start workflow",
+      "InputPath": "$.StatePayload",
       "ResultPath": null
     },
     "Start workflow": {

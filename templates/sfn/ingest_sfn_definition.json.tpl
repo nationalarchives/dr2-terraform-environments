@@ -307,7 +307,7 @@
       "Parameters": {
         "StateMachineArn": "arn:aws:states:eu-west-2:${account_id}:stateMachine:${ingest_run_workflow_sfn_name}",
         "Input": {
-          "StatePayload": "$",
+          "StatePayload.$": "$",
           "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
         }
       },
