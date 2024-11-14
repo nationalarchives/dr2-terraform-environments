@@ -306,7 +306,7 @@
       "Resource": "arn:aws:states:::states:startExecution.sync:2",
       "Parameters": {
         "StateMachineArn": "arn:aws:states:eu-west-2:${account_id}:stateMachine:${ingest_run_workflow_sfn_name}",
-        "Name": "$$.Execution.Name",
+        "Name.$": "$$.Execution.Name",
         "Input": {
           "StatePayload.$": "$",
           "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
