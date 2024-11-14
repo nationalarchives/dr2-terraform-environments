@@ -447,7 +447,7 @@
       "ResultWriter": {
         "Resource": "arn:aws:states:::s3:putObject",
         "Parameters": {
-          "Bucket.$": "$.assets.bucket",
+          "Bucket.$": "$.Output.StatePayload.assets.bucket",
           "Prefix": "reconcilerOutput"
         }
       }
