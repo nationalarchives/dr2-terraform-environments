@@ -9,6 +9,9 @@
         "states:StartExecution",
         "sts:AssumeRole",
         "events:PutEvents",
+        "events:DescribeRule",
+        "events:PutRule",
+        "events:PutTargets",
         "dynamodb:Query",
         "dynamodb:DeleteItem"
       ],
@@ -32,6 +35,7 @@
         "arn:aws:states:eu-west-2:${account_id}:execution:${ingest_sfn_name}/MapOverEachFolderId:*",
         "arn:aws:states:eu-west-2:${account_id}:execution:${ingest_sfn_name}/MapOverEachAssetId:*",
         "arn:aws:events:eu-west-2:${account_id}:event-bus/default",
+        "arn:aws:events:eu-west-2:${account_id}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule",
         "${tna_to_preservica_role_arn}"
       ]
     },
