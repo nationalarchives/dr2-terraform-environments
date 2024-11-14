@@ -291,7 +291,7 @@
         {
           "Variable": "$.datasyncExecution.Status",
           "StringEquals": "SUCCESS",
-          "Next": "Start workflow"
+          "Next": "Start 'Run Workflow' Step Function"
         }
       ],
       "Default": "Wait 20 Seconds"
@@ -426,7 +426,7 @@
               "Entries": [
                 {
                   "Detail": {
-                    "slackMessage.$": ":alert-noflash-slow: Reconciliation failed for asset $.assetId. See the state output for the result key."
+                    "slackMessage.$": "States.Format(':alert-noflash-slow: Reconciliation failed for asset {}. See the state output for the result key.', $.assetId)"
                   },
                   "DetailType": "DR2Message",
                   "EventBusName": "default",
