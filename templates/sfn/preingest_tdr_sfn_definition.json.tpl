@@ -33,7 +33,7 @@
         "batchId.$": "$.Payload.batchId",
         "retryCount.$": "$.Payload.retryCount",
         "retrySfnArn.$": "$$.StateMachine.Id",
-        "metadataPackage.$": "$.Payload.packageMetadata"
+        "metadataPackage.$": "$.Payload.metadataPackage"
       }
     },
     "Start Ingest Step Function": {

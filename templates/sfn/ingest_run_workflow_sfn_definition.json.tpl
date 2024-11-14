@@ -28,6 +28,7 @@
         }
       ],
       "Next": "Start workflow",
+      "InputPath": "$.StatePayload",
       "ResultPath": null
     },
     "Start workflow": {
@@ -37,7 +38,7 @@
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_start_workflow_lambda_name}",
         "Payload": {
           "workflowContextName": "Ingest OPEX (Incremental)",
-          "executionId.$": "$$.Execution.Name"
+          "executionId.$": "$.StatePayload.batchId"
         }
       },
       "Retry": [
@@ -122,10 +123,14 @@
               "StringEquals": "Succeeded"
             }
           ],
-          "Next": "Map over each assetId and reconcile"
+          "Next": "End Workflow and return WorkflowResult"
         }
       ],
       "Default": "Wait 5 minutes before getting status"
+    },
+    "End Workflow and return WorkflowResult": {
+      "Type": "Pass",
+      "End": true
     }
   }
 }

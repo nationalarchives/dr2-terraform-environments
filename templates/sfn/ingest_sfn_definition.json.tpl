@@ -291,7 +291,7 @@
         {
           "Variable": "$.datasyncExecution.Status",
           "StringEquals": "SUCCESS",
-          "Next": "Start workflow"
+          "Next": "Start 'Run Workflow' Step Function"
         }
       ],
       "Default": "Wait 20 Seconds"
@@ -306,8 +306,9 @@
       "Resource": "arn:aws:states:::states:startExecution.sync:2",
       "Parameters": {
         "StateMachineArn": "arn:aws:states:eu-west-2:${account_id}:stateMachine:${ingest_run_workflow_sfn_name}",
+        "Name.$": "$$.Execution.Name",
         "Input": {
-          "StatePayload": "$",
+          "StatePayload.$": "$",
           "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
         }
       },
@@ -322,8 +323,8 @@
           "InputType": "JSON"
         },
         "Parameters": {
-          "Bucket.$": "$.assets.bucket",
-          "Key.$": "$.assets.key"
+          "Bucket.$": "$.Output.StatePayload.assets.bucket",
+          "Key.$": "$.Output.StatePayload.assets.key"
         }
       },
       "MaxConcurrency": 25,
@@ -426,7 +427,7 @@
               "Entries": [
                 {
                   "Detail": {
-                    "slackMessage.$": ":alert-noflash-slow: Reconciliation failed for asset $.assetId. See the state output for the result key."
+                    "slackMessage.$": "States.Format(':alert-noflash-slow: Reconciliation failed for asset {}. See the state output for the result key.', $.assetId)"
                   },
                   "DetailType": "DR2Message",
                   "EventBusName": "default",
@@ -447,7 +448,7 @@
       "ResultWriter": {
         "Resource": "arn:aws:states:::s3:putObject",
         "Parameters": {
-          "Bucket.$": "$.assets.bucket",
+          "Bucket.$": "$.Output.StatePayload.assets.bucket",
           "Prefix": "reconcilerOutput"
         }
       }
