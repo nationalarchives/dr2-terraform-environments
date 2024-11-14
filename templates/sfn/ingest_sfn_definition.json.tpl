@@ -322,8 +322,8 @@
           "InputType": "JSON"
         },
         "Parameters": {
-          "Bucket.$": "$.assets.bucket",
-          "Key.$": "$.assets.key"
+          "Bucket.$": "$.Output.StatePayload.assets.bucket",
+          "Key.$": "$.Output.StatePayload.assets.key"
         }
       },
       "MaxConcurrency": 25,
