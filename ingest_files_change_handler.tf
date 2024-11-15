@@ -20,9 +20,6 @@ module "dr2_ingest_files_change_handler_lambda" {
   runtime         = local.java_runtime
   tags            = {}
   plaintext_env_vars = {
-    DYNAMO_TABLE_NAME                    = local.files_dynamo_table_name                              # Remove in DR2-1626/2
-    DYNAMO_GSI_NAME                      = local.files_table_batch_parent_global_secondary_index_name # Remove in DR2-1626/2
-    TOPIC_ARN                            = module.dr2_notifications_sns.sns_arn                       # Remove in DR2-1626/2
     FILES_DDB_TABLE                      = local.files_dynamo_table_name
     FILES_DDB_TABLE_BATCHPARENT_GSI_NAME = local.files_table_batch_parent_global_secondary_index_name
     OUTPUT_TOPIC_ARN                     = module.dr2_notifications_sns.sns_arn
