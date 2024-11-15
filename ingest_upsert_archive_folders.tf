@@ -18,10 +18,9 @@ module "dr2_ingest_upsert_archive_folders_lambda" {
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    ARCHIVE_FOLDER_TABLE_NAME = local.files_dynamo_table_name # Remove in DR2-1626/2
-    FILES_DDB_TABLE           = local.files_dynamo_table_name
-    PRESERVICA_SECRET_NAME    = aws_secretsmanager_secret.preservica_read_update_metadata_insert_content.name
-    PRESERVICA_API_URL        = data.aws_ssm_parameter.preservica_url.value
+    FILES_DDB_TABLE        = local.files_dynamo_table_name
+    PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_read_update_metadata_insert_content.name
+    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets

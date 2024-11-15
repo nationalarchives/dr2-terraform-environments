@@ -25,9 +25,6 @@ module "dr2_ingest_asset_reconciler_lambda" {
     LOCK_DDB_TABLE                       = local.ingest_lock_dynamo_table_name
     PRESERVICA_API_URL                   = data.aws_ssm_parameter.preservica_url.value
     PRESERVICA_SECRET_NAME               = aws_secretsmanager_secret.preservica_read_metadata.name
-    DYNAMO_TABLE_NAME                    = local.files_dynamo_table_name                              # Remove in DR2-1626/2
-    DYNAMO_GSI_NAME                      = local.files_table_batch_parent_global_secondary_index_name # Remove in DR2-1626/2
-    DYNAMO_LOCK_TABLE_NAME               = local.ingest_lock_dynamo_table_name                        # Remove in DR2-1626/2
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets

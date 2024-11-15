@@ -38,12 +38,10 @@ module "dr2_entity_event_generator_lambda" {
     security_group_ids = [module.outbound_https_access_only.security_group_id]
   }
   plaintext_env_vars = {
-    ENTITY_EVENT_TOPIC_ARN       = local.entity_event_topic_arn # Remove in DR2-1626/2
-    LAST_EVENT_ACTION_TABLE_NAME = local.last_polled_table_name # Remove in DR2-1626/2
-    LAMBDA_STATE_DDB_TABLE       = local.last_polled_table_name
-    PRESERVICA_API_URL           = data.aws_ssm_parameter.preservica_url.value
-    PRESERVICA_SECRET_NAME       = aws_secretsmanager_secret.preservica_read_metadata.name
-    OUTPUT_TOPIC_ARN             = local.entity_event_topic_arn
+    LAMBDA_STATE_DDB_TABLE = local.last_polled_table_name
+    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
+    PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_read_metadata.name
+    OUTPUT_TOPIC_ARN       = local.entity_event_topic_arn
   }
 }
 
