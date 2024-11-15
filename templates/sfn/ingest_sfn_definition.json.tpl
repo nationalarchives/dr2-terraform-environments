@@ -307,11 +307,9 @@
       "Parameters": {
         "StateMachineArn": "arn:aws:states:eu-west-2:${account_id}:stateMachine:${ingest_run_workflow_sfn_name}",
         "Name.$": "$$.Execution.Name",
-        "Input": {
-          "StatePayload.$": "$",
-          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
-        }
+        "Input.$": "States.JsonMerge($, States.StringToJson(States.Format('\\{\"{}\":\"{}\"\\}', 'AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID', $$.Execution.Id)), false)"
       },
+      "OutputPath": "$.Output",
       "Next": "Map over each assetId and reconcile"
     },
     "Map over each assetId and reconcile": {
@@ -323,8 +321,8 @@
           "InputType": "JSON"
         },
         "Parameters": {
-          "Bucket.$": "$.Output.StatePayload.assets.bucket",
-          "Key.$": "$.Output.StatePayload.assets.key"
+          "Bucket.$": "$.assets.bucket",
+          "Key.$": "$.assets.key"
         }
       },
       "MaxConcurrency": 25,
@@ -448,7 +446,7 @@
       "ResultWriter": {
         "Resource": "arn:aws:states:::s3:putObject",
         "Parameters": {
-          "Bucket.$": "$.Output.StatePayload.assets.bucket",
+          "Bucket.$": "$.assets.bucket",
           "Prefix": "reconcilerOutput"
         }
       }
