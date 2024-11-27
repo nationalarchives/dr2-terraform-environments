@@ -36,7 +36,7 @@ module "dr2_custodial_copy_db_builder_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.custodial_copy_db_builder_queue_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.custodial_copy_db_builder_queue_name
     topic_arn  = local.custodial_copy_topic_arn
   })
@@ -48,7 +48,7 @@ module "dr2_custodial_copy_queue" {
   queue_name = local.custodial_copy_name
   fifo_queue = true
   sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.custodial_copy_name
   })
   encryption_type = local.sse_encryption

@@ -10,7 +10,7 @@ module "dr2_ingest_validate_generic_ingest_inputs_lambda" {
   policies = {
     "${local.ingest_validate_generic_ingest_inputs_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_validate_generic_ingest_inputs_policy.json.tpl", {
       bucket_name = local.ingest_raw_cache_bucket_name
-      account_id  = var.account_number
+      account_id  = data.aws_caller_identity.current.account_id
       lambda_name = local.ingest_validate_generic_ingest_inputs_lambda_name
     })
   }
