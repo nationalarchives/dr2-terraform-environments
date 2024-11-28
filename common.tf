@@ -442,6 +442,7 @@ module "cloudwatch_alarm_event_bridge_rule" {
       module.dr2_ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_queue.dlq_cloudwatch_message_visible_alarm_arn,
+      module.dr2_custodial_copy_queue.recurring_notification_alarm_arns,
       module.dr2_custodial_copy_queue_creator_queue.queue_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_queue_creator_queue.dlq_cloudwatch_message_visible_alarm_arn,
       module.dr2_custodial_copy_db_builder_queue.queue_cloudwatch_message_visible_alarm_arn,

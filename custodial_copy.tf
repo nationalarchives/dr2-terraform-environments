@@ -51,5 +51,6 @@ module "dr2_custodial_copy_queue" {
     account_id = var.account_number,
     queue_name = local.custodial_copy_name
   })
-  encryption_type = local.sse_encryption
+  encryption_type             = local.sse_encryption
+  recurring_notification_hour = 10
 }
