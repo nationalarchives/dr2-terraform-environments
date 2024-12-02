@@ -56,7 +56,7 @@ locals {
     local.ingest_start_workflow_lambda_name,
     local.ingest_upsert_archive_folders_lambda_name,
     local.ingest_validate_generic_ingest_inputs_lambda_name,
-    local.ingest_workflow_monitor_lambda_name,#
+    local.ingest_workflow_monitor_lambda_name, #
     local.ip_lock_checker_lambda_name,
     local.rotate_preservation_system_password_name,
     local.tdr_aggregator_name,
