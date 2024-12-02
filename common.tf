@@ -250,7 +250,7 @@ module "dr2_ingest_step_function" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
   step_function_definition = templatefile("${path.module}/templates/sfn/ingest_sfn_definition.json.tpl", {
     step_function_name                                = local.ingest_step_function_name,
-    account_id                                        = var.account_number
+    account_id                                        = data.aws_caller_identity.current.account_id
     ingest_validate_generic_ingest_inputs_lambda_name = local.ingest_validate_generic_ingest_inputs_lambda_name
     ingest_mapper_lambda_name                         = local.ingest_mapper_lambda_name
     ingest_find_existing_asset_name_lambda_name       = local.ingest_find_existing_asset_name
@@ -281,7 +281,7 @@ module "dr2_ingest_run_workflow_step_function" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
   step_function_definition = templatefile("${path.module}/templates/sfn/ingest_run_workflow_sfn_definition.json.tpl", {
     step_function_name                        = local.ingest_run_workflow_step_function_name
-    account_id                                = var.account_number
+    account_id                                = data.aws_caller_identity.current.account_id
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name
@@ -342,7 +342,7 @@ module "dr2_ingest_step_function_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name   = "${local.environment}-dr2-ingest-step-function-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/ingest_step_function_policy.json.tpl", {
-    account_id                                        = var.account_number
+    account_id                                        = data.aws_caller_identity.current.account_id
     ingest_validate_generic_ingest_inputs_lambda_name = local.ingest_validate_generic_ingest_inputs_lambda_name
     ingest_mapper_lambda_name                         = local.ingest_mapper_lambda_name
     ingest_upsert_archive_folders_lambda_name         = local.ingest_upsert_archive_folders_lambda_name
@@ -371,7 +371,7 @@ module "dr2_ingest_run_workflow_step_function_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name   = "${local.environment}-dr2-ingest-run-workflow-step-function-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/ingest_run_workflow_step_function_policy.json.tpl", {
-    account_id                                = var.account_number
+    account_id                                = data.aws_caller_identity.current.account_id
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name
