@@ -9,7 +9,7 @@ module "dr2_ingest_asset_reconciler_lambda" {
   timeout_seconds = local.java_timeout_seconds
   policies = {
     "${local.ingest_asset_reconciler_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_asset_reconciler_policy.json.tpl", {
-      account_id                 = var.account_number
+      account_id                 = data.aws_caller_identity.current.account_id
       lambda_name                = local.ingest_asset_reconciler_lambda_name
       dynamo_db_file_table_arn   = module.files_table.table_arn
       gsi_name                   = local.files_table_batch_parent_global_secondary_index_name

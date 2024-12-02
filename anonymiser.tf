@@ -21,7 +21,7 @@ module "dr2_court_document_package_anonymiser_lambda" {
       anonymiser_test_input_queue         = local.court_document_anonymiser_queue_arn
       ingest_court_document_handler_queue = local.ingest_parsed_court_document_event_handler_queue_arn
       output_bucket_name                  = local.ingest_parsed_court_document_event_handler_test_bucket_name
-      account_id                          = var.account_number
+      account_id                          = data.aws_caller_identity.current.account_id
       lambda_name                         = local.court_document_anonymiser_lambda_name
       tre_bucket_arn                      = local.tre_terraform_prod_config["s3_court_document_pack_out_arn"]
       tre_kms_arn                         = module.tre_config.terraform_config["prod_s3_court_document_pack_out_kms_arn"]
@@ -41,7 +41,7 @@ module "dr2_court_document_package_anonymiser_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.court_document_anonymiser_queue_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.court_document_anonymiser_queue_name
     topic_arn  = local.tre_terraform_prod_config["da_eventbus"]
   })

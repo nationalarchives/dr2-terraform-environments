@@ -10,7 +10,7 @@ module "ingest_find_existing_asset" {
   policies = {
     "${local.ingest_find_existing_asset_name}-policy" = templatefile(
       "${path.module}/templates/iam_policy/ingest_find_existing_asset_policy.json.tpl", {
-        account_id                 = var.account_number
+        account_id                 = data.aws_caller_identity.current.account_id
         lambda_name                = local.ingest_find_existing_asset_name
         dynamo_db_file_table_arn   = module.files_table.table_arn
         secrets_manager_secret_arn = aws_secretsmanager_secret.preservica_read_metadata.arn

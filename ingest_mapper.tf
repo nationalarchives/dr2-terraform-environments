@@ -11,7 +11,7 @@ module "dr2_ingest_mapper_lambda" {
     "${local.ingest_mapper_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_mapper_policy.json.tpl", {
       raw_cache_bucket_name    = local.ingest_raw_cache_bucket_name
       ingest_state_bucket_name = local.ingest_state_bucket_name
-      account_id               = var.account_number
+      account_id               = data.aws_caller_identity.current.account_id
       lambda_name              = local.ingest_mapper_lambda_name
       dynamo_db_file_table_arn = module.files_table.table_arn
     })
