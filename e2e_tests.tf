@@ -39,7 +39,7 @@ module "dr2_e2e_tests_queue" {
   count      = local.e2e_tests_count
   queue_name = local.e2e_tests_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.e2e_tests_name
     topic_arn  = module.dr2_notifications_sns.sns_arn
   })

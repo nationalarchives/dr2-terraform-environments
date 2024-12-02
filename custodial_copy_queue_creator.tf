@@ -6,7 +6,7 @@ module "dr2_custodial_copy_queue_creator_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_queue_creator_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.ingest_queue_creator_name
     topic_arn  = local.entity_event_topic_arn
   })
