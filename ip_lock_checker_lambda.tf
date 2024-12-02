@@ -17,7 +17,7 @@ module "dr2_ip_lock_checker_lambda" {
   timeout_seconds = local.python_timeout_seconds
   policies = {
     "${local.ip_lock_checker_lambda_name}-policy" = templatefile("./templates/iam_policy/ip_lock_checker_policy.json.tpl", {
-      account_id  = var.account_number
+      account_id  = data.aws_caller_identity.current.account_id
       lambda_name = local.ip_lock_checker_lambda_name
     })
   }
