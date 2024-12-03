@@ -38,18 +38,29 @@ locals {
   redrive_maximum_receives                             = 5
   ingest_run_workflow_sfn_arn                          = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.ingest_run_workflow_step_function_name}"
   dashboard_lambdas = [
+    local.copy_files_from_tdr_name,
+    local.court_document_anonymiser_lambda_name,
+    local.custodial_copy_ingest_lambda_name,
+    local.entity_event_lambda_name,
+    local.files_change_handler_name,
+    local.get_latest_preservica_version,
     local.ingest_asset_opex_creator_lambda_name,
     local.ingest_asset_reconciler_lambda_name,
+    local.ingest_failure_notifications_lambda_name,
     local.ingest_find_existing_asset_name,
     local.ingest_folder_opex_creator_lambda_name,
     local.ingest_mapper_lambda_name,
     local.ingest_parent_folder_opex_creator_lambda_name,
     local.ingest_parsed_court_document_event_handler_lambda_name,
-    local.rotate_preservation_system_password_name,
+    local.ingest_queue_creator_name,
     local.ingest_start_workflow_lambda_name,
     local.ingest_upsert_archive_folders_lambda_name,
     local.ingest_validate_generic_ingest_inputs_lambda_name,
-    local.ingest_queue_creator_name
+    local.ingest_workflow_monitor_lambda_name, #
+    local.ip_lock_checker_lambda_name,
+    local.rotate_preservation_system_password_name,
+    local.tdr_aggregator_name,
+    local.tdr_package_builder_lambda_name
   ]
 }
 resource "random_password" "preservica_password" {
