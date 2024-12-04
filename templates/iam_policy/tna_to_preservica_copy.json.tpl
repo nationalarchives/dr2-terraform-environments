@@ -13,9 +13,18 @@
     },
     {
       "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
         "s3:ListBucket"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::com.preservica.${preservica_tenant}.bulk1"
+      ],
+      "Sid": "listBucketPreservica"
+    },
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
       ],
       "Effect": "Allow",
       "Resource": [
