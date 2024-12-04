@@ -24,7 +24,7 @@ module "dr2_ingest_folder_opex_creator_lambda" {
     FILES_DDB_TABLE                      = local.files_dynamo_table_name
     FILES_DDB_TABLE_BATCHPARENT_GSI_NAME = local.files_table_batch_parent_global_secondary_index_name
     OUTPUT_BUCKET_NAME                   = local.ingest_staging_cache_bucket_name
-    S3_ROLE_ARN       = module.copy_tna_to_preservica_role.role_arn
+    S3_ROLE_ARN                          = module.copy_tna_to_preservica_role.role_arn
   }
   tags = {
     Name = local.ingest_folder_opex_creator_lambda_name
