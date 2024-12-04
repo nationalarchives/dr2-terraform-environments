@@ -6,11 +6,12 @@ module "dr2_custodial_copy_queue_creator_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_queue_creator_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.ingest_queue_creator_name
     topic_arn  = local.entity_event_topic_arn
   })
-  encryption_type = local.sse_encryption
+  encryption_type    = local.sse_encryption
+  visibility_timeout = local.visibility_timeout
 }
 
 module "dr2_custodial_copy_queue_creator_lambda" {
@@ -30,6 +31,9 @@ module "dr2_custodial_copy_queue_creator_lambda" {
   memory_size     = local.java_lambda_memory_size
   runtime         = local.java_runtime
   tags            = {}
+  lambda_sqs_queue_mappings = [{
+    sqs_queue_arn = module.dr2_custodial_copy_queue_creator_queue.sqs_arn
+  }]
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
     security_group_ids = [module.outbound_https_access_only.security_group_id]
@@ -37,6 +41,6 @@ module "dr2_custodial_copy_queue_creator_lambda" {
   plaintext_env_vars = {
     PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_read_metadata.name
     PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
-    OUTPUT_QUEUE           = module.dr2_custodial_copy_queue.sqs_queue_url
+    OUTPUT_QUEUE_URL       = module.dr2_custodial_copy_queue.sqs_queue_url
   }
 }

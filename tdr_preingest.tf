@@ -14,7 +14,7 @@ module "dr2_preingest_tdr_aggregator_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.tdr_aggregator_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.tdr_aggregator_name
     topic_arn  = "arn:aws:sns:eu-west-2:${module.tdr_config.account_numbers[local.environment]}:tdr-external-notifications-${local.environment}"
   })
@@ -45,10 +45,10 @@ module "dr2_preingest_tdr_aggregator_lambda" {
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    DDB_LOCK_TABLE                = local.ingest_lock_dynamo_table_name
-    PREINGEST_SFN_ARN             = local.preingest_sfn_arn
-    MAX_SECONDARY_BATCHING_WINDOW = local.tdr_aggregator_batching_window_seconds
+    LOCK_DDB_TABLE                = local.ingest_lock_dynamo_table_name
     MAX_BATCH_SIZE                = local.tdr_aggregator_batch_size
+    MAX_SECONDARY_BATCHING_WINDOW = local.tdr_aggregator_batching_window_seconds
+    PREINGEST_SFN_ARN             = local.preingest_sfn_arn
     SOURCE_SYSTEM                 = "TDR"
   }
   tags = {
@@ -96,9 +96,9 @@ module "dr2_preingest_tdr_package_builder_lambda" {
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    DDB_LOCK_TABLE              = local.ingest_lock_dynamo_table_name
-    LOCK_DDB_TABLE_GROUP_ID_IDX = local.ingest_lock_table_group_id_gsi_name
-    RAW_CACHE_BUCKET            = local.ingest_raw_cache_bucket_name
+    LOCK_DDB_TABLE                  = local.ingest_lock_dynamo_table_name
+    LOCK_DDB_TABLE_GROUPID_GSI_NAME = local.ingest_lock_table_group_id_gsi_name
+    OUTPUT_BUCKET_NAME              = local.ingest_raw_cache_bucket_name
   }
   tags = {
     Name = local.tdr_package_builder_lambda_name

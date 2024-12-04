@@ -42,7 +42,7 @@ module "dr2_ingest_parsed_court_document_event_handler_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.ingest_parsed_court_document_event_handler_queue_name
   sqs_policy = templatefile("./templates/sqs/${local.court_document_queue_sqs_policy}.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.ingest_parsed_court_document_event_handler_queue_name
     topic_arn  = local.tre_prod_event_bus
   })
@@ -64,7 +64,7 @@ module "dr2_ingest_parsed_court_document_event_handler_lambda" {
     "${local.ingest_parsed_court_document_event_handler_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_parsed_court_document_event_handler_lambda_policy${local.court_document_lambda_policy_template_suffix}.json.tpl", {
       ingest_parsed_court_document_event_handler_queue_arn = module.dr2_ingest_parsed_court_document_event_handler_sqs.sqs_arn
       bucket_name                                          = local.ingest_raw_cache_bucket_name
-      account_id                                           = var.account_number
+      account_id                                           = data.aws_caller_identity.current.account_id
       lambda_name                                          = local.ingest_parsed_court_document_event_handler_lambda_name
       step_function_arn                                    = module.dr2_ingest_step_function.step_function_arn
       tre_kms_arn                                          = module.tre_config.terraform_config["prod_s3_court_document_pack_out_kms_arn"]
@@ -75,9 +75,9 @@ module "dr2_ingest_parsed_court_document_event_handler_lambda" {
   memory_size = 1024
   runtime     = local.java_runtime
   plaintext_env_vars = {
-    OUTPUT_BUCKET          = local.ingest_raw_cache_bucket_name
-    SFN_ARN                = module.dr2_ingest_step_function.step_function_arn
-    DYNAMO_LOCK_TABLE_NAME = local.ingest_lock_dynamo_table_name
+    INGEST_SFN_ARN     = module.dr2_ingest_step_function.step_function_arn
+    LOCK_DDB_TABLE     = local.ingest_lock_dynamo_table_name
+    OUTPUT_BUCKET_NAME = local.ingest_raw_cache_bucket_name
   }
   tags = {
     Name = local.ingest_parsed_court_document_event_handler_lambda_name

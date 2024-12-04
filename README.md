@@ -1,14 +1,18 @@
-# DR2 Terraform Environments
+# Digital Records Repository Terraform Environments
+
+Infrastructure as Code for Digital Records Repository's (DR2) AWS environments, see [nationalarchives/dr2-ingest](https://github.com/nationalarchives/dr2-ingest) for more information and documentation.
+
+![Diagram of DR2 components in AWS](https://github.com/nationalarchives/dr2-ingest/blob/main/docs/images/dr2-diagram.png)
 
 ## Terraform Structure
 
-The prototype is divided into separate files corresponding to one part of the infrastructure.
+The project is divided into separate files corresponding to one part of the infrastructure.
 All of these files are run at once when terraform runs. 
 
-`common.tf` Common modules like VPCs, shared security groups and system-wide secrets
-`custodial_copy.tf` Shared resources for the custodial copy workflow.
-`slack_notifications_lambda` Resources for the notifications lambda.
-`deploy_preservica_config` A lambda, queue, topic and bucket for deploying XML config to Preservica.
+- `common.tf` Common modules like VPCs, shared security groups and system-wide secrets
+- `custodial_copy.tf` Shared resources for the custodial copy workflow.
+- `slack_notifications_lambda` Resources for the notifications lambda.
+- `deploy_preservica_config` A lambda, queue, topic and bucket for deploying XML config to Preservica.
 
 
 ## Deployment
@@ -17,17 +21,15 @@ To start a deployment, run the [DR2 Terraform Environments Deploy job in GitHub 
 
 The deployment will pause when Terraform has determined which changes need to be applied. Review the Terraform plan output by clicking the link provided in the Slack notification. This will be a link to Cloudwatch in the management account so you will need to be logged in to the management AWS account to use this.
 
-Check whether the changes look correct, then open the actions approval page and accept or reject them. To find the actions approval page, follow the link from the Slack notification:
-
-![Terraform deployment link in Slack](docs/images/slack-deployment-link.png)
+Check whether the changes look correct, then open the actions approval page and accept or reject them. To find the actions approval page, follow the link from the Slack notification.
 
 Deployments can be approved by anyone in the `digital-records-repository` GitHub team.
 
 [github-actions-job]: https://github.com/nationalarchives/dr2-terraform-environments/actions/workflows/apply.yml
 
 ## Elastic IPs
-Each environment has one elastic IP per AZ created manually within the AWS console and then used within terraform using `data "aws_eip"`
-This removes the risk of the EIP being accidentally deleted as this would change the IP address and we need a list of static IPs to send to Preservica.
+Each environment has one elastic IP per AZ created manually within the AWS console and then used within terraform using `data "aws_eip"`.
+This removes the risk of the EIP being accidentally deleted as this would change the IP address, which is allow-listed by the Preservation System service provider.
 
 ## Local development
 
@@ -82,14 +84,19 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
    4. If item created needs a KMS key, add it to the `dr2_kms_key` module in the `common.tf` file
    5. If this is a lambda which needs to be added to the ingest dashboard, add the lambda name to `local.dashboard_lambdas` in `common.tf`
 
-7. Run Terraform to view changes that will be made to the DR2 environment AWS resources
+7. (Optional) To quickly validate the changes you made, run
+   ```
+   [location of project] $ terraform validate
+   ```
+
+8. Run Terraform to view changes that will be made to the DR2 environment AWS resources
     * Make sure your credentials are valid
       * If you have the AWS CLI installed, run `aws sso login --profile [account name where credentials are] && export AWS_PROFILE=[account name where credentials are]`
    ```
    [location of project] $ terraform plan
    ```
 
-8. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
+9. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
 
 ## Further Information
 

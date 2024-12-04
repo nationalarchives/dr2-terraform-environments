@@ -59,35 +59,7 @@
           "BackoffRate": 2
         }
       ],
-      "Next": "Create or update folders in Preservica"
-    },
-    "Create or update folders in Preservica": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archive_folders_lambda_name}",
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 5,
-          "MaxAttempts": 15,
-          "BackoffRate": 1
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
-      "Next": "Map over each Asset Id",
-      "ResultPath": null
+      "Next": "Map over each Asset Id"
     },
     "Map over each Asset Id": {
       "Type": "Map",
@@ -140,26 +112,7 @@
                 "BackoffRate": 2
               }
             ],
-            "ResultPath": "$.AssetExistsResult",
-            "Next": "Decide whether to continue ingesting asset or skip"
-          },
-          "Decide whether to continue ingesting asset or skip": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.AssetExistsResult.assetExists",
-                "BooleanEquals": true,
-                "Next": "Skip ingesting asset"
-              },
-              {
-                "Variable": "$.AssetExistsResult.assetExists",
-                "BooleanEquals": false,
-                "Next": "Create Asset OPEX"
-              }
-            ]
-          },
-          "Skip ingesting asset": {
-            "Type": "Succeed"
+            "Next": "Create Asset OPEX"
           },
           "Create Asset OPEX": {
             "Type": "Task",
@@ -191,7 +144,11 @@
         }
       },
       "Next": "Map over each Folder Id",
-      "ResultPath": null
+      "ResultPath": null,
+      "ItemBatcher": {
+        "MaxItemsPerBatch": 20
+      },
+      "MaxConcurrency": 10
     },
     "Map over each Folder Id": {
       "Type": "Map",
@@ -254,7 +211,10 @@
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_parent_folder_opex_creator_lambda_name}",
       "Parameters": {
-        "executionId.$": "$$.Execution.Name"
+        "executionId.$": "$$.Execution.Name",
+        "batchId.$": "$$.Execution.Input.batchId",
+        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
+        "stagingBucket": "${ingest_staging_cache_bucket_name}"
       },
       "Retry": [
         {
@@ -279,104 +239,18 @@
         }
       ],
       "ResultPath": null,
-      "Next": "Start workflow"
+      "Next": "Start 'Run Workflow' Step Function"
     },
-    "Start workflow": {
+    "Start 'Run Workflow' Step Function": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
       "Parameters": {
-        "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_start_workflow_lambda_name}",
-        "Payload": {
-          "workflowContextName": "Ingest OPEX (Incremental)",
-          "executionId.$": "$$.Execution.Name"
-        }
+        "StateMachineArn": "arn:aws:states:eu-west-2:${account_id}:stateMachine:${ingest_run_workflow_sfn_name}",
+        "Name.$": "$$.Execution.Name",
+        "Input.$": "States.JsonMerge($, States.StringToJson(States.Format('\\{\"{}\":\"{}\"\\}', 'AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID', $$.Execution.Id)), false)"
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
-      "ResultPath": null,
-      "Next": "Wait 5 minutes before getting status"
-    },
-    "Wait 5 minutes before getting status": {
-      "Type": "Wait",
-      "Next": "Get workflow status",
-      "Seconds": 300
-    },
-    "Get workflow status": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
-      "Parameters": {
-        "Payload": {
-          "executionId.$": "$$.Execution.Name"
-        },
-        "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_workflow_monitor_lambda_name}"
-      },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 3,
-          "BackoffRate": 2
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
-      "ResultSelector": {
-        "status.$": "$.Payload.status",
-        "mappedId.$": "$.Payload.mappedId"
-      },
-      "ResultPath": "$.WorkflowResult",
-      "Next": "Check workflow status"
-    },
-    "Check workflow status": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Or": [
-            {
-              "Variable": "$.WorkflowResult.status",
-              "StringEquals": "Failed"
-            },
-            {
-              "Variable": "$.WorkflowResult.status",
-              "StringEquals": "Succeeded"
-            }
-          ],
-          "Next": "Map over each assetId and reconcile"
-        }
-      ],
-      "Default": "Wait 5 minutes before getting status"
+      "OutputPath": "$.Output",
+      "Next": "Map over each assetId and reconcile"
     },
     "Map over each assetId and reconcile": {
       "Type": "Map",
@@ -456,7 +330,7 @@
                 "id": {
                   "S.$": "$.assetId"
                 },
-                "batchId" : {
+                "batchId": {
                   "S.$": "$$.Execution.Input.batchId"
                 }
               },
@@ -481,6 +355,7 @@
                 }
               }
             },
+            "ResultPath": null,
             "End": true
           },
           "Post failure message to Slack": {
@@ -490,7 +365,7 @@
               "Entries": [
                 {
                   "Detail": {
-                    "slackMessage.$": "$.reason"
+                    "slackMessage.$": "States.Format(':alert-noflash-slow: Reconciliation failed for asset {}. See the state output for the result key.', $.assetId)"
                   },
                   "DetailType": "DR2Message",
                   "EventBusName": "default",
@@ -507,7 +382,14 @@
           }
         }
       },
-      "Next": "Get number of items in lock table that have this groupId"
+      "Next": "Get number of items in lock table that have this groupId",
+      "ResultWriter": {
+        "Resource": "arn:aws:states:::s3:putObject",
+        "Parameters": {
+          "Bucket.$": "$.assets.bucket",
+          "Prefix": "reconcilerOutput"
+        }
+      }
     },
     "Get number of items in lock table that have this groupId": {
       "Type": "Task",

@@ -23,7 +23,7 @@ module "dr2_custodial_copy_notifications_queue" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.custodial_copy_ingest_queue_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.custodial_copy_ingest_queue_name
     topic_arn  = local.custodial_copy_topic_arn
   })
@@ -50,6 +50,6 @@ module "dr2_custodial_copy_ingest_lambda" {
   runtime         = local.python_runtime
   tags            = {}
   plaintext_env_vars = {
-    DYNAMO_TABLE_NAME = local.files_dynamo_table_name
+    FILES_DDB_TABLE = local.files_dynamo_table_name
   }
 }

@@ -26,8 +26,8 @@ module "dr2_copy_files_from_tdr_lambda" {
   memory_size = local.python_lambda_memory_size
   runtime     = local.python_runtime
   plaintext_env_vars = {
-    DESTINATION_BUCKET = local.ingest_raw_cache_bucket_name
-    DESTINATION_QUEUE  = local.tdr_aggregator_queue_url
+    OUTPUT_BUCKET_NAME = local.ingest_raw_cache_bucket_name
+    OUTPUT_QUEUE_URL   = local.tdr_aggregator_queue_url
   }
   tags = {
     Name = local.copy_files_from_tdr_name
@@ -39,7 +39,7 @@ module "dr2_copy_files_from_tdr_sqs" {
   source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.copy_files_from_tdr_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = var.account_number,
+    account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.copy_files_from_tdr_name
     topic_arn  = local.tdr_external_notifications_topic
   })
