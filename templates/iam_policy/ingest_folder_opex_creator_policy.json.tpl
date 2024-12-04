@@ -3,7 +3,7 @@
     {
       "Action" : "sts:AssumeRole",
       "Effect": "Allow",
-      "Resource": "${copy_to_preservica_role}",
+      "Resource": "${copy_to_preservica_role_arn}",
       "Sid": "assumeCopyToPreservicaRole"
     },
     {
