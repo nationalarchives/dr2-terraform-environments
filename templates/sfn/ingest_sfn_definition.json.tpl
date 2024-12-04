@@ -211,10 +211,7 @@
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_parent_folder_opex_creator_lambda_name}",
       "Parameters": {
-        "executionId.$": "$$.Execution.Name",
-        "batchId.$": "$$.Execution.Input.batchId",
-        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
-        "stagingBucket": "${ingest_staging_cache_bucket_name}"
+        "executionId.$": "$$.Execution.Name"
       },
       "Retry": [
         {
