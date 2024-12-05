@@ -211,10 +211,7 @@
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_parent_folder_opex_creator_lambda_name}",
       "Parameters": {
-        "executionId.$": "$$.Execution.Name",
-        "batchId.$": "$$.Execution.Input.batchId",
-        "stagingPrefix.$": "States.Format('opex/{}', $$.Execution.Name)",
-        "stagingBucket": "${ingest_staging_cache_bucket_name}"
+        "executionId.$": "$$.Execution.Name"
       },
       "Retry": [
         {
@@ -239,67 +236,7 @@
         }
       ],
       "ResultPath": null,
-      "Next": "Start datasync task"
-    },
-    "Start datasync task": {
-      "Type": "Task",
-      "Next": "Wait 20 Seconds",
-      "Parameters": {
-        "TaskArn": "${datasync_task_arn}",
-        "Includes": [
-          {
-            "FilterType": "SIMPLE_PATTERN",
-            "Value.$": "States.Format('/opex/{}', $$.Execution.Name)"
-          }
-        ]
-      },
-      "Resource": "arn:aws:states:::aws-sdk:datasync:startTaskExecution",
-      "Credentials": {
-        "RoleArn": "${tna_to_preservica_role_arn}"
-      },
-      "ResultPath": "$.datasyncExecution"
-    },
-    "Wait 20 Seconds": {
-      "Type": "Wait",
-      "Next": "DescribeTaskExecution",
-      "Seconds": 20
-    },
-    "DescribeTaskExecution": {
-      "Type": "Task",
-      "Next": "Job Complete?",
-      "Parameters": {
-        "TaskExecutionArn.$": "$.datasyncExecution.TaskExecutionArn"
-      },
-      "Resource": "arn:aws:states:::aws-sdk:datasync:describeTaskExecution",
-      "Credentials": {
-        "RoleArn": "${tna_to_preservica_role_arn}"
-      },
-      "ResultSelector": {
-        "TaskExecutionArn.$": "$.TaskExecutionArn",
-        "Status.$": "$.Status"
-      },
-      "ResultPath": "$.datasyncExecution"
-    },
-    "Job Complete?": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.datasyncExecution.Status",
-          "StringEquals": "ERROR",
-          "Next": "Job Failed"
-        },
-        {
-          "Variable": "$.datasyncExecution.Status",
-          "StringEquals": "SUCCESS",
-          "Next": "Start 'Run Workflow' Step Function"
-        }
-      ],
-      "Default": "Wait 20 Seconds"
-    },
-    "Job Failed": {
-      "Type": "Fail",
-      "Cause": "AWS Batch Job Failed",
-      "Error": "'Check workflow status' task returned Failed"
+      "Next": "Start 'Run Workflow' Step Function"
     },
     "Start 'Run Workflow' Step Function": {
       "Type": "Task",

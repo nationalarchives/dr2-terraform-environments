@@ -263,13 +263,10 @@ module "dr2_ingest_step_function" {
     ingest_lock_table_hash_key                        = local.ingest_lock_table_hash_key
     ingest_run_workflow_sfn_name                      = local.ingest_run_workflow_step_function_name
     notifications_topic_name                          = local.notifications_topic_name
-    ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
     ingest_state_bucket_name                          = local.ingest_state_bucket_name
     preservica_bucket_name                            = local.preservica_ingest_bucket
     ingest_files_table_name                           = local.files_dynamo_table_name
     ingest_queue_table_name                           = local.ingest_queue_dynamo_table_name
-    datasync_task_arn                                 = aws_datasync_task.dr2_copy_tna_to_preservica.arn
-    tna_to_preservica_role_arn                        = local.tna_to_preservica_role_arn
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -302,40 +299,9 @@ module "ingest_state_bucket" {
   kms_key_arn = module.dr2_developer_key.kms_key_arn
 }
 
-resource "aws_datasync_location_s3" "tna_staging_location" {
-  provider      = aws.datasync_tna_to_preservica
-  s3_bucket_arn = "arn:aws:s3:::${local.ingest_staging_cache_bucket_name}"
-  subdirectory  = "/"
-  s3_config {
-    bucket_access_role_arn = local.tna_to_preservica_role_arn
-  }
-}
-
-resource "aws_datasync_location_s3" "preservica_staging_location" {
-  provider      = aws.datasync_tna_to_preservica
-  s3_bucket_arn = "arn:aws:s3:::${local.preservica_ingest_bucket}"
-  subdirectory  = "/"
-  s3_config {
-    bucket_access_role_arn = local.tna_to_preservica_role_arn
-  }
-}
 
 resource "aws_cloudwatch_log_group" "datasync_log_group" {
   name = "/aws/datasync/tna-to-preservica-copy"
-}
-
-resource "aws_datasync_task" "dr2_copy_tna_to_preservica" {
-  provider                 = aws.datasync_tna_to_preservica
-  destination_location_arn = aws_datasync_location_s3.preservica_staging_location.arn
-  source_location_arn      = aws_datasync_location_s3.tna_staging_location.arn
-  cloudwatch_log_group_arn = aws_cloudwatch_log_group.datasync_log_group.arn
-  options {
-    log_level         = "TRANSFER"
-    posix_permissions = "NONE"
-    uid               = "NONE"
-    gid               = "NONE"
-  }
-  name = "${local.environment}-dr2-tna-to-preservica-copy"
 }
 
 module "dr2_ingest_step_function_policy" {
@@ -355,6 +321,7 @@ module "dr2_ingest_step_function_policy" {
     ingest_asset_reconciler_lambda_name               = local.ingest_asset_reconciler_lambda_name
     ingest_lock_table_name                            = local.ingest_lock_dynamo_table_name
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
+    notifications_topic_name                          = local.notifications_topic_name
     ingest_queue_table_name                           = local.ingest_queue_dynamo_table_name
     ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
     ingest_state_bucket_name                          = local.ingest_state_bucket_name

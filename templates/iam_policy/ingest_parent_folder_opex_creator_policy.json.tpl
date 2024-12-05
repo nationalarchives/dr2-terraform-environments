@@ -1,16 +1,10 @@
 {
   "Statement": [
     {
-      "Action": [
-        "s3:PutObject",
-        "s3:ListBucket"
-      ],
+      "Action" : "sts:AssumeRole",
       "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::${bucket_name}",
-        "arn:aws:s3:::${bucket_name}/*"
-      ],
-      "Sid": "listWriteIngestStagingCache"
+      "Resource": "${copy_to_preservica_role_arn}",
+      "Sid": "assumeCopyToPreservicaRole"
     },
     {
       "Action": [
