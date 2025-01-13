@@ -30,14 +30,3 @@ provider "aws" {
     }
   }
 }
-
-provider "aws" {
-  alias  = "datasync_tna_to_preservica"
-  region = "eu-west-2"
-  default_tags {
-    tags = {
-      Environment = local.environment
-      CreatedBy   = local.creator
-    }
-  }
-}
