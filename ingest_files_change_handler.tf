@@ -6,7 +6,7 @@ module "dr2_ingest_files_change_handler_lambda" {
   function_name = local.files_change_handler_name
   handler       = "uk.gov.nationalarchives.ingestfileschangehandler.Lambda::handleRequest"
   policies = {
-    dr2_ingest_files_change_handler_policy = templatefile("${path.module}/templates/iam_policy/file_change_handler_policy.json.tpl", {
+    "${local.files_change_handler_name}-policy" = templatefile("${path.module}/templates/iam_policy/file_change_handler_policy.json.tpl", {
       dynamo_db_file_table_stream_arn = module.files_table.stream_arn
       account_id                      = data.aws_caller_identity.current.account_id
       lambda_name                     = local.files_change_handler_name

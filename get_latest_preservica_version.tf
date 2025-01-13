@@ -18,7 +18,7 @@ module "dr2_get_latest_preservica_version_lambda" {
   function_name = local.get_latest_preservica_version
   handler       = "uk.gov.nationalarchives.getlatestpreservicaversion.Lambda::handleRequest"
   policies = {
-    dr2_get_latest_preservica_version_event_policy = templatefile("${path.module}/templates/iam_policy/get_latest_preservica_version_lambda_policy.json.tpl", {
+    "${local.get_latest_preservica_version}-policy" = templatefile("${path.module}/templates/iam_policy/get_latest_preservica_version_lambda_policy.json.tpl", {
       account_id                 = data.aws_caller_identity.current.account_id
       lambda_name                = local.get_latest_preservica_version
       dynamo_db_file_table_arn   = module.get_latest_preservica_version_lambda_dr2_preservica_version_table.table_arn
