@@ -7,7 +7,7 @@ module "dr2_ingest_failure_notifications_lambda" {
   function_name = local.ingest_failure_notifications_lambda_name
   handler       = "uk.gov.nationalarchives.ingestfailurenotifications.Lambda::handleRequest"
   policies = {
-    dr2_ingest_failure_notifications_policy = templatefile("${path.module}/templates/iam_policy/failure_notifications_policy.json.tpl", {
+    "${local.ingest_failure_notifications_lambda_name}-policy" = templatefile("${path.module}/templates/iam_policy/failure_notifications_policy.json.tpl", {
       account_id               = data.aws_caller_identity.current.account_id
       lambda_name              = local.ingest_failure_notifications_lambda_name
       dynamo_db_file_table_arn = module.ingest_lock_table.table_arn

@@ -19,7 +19,7 @@ module "dr2_custodial_copy_queue_creator_lambda" {
   function_name = local.ingest_queue_creator_name
   handler       = "uk.gov.nationalarchives.custodialcopyqueuecreator.Lambda::handleRequest"
   policies = {
-    dr2_custodial_copy_queue_creator_policy = templatefile("${path.module}/templates/iam_policy/custodial_copy_queue_creator_policy.json.tpl", {
+    "${local.ingest_queue_creator_name}-policy" = templatefile("${path.module}/templates/iam_policy/custodial_copy_queue_creator_policy.json.tpl", {
       account_id                 = data.aws_caller_identity.current.account_id
       lambda_name                = local.ingest_queue_creator_name
       custodial_copy_fifo_queue  = module.dr2_custodial_copy_queue.sqs_arn
