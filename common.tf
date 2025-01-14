@@ -2,7 +2,6 @@ locals {
   az_count                                             = local.environment == "prod" ? 2 : 1
   ingest_raw_cache_bucket_name                         = "${local.environment}-dr2-ingest-raw-cache"
   sample_files_bucket_name                             = "${local.environment}-dr2-sample-files"
-  ingest_staging_cache_bucket_name                     = "${local.environment}-dr2-ingest-staging-cache"
   ingest_state_bucket_name                             = "${local.environment}-dr2-ingest-state"
   ingest_step_function_name                            = "${local.environment}-dr2-ingest"
   ingest_run_workflow_step_function_name               = "${local.environment}-dr2-ingest-run-workflow"
@@ -232,20 +231,6 @@ module "sample_files_bucket" {
   kms_key_arn       = module.dr2_kms_key.kms_key_arn
 }
 
-module "ingest_staging_cache_bucket" {
-  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
-  bucket_name = local.ingest_staging_cache_bucket_name
-  bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
-    lambda_role_arns = jsonencode([
-      module.dr2_ingest_mapper_lambda.lambda_role_arn,
-      module.dr2_ingest_parsed_court_document_event_handler_lambda.lambda_role_arn,
-      module.dr2_ingest_parent_folder_opex_creator_lambda.lambda_role_arn
-    ]),
-    bucket_name = local.ingest_staging_cache_bucket_name
-  })
-  kms_key_arn = module.dr2_kms_key.kms_key_arn
-}
-
 module "dr2_ingest_step_function" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//sfn"
   step_function_definition = templatefile("${path.module}/templates/sfn/ingest_sfn_definition.json.tpl", {
@@ -323,7 +308,6 @@ module "dr2_ingest_step_function_policy" {
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
     notifications_topic_name                          = local.notifications_topic_name
     ingest_queue_table_name                           = local.ingest_queue_dynamo_table_name
-    ingest_staging_cache_bucket_name                  = local.ingest_staging_cache_bucket_name
     ingest_state_bucket_name                          = local.ingest_state_bucket_name
     ingest_sfn_name                                   = local.ingest_step_function_name
     ingest_run_workflow_sfn_name                      = local.ingest_run_workflow_step_function_name
