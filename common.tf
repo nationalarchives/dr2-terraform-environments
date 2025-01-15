@@ -55,6 +55,7 @@ locals {
     local.ingest_queue_creator_name,
     local.ingest_start_workflow_lambda_name,
     local.ingest_upsert_archive_folders_lambda_name,
+    local.ingest_flow_control_lambda_name,
     local.ingest_validate_generic_ingest_inputs_lambda_name,
     local.ingest_workflow_monitor_lambda_name, #
     local.ip_lock_checker_lambda_name,
@@ -174,6 +175,7 @@ module "dr2_kms_key" {
       module.dr2_ingest_upsert_archive_folders_lambda.lambda_role_arn,
       module.dr2_ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.dr2_ingest_asset_reconciler_lambda.lambda_role_arn,
+      module.dr2_ingest_flow_control_lambda.lambda_role_arn,
       module.dr2_ingest_step_function.step_function_role_arn,
       module.dr2_custodial_copy_ingest_lambda.lambda_role_arn,
       module.dr2_ingest_files_change_handler_lambda.lambda_role_arn,
@@ -403,6 +405,67 @@ module "ingest_queue_table" {
 data "aws_ssm_parameter" "slack_token" {
   name            = "/mgmt/slack/token"
   with_decryption = true
+}
+
+data "aws_ssm_parameter" "flow_control_config" {
+  name = "/${local.environment}/flow_control_config"
+  insecure_value =
+
+    local.environment == "prod" ? jsonencode(
+      {
+        "maxConcurrency": 7,
+        "sourceSystems": {
+          "TDR": {
+            "dedicatedChannels": 2,
+            "probability": 25
+          },
+          "FCL": {
+            "dedicatedChannels": 2,
+            "probability": 60
+          },
+          "DEFAULT": {
+            "dedicatedChannels": 1,
+            "probability": 15
+          }
+        }
+      }
+    )
+    : local.environment == "stage" ? jsonencode(
+    {
+      "maxConcurrency": 7,
+      "sourceSystems": {
+        "TDR": {
+          "dedicatedChannels": 2,
+          "probability": 25
+        },
+        "FCL": {
+          "dedicatedChannels": 2,
+          "probability": 60
+        },
+        "DEFAULT": {
+          "dedicatedChannels": 1,
+          "probability": 15
+        }
+      }
+    }
+  )
+  : jsonencode({
+    "maxConcurrency": 7,
+    "sourceSystems": {
+      "TDR": {
+        "dedicatedChannels": 2,
+        "probability": 25
+      },
+      "FCL": {
+        "dedicatedChannels": 2,
+        "probability": 60
+      },
+      "DEFAULT": {
+        "dedicatedChannels": 1,
+        "probability": 15
+      }
+    }
+  })
 }
 
 module "eventbridge_alarm_notifications_destination" {
