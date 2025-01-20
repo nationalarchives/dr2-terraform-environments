@@ -1,17 +1,17 @@
 {
-  "maxConcurrency": 7,
+  "maxConcurrency": 8,
   "sourceSystems": {
     "TDR": {
       "dedicatedChannels": 2,
-      "probability": 25
+      "probability": 20
     },
     "FCL": {
       "dedicatedChannels": 2,
-      "probability": 60
+      "probability": 20
     },
     "DEFAULT": {
       "dedicatedChannels": 1,
-      "probability": 15
+      "probability": 60
     }
   }
 }
