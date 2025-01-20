@@ -389,6 +389,12 @@ data "aws_ssm_parameter" "slack_token" {
   with_decryption = true
 }
 
+resource "aws_ssm_parameter" "flow_control_config" {
+  name  = "/${local.environment}/flow-control-config"
+  type  = "String"
+  value = templatefile("${path.module}/templates/ssm/ingest_flow_control_config.json.tpl", {})
+}
+
 module "eventbridge_alarm_notifications_destination" {
   source                     = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination"
   authorisation_header_value = "Bearer ${data.aws_ssm_parameter.slack_token.value}"
