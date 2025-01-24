@@ -109,14 +109,6 @@ data "aws_ssm_parameter" "slack_webhook_url" {
   name = "/${local.environment}/slack/cloudwatch-alarm-webhook"
 }
 
-resource "aws_secretsmanager_secret_version" "preservica_secret_version" {
-  secret_id     = aws_secretsmanager_secret.preservica_secret.id
-  secret_string = jsonencode({ (random_string.preservica_user.result) = random_password.preservica_password.result })
-  lifecycle {
-    ignore_changes = [secret_string]
-  }
-}
-
 module "vpc" {
   source                    = "git::https://github.com/nationalarchives/da-terraform-modules//vpc"
   vpc_name                  = "${local.environment}-vpc"
