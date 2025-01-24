@@ -12,6 +12,7 @@ locals {
   files_dynamo_table_name                              = "${local.environment}-dr2-ingest-files"
   ingest_lock_dynamo_table_name                        = "${local.environment}-dr2-ingest-lock"
   ingest_queue_dynamo_table_name                       = "${local.environment}-dr2-ingest-queue"
+  ingest_flow_control_config_ssm_parameter_name        = "${local.environment}/flow-control-config"
   enable_point_in_time_recovery                        = true
   files_table_batch_parent_global_secondary_index_name = "BatchParentPathIdx"
   files_table_ingest_ps_global_secondary_index_name    = "IngestPSIdx"
@@ -244,6 +245,7 @@ module "dr2_ingest_step_function" {
     preservica_bucket_name                            = local.preservica_ingest_bucket
     ingest_files_table_name                           = local.files_dynamo_table_name
     ingest_queue_table_name                           = local.ingest_queue_dynamo_table_name
+    ingest_flow_control_lambda_name                   = local.ingest_flow_control_lambda_name
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -296,6 +298,7 @@ module "dr2_ingest_step_function_policy" {
     ingest_start_workflow_lambda_name                 = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name               = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name               = local.ingest_asset_reconciler_lambda_name
+    ingest_flow_control_lambda_name                   = local.ingest_flow_control_lambda_name
     ingest_lock_table_name                            = local.ingest_lock_dynamo_table_name
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
     notifications_topic_name                          = local.notifications_topic_name

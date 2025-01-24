@@ -21,7 +21,7 @@ module "dr2_ingest_flow_control_lambda" {
   runtime = local.java_runtime
   plaintext_env_vars = {
     QUEUE_DDB_TABLE = local.ingest_queue_dynamo_table_name
-    CONFIG_PARAM_NAME = "flow_control_config"
+    CONFIG_PARAM_NAME = local.ingest_flow_control_config_ssm_parameter_name
     INGEST_SFN_ARN = module.dr2_ingest_step_function.step_function_arn
   }
   tags = {
