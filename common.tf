@@ -36,9 +36,9 @@ locals {
   visibility_timeout                                   = 180
   redrive_maximum_receives                             = 5
   ingest_run_workflow_sfn_arn                          = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.ingest_run_workflow_step_function_name}"
-  dashboard_lambdas = [
+  dashboard_lambdas = flatten([[
     local.copy_files_from_tdr_name,
-    local.court_document_anonymiser_lambda_name,
+
     local.custodial_copy_ingest_lambda_name,
     local.entity_event_lambda_name,
     local.files_change_handler_name,
@@ -60,7 +60,7 @@ locals {
     local.rotate_preservation_system_password_name,
     local.tdr_aggregator_name,
     local.tdr_package_builder_lambda_name
-  ]
+  ], local.environment == "intg" ? [local.court_document_anonymiser_lambda_name] : []])
 }
 resource "random_password" "preservica_password" {
   length = 20
