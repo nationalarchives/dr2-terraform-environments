@@ -5,7 +5,7 @@
       "dedicatedChannels": 2,
       "probability": 20
     },
-    "FCL": {
+    "COURTDOC": {
       "dedicatedChannels": 2,
       "probability": 20
     },
