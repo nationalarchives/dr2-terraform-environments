@@ -241,7 +241,7 @@
     "Flow control before starting workflow": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
-      "OutputPath": "$.Payload",
+      "ResultPath": null,
       "Parameters": {
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_flow_control_lambda_name}",
         "Payload": {
@@ -278,8 +278,8 @@
     },
     "Flow control before starting reconciliation": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
-      "OutputPath": "$.Payload",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "ResultPath": null,
       "Parameters": {
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_flow_control_lambda_name}",
         "Payload": {}

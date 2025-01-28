@@ -373,8 +373,7 @@ module "ingest_queue_table" {
   hash_key                       = { name = "sourceSystem", type = "S" }
   range_key                      = { name = "queuedAt", type = "S" }
   table_name                     = local.ingest_queue_dynamo_table_name
-  server_side_encryption_enabled = true
-  kms_key_arn                    = module.dr2_kms_key.kms_key_arn
+  server_side_encryption_enabled = false
   deletion_protection_enabled    = true
   point_in_time_recovery_enabled = local.enable_point_in_time_recovery
 }

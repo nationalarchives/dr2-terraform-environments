@@ -1,17 +1,20 @@
 {
   "maxConcurrency": 8,
-  "sourceSystems": {
-    "TDR": {
-      "dedicatedChannels": 2,
+  "sourceSystems": [
+    {
+      "systemName": "TDR",
+      "reservedChannels": 2,
       "probability": 20
     },
-    "COURTDOC": {
-      "dedicatedChannels": 2,
+    {
+      "systemName": "COURTDOC",
+      "reservedChannels": 2,
       "probability": 20
     },
-    "DEFAULT": {
-      "dedicatedChannels": 1,
+    {
+      "systemName": "DEFAULT",
+      "reservedChannels": 1,
       "probability": 60
     }
-  }
+  ]
 }
