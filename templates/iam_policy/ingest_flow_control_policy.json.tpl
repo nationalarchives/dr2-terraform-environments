@@ -4,7 +4,8 @@
       "Action": [
         "dynamodb:BatchGetItem",
         "dynamodb:DeleteItem",
-        "DynamoDB:WriteItem"
+        "dynamoDB:Query",
+        "dynamoDB:PutItem"
       ],
       "Effect": "Allow",
       "Resource": "${dynamo_db_queue_table_arn}",
@@ -18,8 +19,8 @@
     },
     {
       "Action": [
-        "stepfunctions:sendTaskSuccess",
-        "stepfunctions:listExecutions"
+        "states:sendTaskSuccess",
+        "states:listExecutions"
       ],
       "Effect": "Allow",
       "Resource": "${step_functions_arn}",
