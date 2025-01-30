@@ -10,8 +10,9 @@ module "dr2_custodial_copy_queue_creator_queue" {
     queue_name = local.ingest_queue_creator_name
     topic_arn  = local.entity_event_topic_arn
   })
-  encryption_type    = local.sse_encryption
-  visibility_timeout = local.visibility_timeout
+  queue_cloudwatch_alarm_visible_messages_threshold = 50
+  encryption_type                                   = local.sse_encryption
+  visibility_timeout                                = local.visibility_timeout
 }
 
 module "dr2_custodial_copy_queue_creator_lambda" {
