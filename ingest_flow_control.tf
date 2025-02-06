@@ -8,13 +8,13 @@ module "dr2_ingest_flow_control_lambda" {
   handler         = "uk.gov.nationalarchives.ingestflowcontrol.Lambda::handleRequest"
   timeout_seconds = local.java_timeout_seconds
   policies = {
-      "${local.ingest_flow_control_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_flow_control_policy.json.tpl", {
+    "${local.ingest_flow_control_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_flow_control_policy.json.tpl", {
       account_id                = data.aws_caller_identity.current.account_id
       lambda_name               = local.ingest_flow_control_lambda_name
       dynamo_db_queue_table_arn = module.ingest_queue_table.table_arn
       ssm_parameter_arn         = aws_ssm_parameter.flow_control_config.arn
       step_functions_arn        = module.dr2_ingest_step_function.step_function_arn
-      })
+    })
   }
 
   memory_size = local.java_lambda_memory_size
