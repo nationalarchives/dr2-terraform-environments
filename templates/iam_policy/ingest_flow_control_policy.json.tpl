@@ -2,7 +2,6 @@
   "Statement": [
     {
       "Action": [
-        "dynamodb:BatchGetItem",
         "dynamodb:DeleteItem",
         "dynamoDB:Query",
         "dynamoDB:PutItem"

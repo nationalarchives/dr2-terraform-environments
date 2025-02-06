@@ -236,9 +236,9 @@
         }
       ],
       "ResultPath": null,
-      "Next": "Flow control before starting workflow"
+      "Next": "Enter flow controlled ingest"
     },
-    "Flow control before starting workflow": {
+    "Enter flow controlled ingest": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
       "ResultPath": null,
@@ -274,9 +274,9 @@
         "Input.$": "States.JsonMerge($, States.StringToJson(States.Format('\\{\"{}\":\"{}\"\\}', 'AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID', $$.Execution.Id)), false)"
       },
       "OutputPath": "$.Output",
-      "Next": "Flow control before starting reconciliation"
+      "Next": "Exit flow controlled ingest"
     },
-    "Flow control before starting reconciliation": {
+    "Exit flow controlled ingest": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": null,
