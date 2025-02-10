@@ -3,8 +3,9 @@
     {
       "Action": [
         "dynamodb:DeleteItem",
-        "dynamoDB:Query",
-        "dynamoDB:PutItem"
+        "dynamodb:Query",
+        "dynamodb:PutItem",
+        "dynamodb:BatchWriteItem"
       ],
       "Effect": "Allow",
       "Resource": "${dynamo_db_queue_table_arn}",
@@ -18,12 +19,19 @@
     },
     {
       "Action": [
-        "states:sendTaskSuccess",
+        "states:sendTaskSuccess"
+      ],
+      "Effect": "Allow",
+      "Resource": "${ingest_step_function_arn}",
+      "Sid": "sendTaskSuccess"
+    },
+    {
+      "Action": [
         "states:listExecutions"
       ],
       "Effect": "Allow",
-      "Resource": "${step_functions_arn}",
-      "Sid": "sendTaskSuccess"
+      "Resource": "${workflow_step_function_arn}",
+      "Sid": "listExecutions"
     },
     {
       "Action": [
