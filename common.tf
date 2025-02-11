@@ -320,7 +320,8 @@ module "dr2_ingest_run_workflow_step_function_policy" {
     account_id                                = data.aws_caller_identity.current.account_id
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
-    ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name
+    ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name,
+    ingest_step_function_name                 = local.ingest_step_function_name
   })
 }
 
@@ -435,18 +436,23 @@ module "cloudwatch_alarm_event_bridge_rule" {
 module "failed_ingest_step_function_event_bridge_rule" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/step_function_failed_event_pattern.json.tpl", {
-    step_function_arns = jsonencode([module.dr2_ingest_step_function.step_function_arn, module.dr2_preingest_tdr_step_function.step_function_arn])
+    step_function_arns = jsonencode([
+      module.dr2_ingest_step_function.step_function_arn,
+      module.dr2_preingest_tdr_step_function.step_function_arn,
+      module.dr2_ingest_run_workflow_step_function.step_function_arn
+    ])
   })
   name                = "${local.environment}-dr2-eventbridge-ingest-step-function-failure"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   api_destination_input_transformer = {
     input_paths = {
       "name"   = "$.detail.name",
-      "status" = "$.detail.status"
+      "status" = "$.detail.status",
+      "sfnArn" = "$.detail.stateMachineArn"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
       channel_id   = local.dev_notifications_channel_id
-      slackMessage = ":alert-noflash-slow: Step function ${local.ingest_step_function_name} with name <name> has <status>"
+      slackMessage = ":alert-noflash-slow: Step function `<sfnArn>` with name <name> has <status>"
     })
   }
   log_group_destination_input_transformer = {
@@ -454,10 +460,11 @@ module "failed_ingest_step_function_event_bridge_rule" {
     input_paths = {
       "name"      = "$.detail.name",
       "status"    = "$.detail.status",
-      "startDate" = "$.detail.startDate"
+      "startDate" = "$.detail.startDate",
+      "sfnArn"    = "$.detail.stateMachineArn"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/cloudwatch_message_input_template.json.tpl", {
-      message = "Step function ${local.ingest_step_function_name} with name <name> has <status>"
+      message = "Step function `<sfnArn>` with name <name> has <status>"
     })
   }
   lambda_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.ingest_failure_notifications_lambda_name}"

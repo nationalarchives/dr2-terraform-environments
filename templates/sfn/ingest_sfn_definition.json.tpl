@@ -257,29 +257,37 @@
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException"
           ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 3,
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
           "BackoffRate": 2,
           "JitterStrategy": "FULL"
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
         }
       ],
       "Next": "Start 'Run Workflow' Step Function"
     },
     "Start 'Run Workflow' Step Function": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Resource": "arn:aws:states:::states:startExecution.waitForTaskToken",
       "Parameters": {
         "StateMachineArn": "arn:aws:states:eu-west-2:${account_id}:stateMachine:${ingest_run_workflow_sfn_name}",
-        "Name.$": "$$.Execution.Name",
-        "Input.$": "States.JsonMerge($, States.StringToJson(States.Format('\\{\"{}\":\"{}\"\\}', 'AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID', $$.Execution.Id)), false)"
+        "Name.$": "States.Format('{}-{}', $$.Execution.Name, States.UUID())",
+        "Input.$": "States.JsonMerge($, States.StringToJson(States.Format('\\{\"{}\":\"{}\",\"{}\":\"{}\"\\}', 'AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID', $$.Execution.Id, 'taskToken', $$.Task.Token)), false)"
       },
-      "OutputPath": "$.Output",
+      "ResultPath": null,
       "Next": "Exit flow controlled ingest"
     },
     "Exit flow controlled ingest": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": null,
+      "ResultPath": null,
       "Parameters": {
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_flow_control_lambda_name}",
         "Payload": {}
@@ -292,10 +300,18 @@
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException"
           ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 3,
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
           "BackoffRate": 2,
           "JitterStrategy": "FULL"
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
         }
       ],
       "Next": "Map over each assetId and reconcile"
