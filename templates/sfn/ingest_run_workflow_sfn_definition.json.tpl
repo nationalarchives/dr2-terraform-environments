@@ -75,7 +75,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
         "Payload": {
-          "executionId.$": "$$.Execution.Name"
+          "executionId.$": "$.batchId"
         },
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_workflow_monitor_lambda_name}"
       },
@@ -122,13 +122,18 @@
               "StringEquals": "Succeeded"
             }
           ],
-          "Next": "End Workflow and return WorkflowResult"
+          "Next": "SendTaskSuccess"
         }
       ],
       "Default": "Wait 5 minutes before getting status"
     },
-    "End Workflow and return WorkflowResult": {
-      "Type": "Pass",
+    "SendTaskSuccess": {
+      "Type": "Task",
+      "Parameters": {
+        "Output": "{}",
+        "TaskToken.$": "$.taskToken"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:sfn:sendTaskSuccess",
       "End": true
     }
   }

@@ -12,6 +12,7 @@ locals {
   files_dynamo_table_name                              = "${local.environment}-dr2-ingest-files"
   ingest_lock_dynamo_table_name                        = "${local.environment}-dr2-ingest-lock"
   ingest_queue_dynamo_table_name                       = "${local.environment}-dr2-ingest-queue"
+  ingest_flow_control_config_ssm_parameter_name        = "/${local.environment}/flow-control-config"
   enable_point_in_time_recovery                        = true
   files_table_batch_parent_global_secondary_index_name = "BatchParentPathIdx"
   files_table_ingest_ps_global_secondary_index_name    = "IngestPSIdx"
@@ -244,6 +245,7 @@ module "dr2_ingest_step_function" {
     preservica_bucket_name                            = local.preservica_ingest_bucket
     ingest_files_table_name                           = local.files_dynamo_table_name
     ingest_queue_table_name                           = local.ingest_queue_dynamo_table_name
+    ingest_flow_control_lambda_name                   = local.ingest_flow_control_lambda_name
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -296,6 +298,7 @@ module "dr2_ingest_step_function_policy" {
     ingest_start_workflow_lambda_name                 = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name               = local.ingest_workflow_monitor_lambda_name
     ingest_asset_reconciler_lambda_name               = local.ingest_asset_reconciler_lambda_name
+    ingest_flow_control_lambda_name                   = local.ingest_flow_control_lambda_name
     ingest_lock_table_name                            = local.ingest_lock_dynamo_table_name
     ingest_lock_table_group_id_gsi_name               = local.ingest_lock_table_group_id_gsi_name
     notifications_topic_name                          = local.notifications_topic_name
@@ -317,7 +320,8 @@ module "dr2_ingest_run_workflow_step_function_policy" {
     account_id                                = data.aws_caller_identity.current.account_id
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
-    ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name
+    ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name,
+    ingest_step_function_name                 = local.ingest_step_function_name
   })
 }
 
@@ -370,8 +374,7 @@ module "ingest_queue_table" {
   hash_key                       = { name = "sourceSystem", type = "S" }
   range_key                      = { name = "queuedAt", type = "S" }
   table_name                     = local.ingest_queue_dynamo_table_name
-  server_side_encryption_enabled = true
-  kms_key_arn                    = module.dr2_kms_key.kms_key_arn
+  server_side_encryption_enabled = false
   deletion_protection_enabled    = true
   point_in_time_recovery_enabled = local.enable_point_in_time_recovery
 }
@@ -379,6 +382,12 @@ module "ingest_queue_table" {
 data "aws_ssm_parameter" "slack_token" {
   name            = "/mgmt/slack/token"
   with_decryption = true
+}
+
+resource "aws_ssm_parameter" "flow_control_config" {
+  name  = "/${local.environment}/flow-control-config"
+  type  = "String"
+  value = templatefile("${path.module}/templates/ssm/ingest_flow_control_config.json.tpl", {})
 }
 
 module "eventbridge_alarm_notifications_destination" {
@@ -427,18 +436,23 @@ module "cloudwatch_alarm_event_bridge_rule" {
 module "failed_ingest_step_function_event_bridge_rule" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/step_function_failed_event_pattern.json.tpl", {
-    step_function_arns = jsonencode([module.dr2_ingest_step_function.step_function_arn, module.dr2_preingest_tdr_step_function.step_function_arn])
+    step_function_arns = jsonencode([
+      module.dr2_ingest_step_function.step_function_arn,
+      module.dr2_preingest_tdr_step_function.step_function_arn,
+      module.dr2_ingest_run_workflow_step_function.step_function_arn
+    ])
   })
   name                = "${local.environment}-dr2-eventbridge-ingest-step-function-failure"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   api_destination_input_transformer = {
     input_paths = {
       "name"   = "$.detail.name",
-      "status" = "$.detail.status"
+      "status" = "$.detail.status",
+      "sfnArn" = "$.detail.stateMachineArn"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
       channel_id   = local.dev_notifications_channel_id
-      slackMessage = ":alert-noflash-slow: Step function ${local.ingest_step_function_name} with name <name> has <status>"
+      slackMessage = ":alert-noflash-slow: Step function `<sfnArn>` with name <name> has <status>"
     })
   }
   log_group_destination_input_transformer = {
@@ -446,10 +460,11 @@ module "failed_ingest_step_function_event_bridge_rule" {
     input_paths = {
       "name"      = "$.detail.name",
       "status"    = "$.detail.status",
-      "startDate" = "$.detail.startDate"
+      "startDate" = "$.detail.startDate",
+      "sfnArn"    = "$.detail.stateMachineArn"
     }
     input_template = templatefile("${path.module}/templates/eventbridge/cloudwatch_message_input_template.json.tpl", {
-      message = "Step function ${local.ingest_step_function_name} with name <name> has <status>"
+      message = "Step function `<sfnArn>` with name <name> has <status>"
     })
   }
   lambda_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.ingest_failure_notifications_lambda_name}"
