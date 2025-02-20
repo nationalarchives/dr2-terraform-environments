@@ -31,11 +31,12 @@ module "dr2_preingest_tdr_aggregator_queue" {
 }
 
 module "dr2_preingest_tdr_aggregator_lambda" {
-  source                       = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
-  function_name                = local.tdr_aggregator_name
-  handler                      = "uk.gov.nationalarchives.preingesttdraggregator.Lambda::handleRequest"
-  sqs_queue_batching_window    = local.tdr_aggregator_primary_grouping_window_seconds
-  sqs_queue_mapping_batch_size = local.tdr_aggregator_invocation_batch_size
+  source                         = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
+  function_name                  = local.tdr_aggregator_name
+  handler                        = "uk.gov.nationalarchives.preingesttdraggregator.Lambda::handleRequest"
+  sqs_queue_batching_window      = local.tdr_aggregator_primary_grouping_window_seconds
+  sqs_queue_mapping_batch_size   = local.tdr_aggregator_invocation_batch_size
+  sqs_report_batch_item_failures = true
   lambda_sqs_queue_mappings = [{
     sqs_queue_arn         = local.tdr_aggregator_queue_arn
     sqs_queue_concurrency = 2
