@@ -39,6 +39,7 @@ module "dr2_preingest_tdr_aggregator_lambda" {
   lambda_sqs_queue_mappings = [{
     sqs_queue_arn         = local.tdr_aggregator_queue_arn
     sqs_queue_concurrency = 2
+    ignore_enabled_status = true
   }]
   timeout_seconds = local.tdr_aggregator_lambda_timeout_seconds
   policies = {
