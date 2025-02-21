@@ -5,28 +5,7 @@
     "Validate input": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_validate_generic_ingest_inputs_lambda_name}",
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "Next": "Get metadata and update Files table"
     },
     "Get metadata and update Files table": {
@@ -37,28 +16,7 @@
         "metadataPackage.$": "$.metadataPackage",
         "executionName.$": "$$.Execution.Name"
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "Next": "Map over each Asset Id"
     },
     "Map over each Asset Id": {
@@ -90,55 +48,13 @@
           "Check if asset has already been ingested": {
             "Type": "Task",
             "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_find_existing_asset_name_lambda_name}",
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException",
-                  "Lambda.TooManyRequestsException",
-                  "Lambda.Unknown"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              },
-              {
-                "ErrorEquals": [
-                  "States.ALL"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
+            "Retry": ${retry_statement},
             "Next": "Create Asset OPEX"
           },
           "Create Asset OPEX": {
             "Type": "Task",
             "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_asset_opex_creator_lambda_name}",
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException",
-                  "Lambda.TooManyRequestsException",
-                  "Lambda.Unknown"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              },
-              {
-                "ErrorEquals": [
-                  "States.ALL"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
+            "Retry": ${retry_statement},
             "End": true
           }
         }
@@ -178,28 +94,7 @@
           "Create Folder OPEX": {
             "Type": "Task",
             "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_folder_opex_creator_lambda_name}",
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException",
-                  "Lambda.TooManyRequestsException",
-                  "Lambda.Unknown"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              },
-              {
-                "ErrorEquals": [
-                  "States.ALL"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
+            "Retry": ${retry_statement},
             "End": true
           }
         }
@@ -213,28 +108,7 @@
       "Parameters": {
         "executionId.$": "$$.Execution.Name"
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "ResultPath": null,
       "Next": "Enter flow controlled ingest"
     },
@@ -249,28 +123,7 @@
           "executionName.$": "$$.Execution.Name"
         }
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2,
-          "JitterStrategy": "FULL"
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "Next": "Start 'Run Workflow' Step Function"
     },
     "Start 'Run Workflow' Step Function": {
@@ -281,6 +134,7 @@
         "Name.$": "States.Format('{}-{}', $$.Execution.Name, States.UUID())",
         "Input.$": "States.JsonMerge($, States.StringToJson(States.Format('\\{\"{}\":\"{}\",\"{}\":\"{}\"\\}', 'AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID', $$.Execution.Id, 'taskToken', $$.Task.Token)), false)"
       },
+      "Retry": ${retry_statement},
       "ResultPath": null,
       "Next": "Exit flow controlled ingest"
     },
@@ -292,28 +146,7 @@
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_flow_control_lambda_name}",
         "Payload": {}
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2,
-          "JitterStrategy": "FULL"
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "Next": "Map over each assetId and reconcile"
     },
     "Map over each assetId and reconcile": {
@@ -345,28 +178,7 @@
           "Reconcile assetId and children": {
             "Type": "Task",
             "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_asset_reconciler_lambda_name}",
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException",
-                  "Lambda.TooManyRequestsException",
-                  "Lambda.Unknown"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              },
-              {
-                "ErrorEquals": [
-                  "States.ALL"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
+            "Retry": ${retry_statement},
             "Next": "Check if Reconciliation succeeded and post to Slack if it didn't"
           },
           "Check if Reconciliation succeeded and post to Slack if it didn't": {
@@ -405,6 +217,7 @@
                 }
               }
             },
+            "Retry": ${retry_statement},
             "ResultPath": null,
             "Next": "Delete asset item from lock table"
           },
@@ -419,12 +232,14 @@
                 }
               }
             },
+            "Retry": ${retry_statement},
             "ResultPath": null,
             "End": true
           },
           "Post failure message to Slack": {
             "Type": "Task",
             "Resource": "arn:aws:states:::events:putEvents",
+            "Retry": ${retry_statement},
             "Parameters": {
               "Entries": [
                 {
@@ -467,6 +282,7 @@
           }
         }
       },
+      "Retry": ${retry_statement},
       "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
       "Next": "Check if number of items is 0"
     },
@@ -514,6 +330,7 @@
     "Retry pre-ingest step function": {
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution",
+      "Retry": ${retry_statement},
       "Parameters": {
         "StateMachineArn.$": "$$.Execution.Input.retrySfnArn",
         "Name.$": "$.newBatchId",

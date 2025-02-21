@@ -14,19 +14,7 @@
         "Payload.$": "$",
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${package_builder_lambda_name}"
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
-          ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 3,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "Next": "Start Ingest Step Function",
       "ResultSelector": {
         "groupId.$": "$.Payload.groupId",
@@ -39,6 +27,7 @@
     "Start Ingest Step Function": {
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution",
+      "Retry": ${retry_statement},
       "Parameters": {
         "StateMachineArn": "${ingest_step_function_arn}",
         "Name.$": "$$.Execution.Name",

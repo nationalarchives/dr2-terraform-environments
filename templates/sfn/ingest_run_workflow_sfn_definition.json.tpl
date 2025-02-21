@@ -5,28 +5,7 @@
     "Create or update folders in Preservica": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archive_folders_lambda_name}",
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 5,
-          "MaxAttempts": 15,
-          "BackoffRate": 1
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "Next": "Start workflow",
       "ResultPath": null
     },
@@ -40,28 +19,7 @@
           "executionId.$": "$.batchId"
         }
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "ResultPath": null,
       "Next": "Wait 5 minutes before getting status"
     },
@@ -79,28 +37,7 @@
         },
         "FunctionName": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_workflow_monitor_lambda_name}"
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException",
-            "Lambda.Unknown"
-          ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 3,
-          "BackoffRate": 2
-        },
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "IntervalSeconds": 2,
-          "MaxAttempts": 6,
-          "BackoffRate": 2
-        }
-      ],
+      "Retry": ${retry_statement},
       "ResultSelector": {
         "status.$": "$.Payload.status",
         "mappedId.$": "$.Payload.mappedId"
@@ -133,6 +70,7 @@
         "Output": "{}",
         "TaskToken.$": "$.taskToken"
       },
+      "Retry": ${retry_statement},
       "Resource": "arn:aws:states:::aws-sdk:sfn:sendTaskSuccess",
       "End": true
     }
