@@ -72,6 +72,7 @@ module "dr2_preingest_tdr_step_function" {
     ingest_step_function_arn    = local.ingest_sfn_arn
     account_id                  = data.aws_caller_identity.current.account_id
     package_builder_lambda_name = local.tdr_package_builder_lambda_name
+    retry_statement             = local.retry_statement
   })
   step_function_name = local.tdr_preingest_name
   step_function_role_policy_attachments = {
