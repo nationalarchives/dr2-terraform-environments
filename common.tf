@@ -62,6 +62,7 @@ locals {
     local.tdr_aggregator_name,
     local.tdr_package_builder_lambda_name
   ]
+  retry_statement = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2 }])
 }
 
 data "aws_iam_role" "org_wiz_access_role" {
@@ -252,6 +253,7 @@ module "dr2_ingest_step_function" {
     ingest_files_table_name                           = local.files_dynamo_table_name
     ingest_queue_table_name                           = local.ingest_queue_dynamo_table_name
     ingest_flow_control_lambda_name                   = local.ingest_flow_control_lambda_name
+    retry_statement                                   = local.retry_statement
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -267,6 +269,7 @@ module "dr2_ingest_run_workflow_step_function" {
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name
+    retry_statement                           = local.retry_statement
   })
   step_function_name = local.ingest_run_workflow_step_function_name
   step_function_role_policy_attachments = {
