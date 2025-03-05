@@ -5,7 +5,7 @@ locals {
   ingest_state_bucket_name                             = "${local.environment}-dr2-ingest-state"
   ingest_step_function_name                            = "${local.environment}-dr2-ingest"
   ingest_run_workflow_step_function_name               = "${local.environment}-dr2-ingest-run-workflow"
-  additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
+  additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value, data.aws_iam_role.org_wiz_access_role.arn] : []
   anonymiser_roles                                     = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_role_arn]) : []
   e2e_test_roles                                       = local.environment == "intg" ? [module.dr2_run_e2e_tests_role[0].role_arn] : []
   anonymiser_lambda_arns                               = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
@@ -64,6 +64,11 @@ locals {
   ]
   retry_statement = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2 }])
 }
+
+data "aws_iam_role" "org_wiz_access_role" {
+  name = "org-wiz-access-role"
+}
+
 resource "random_password" "preservica_password" {
   length = 20
 }
@@ -191,6 +196,7 @@ module "dr2_developer_key" {
   default_policy_variables = {
     user_roles = [
       data.aws_ssm_parameter.dev_admin_role.value,
+      data.aws_iam_role.org_wiz_access_role.arn,
       module.dr2_ingest_mapper_lambda.lambda_role_arn,
       module.dr2_ingest_step_function.step_function_role_arn
     ]
