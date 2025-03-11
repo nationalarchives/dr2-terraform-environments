@@ -62,7 +62,7 @@ locals {
     local.tdr_aggregator_name,
     local.tdr_package_builder_lambda_name
   ]
-  retry_statement = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2 }])
+  retry_statement = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2, JitterStrategy = "FULL" }])
 }
 
 data "aws_iam_role" "org_wiz_access_role" {
