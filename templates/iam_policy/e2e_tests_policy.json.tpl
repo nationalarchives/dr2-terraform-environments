@@ -23,21 +23,22 @@
     },
     {
       "Action": [
-        "sqs:ReceiveMessage",
-        "sqs:GetQueueAttributes",
-        "sqs:DeleteMessage"
-      ],
-      "Effect": "Allow",
-      "Resource": ["${copy_files_dlq}", "${e2e_tests_queue}"],
-      "Sid": "readSqs"
-    },
-    {
-      "Action": [
         "sqs:SendMessage"
       ],
       "Effect": "Allow",
-      "Resource": "${copy_files_from_tdr_queue}",
+      "Resource": ["${judgment_input_queue}", "${copy_files_from_tdr_queue}"],
       "Sid": "sendSqsMessage"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:StartLiveTail",
+        "logs:GetLogEvents"
+      ],
+      "Resource": [
+        "${external_notifications_log_group}",
+        "${copy_files_from_tdr_log_group}"
+      ]
     },
     {
       "Action": [

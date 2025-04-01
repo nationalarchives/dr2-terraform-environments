@@ -25,25 +25,12 @@ module "dr2_e2e_tests_policy" {
   count  = local.e2e_tests_count
   name   = "${local.e2e_tests_name}-policy"
   policy_string = templatefile("${path.module}/templates/iam_policy/e2e_tests_policy.json.tpl", {
-    input_bucket_name         = local.ingest_raw_cache_bucket_name
-    copy_files_from_tdr_queue = module.dr2_copy_files_from_tdr_sqs.sqs_arn
-    copy_files_dlq            = module.dr2_copy_files_from_tdr_sqs.dlq_sqs_arn
-    e2e_tests_queue           = module.dr2_e2e_tests_queue[count.index].sqs_arn
-    preingest_sfn_arn         = module.dr2_preingest_tdr_step_function.step_function_arn,
-    dynamo_db_lock_table_arn  = module.ingest_lock_table.table_arn
+    input_bucket_name                = local.ingest_raw_cache_bucket_name
+    copy_files_from_tdr_queue        = module.dr2_copy_files_from_tdr_sqs.sqs_arn
+    judgment_input_queue             = module.dr2_ingest_parsed_court_document_event_handler_sqs.sqs_arn
+    preingest_sfn_arn                = module.dr2_preingest_tdr_step_function.step_function_arn,
+    dynamo_db_lock_table_arn         = module.ingest_lock_table.table_arn
+    external_notifications_log_group = aws_cloudwatch_log_group.external_notification_log_group.arn
+    copy_files_from_tdr_log_group    = "arn:aws:logs:eu-west-2:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.copy_files_from_tdr_name}"
   })
-}
-
-module "dr2_e2e_tests_queue" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  count      = local.e2e_tests_count
-  queue_name = local.e2e_tests_name
-  sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
-    account_id = data.aws_caller_identity.current.account_id,
-    queue_name = local.e2e_tests_name
-    topic_arn  = module.dr2_notifications_sns.sns_arn
-  })
-  visibility_timeout        = 10
-  message_retention_seconds = 7200
-  encryption_type           = "sse"
 }
