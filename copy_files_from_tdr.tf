@@ -36,7 +36,7 @@ module "dr2_copy_files_from_tdr_lambda" {
 
 
 module "dr2_copy_files_from_tdr_sqs" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs?ref=DR2-2094_alertWhenNewMessagesEnterDlq"
   queue_name = local.copy_files_from_tdr_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id,
