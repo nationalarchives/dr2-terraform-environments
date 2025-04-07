@@ -62,6 +62,15 @@ locals {
     local.tdr_aggregator_name,
     local.tdr_package_builder_lambda_name
   ]
+  queues = [
+    module.dr2_ingest_parsed_court_document_event_handler_sqs,
+    module.dr2_custodial_copy_queue,
+    module.dr2_custodial_copy_queue_creator_queue,
+    module.dr2_custodial_copy_db_builder_queue,
+    module.dr2_custodial_copy_notifications_queue,
+    module.dr2_external_notifications_queue,
+    module.dr2_copy_files_from_tdr_sqs
+  ]
   retry_statement = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2, JitterStrategy = "FULL" }])
 }
 
@@ -405,27 +414,33 @@ module "eventbridge_alarm_notifications_destination" {
   name                       = "${local.environment}-dr2-eventbridge-slack-destination"
 }
 
+
+
+module "cloudwatch_event_alarm_event_bridge_rule_alarm_only" {
+  source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
+  event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
+    cloudwatch_alarms = jsonencode(flatten([for queue in local.queues: queue.event_alarms])),
+    state_value = "ALARM"
+  })
+  name                = "${local.environment}-dr2-eventbridge-alarm-state-change-alarm"
+  api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
+  api_destination_input_transformer = {
+    input_paths = {
+      "alarmName"    = "$.detail.alarmName",
+      "currentValue" = "$.detail.state.value"
+    }
+    input_template = templatefile("${path.module}/templates/eventbridge/slack_message_input_template.json.tpl", {
+      channel_id   = local.dev_notifications_channel_id
+      slackMessage = ":warning: Cloudwatch alarm <alarmName> has entered state <currentValue>"
+    })
+  }
+}
+
 module "cloudwatch_alarm_event_bridge_rule" {
   for_each = toset(["OK", "ALARM"])
   source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
-    cloudwatch_alarms = jsonencode(flatten([
-      module.dr2_ingest_parsed_court_document_event_handler_sqs.queue_cloudwatch_message_visible_alarm_arn,
-      module.dr2_ingest_parsed_court_document_event_handler_sqs.dlq_cloudwatch_message_visible_alarm_arn,
-      module.dr2_custodial_copy_queue.queue_cloudwatch_message_visible_alarm_arn,
-      module.dr2_custodial_copy_queue.dlq_cloudwatch_message_visible_alarm_arn,
-      module.dr2_custodial_copy_queue.recurring_notification_alarm_arns,
-      module.dr2_custodial_copy_queue_creator_queue.queue_cloudwatch_message_visible_alarm_arn,
-      module.dr2_custodial_copy_queue_creator_queue.dlq_cloudwatch_message_visible_alarm_arn,
-      module.dr2_custodial_copy_db_builder_queue.queue_cloudwatch_message_visible_alarm_arn,
-      module.dr2_custodial_copy_db_builder_queue.dlq_cloudwatch_message_visible_alarm_arn,
-      module.dr2_custodial_copy_notifications_queue.queue_cloudwatch_message_visible_alarm_arn,
-      module.dr2_custodial_copy_notifications_queue.dlq_cloudwatch_message_visible_alarm_arn,
-      module.dr2_external_notifications_queue.queue_cloudwatch_message_visible_alarm_arn,
-      module.dr2_external_notifications_queue.dlq_cloudwatch_message_visible_alarm_arn,
-      module.dr2_copy_files_from_tdr_sqs.queue_cloudwatch_message_visible_alarm_arn,
-      module.dr2_copy_files_from_tdr_sqs.dlq_cloudwatch_message_visible_alarm_arn
-    ])),
+    cloudwatch_alarms = jsonencode(flatten([for queue in local.queues: queue.alarms]))
     state_value = each.value
   })
   name                = "${local.environment}-dr2-eventbridge-alarm-state-change-${lower(each.value)}"
