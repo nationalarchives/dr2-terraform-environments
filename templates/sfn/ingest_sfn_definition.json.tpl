@@ -278,7 +278,7 @@
         "KeyConditionExpression": "groupId = :lookUpId",
         "ExpressionAttributeValues": {
           ":lookUpId": {
-            "S.$": "$$.Execution.Input.batchId"
+            "S.$": "$$.Execution.Input.groupId"
           }
         }
       },
