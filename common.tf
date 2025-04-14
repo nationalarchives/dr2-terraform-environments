@@ -417,10 +417,10 @@ module "eventbridge_alarm_notifications_destination" {
 
 
 module "cloudwatch_event_alarm_event_bridge_rule_alarm_only" {
-  source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
+  source = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
-    cloudwatch_alarms = jsonencode(flatten([for queue in local.queues: queue.event_alarms])),
-    state_value = "ALARM"
+    cloudwatch_alarms = jsonencode(flatten([for queue in local.queues : queue.event_alarms])),
+    state_value       = "ALARM"
   })
   name                = "${local.environment}-dr2-eventbridge-alarm-state-change-alarm"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
@@ -440,8 +440,8 @@ module "cloudwatch_alarm_event_bridge_rule" {
   for_each = toset(["OK", "ALARM"])
   source   = "git::https://github.com/nationalarchives/da-terraform-modules//eventbridge_api_destination_rule"
   event_pattern = templatefile("${path.module}/templates/eventbridge/cloudwatch_alarm_event_pattern.json.tpl", {
-    cloudwatch_alarms = jsonencode(flatten([for queue in local.queues: queue.alarms]))
-    state_value = each.value
+    cloudwatch_alarms = jsonencode(flatten([for queue in local.queues : queue.alarms]))
+    state_value       = each.value
   })
   name                = "${local.environment}-dr2-eventbridge-alarm-state-change-${lower(each.value)}"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
