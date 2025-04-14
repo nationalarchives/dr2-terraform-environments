@@ -296,11 +296,6 @@ module "ingest_state_bucket" {
   kms_key_arn = module.dr2_developer_key.kms_key_arn
 }
 
-
-resource "aws_cloudwatch_log_group" "datasync_log_group" {
-  name = "/aws/datasync/tna-to-preservica-copy"
-}
-
 module "dr2_ingest_step_function_policy" {
   source = "git::https://github.com/nationalarchives/da-terraform-modules//iam_policy"
   name   = "${local.environment}-dr2-ingest-step-function-policy"
