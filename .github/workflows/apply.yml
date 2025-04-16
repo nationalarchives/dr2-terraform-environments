@@ -28,6 +28,4 @@ jobs:
       ACCOUNT_NUMBER: ${{ secrets[needs.setup.outputs.account-number] }}
       SLACK_WEBHOOK: ${{ secrets[needs.setup.outputs.slack-webhook] }}
       TERRAFORM_ROLE: ${{ secrets[needs.setup.outputs.terraform-role] }}
-      STATE_BUCKET: ${{ secrets[needs.setup.outputs.state-bucket] }}
-      DYNAMO_TABLE: ${{ secrets[needs.setup.outputs.dynamo-table] }}
 
