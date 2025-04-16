@@ -5,7 +5,7 @@ locals {
   ingest_state_bucket_name                             = "${local.environment}-dr2-ingest-state"
   ingest_step_function_name                            = "${local.environment}-dr2-ingest"
   ingest_run_workflow_step_function_name               = "${local.environment}-dr2-ingest-run-workflow"
-  additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value, data.aws_iam_role.org_wiz_access_role.arn] : []
+  additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
   anonymiser_roles                                     = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_role_arn]) : []
   e2e_test_roles                                       = local.environment == "intg" ? [module.dr2_run_e2e_tests_role[0].role_arn] : []
   anonymiser_lambda_arns                               = local.environment == "intg" ? flatten([module.dr2_court_document_package_anonymiser_lambda.*.lambda_arn]) : []
@@ -171,6 +171,7 @@ module "dr2_kms_key" {
   key_name = "${local.environment}-kms-dr2"
   default_policy_variables = {
     user_roles = concat([
+      data.aws_iam_role.org_wiz_access_role.arn,
       module.ingest_find_existing_asset.lambda_role_arn,
       module.ingest_find_existing_asset.lambda_role_arn,
       module.dr2_ingest_validate_generic_ingest_inputs_lambda.lambda_role_arn,
