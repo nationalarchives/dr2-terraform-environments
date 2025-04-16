@@ -15,10 +15,11 @@ module "tdr_config" {
 
 terraform {
   backend "s3" {
-    bucket  = "mgmt-dp-terraform-state"
-    key     = "terraform.state"
-    region  = "eu-west-2"
-    encrypt = true
+    bucket       = "mgmt-dp-terraform-state"
+    key          = "terraform.state"
+    region       = "eu-west-2"
+    encrypt      = true
+    use_lockfile = true
   }
 }
 provider "aws" {
