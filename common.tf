@@ -417,7 +417,7 @@ module "cloudwatch_event_alarm_event_bridge_rule_alarm_only" {
     cloudwatch_alarms = jsonencode(flatten([for queue in local.queues : queue.event_alarms])),
     state_value       = "ALARM"
   })
-  name                = "${local.environment}-dr2-eventbridge-alarm-state-change-alarm"
+  name                = "${local.environment}-dr2-eventbridge-alarm-state-change-alarm-only"
   api_destination_arn = module.eventbridge_alarm_notifications_destination.api_destination_arn
   api_destination_input_transformer = {
     input_paths = {
