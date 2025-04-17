@@ -1,5 +1,5 @@
 {
-  "maxConcurrency": 8,
+  "maxConcurrency": 5,
   "sourceSystems": [
     {
       "systemName": "TDR",
