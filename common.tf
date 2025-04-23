@@ -3,6 +3,7 @@ locals {
   ingest_raw_cache_bucket_name                         = "${local.environment}-dr2-ingest-raw-cache"
   sample_files_bucket_name                             = "${local.environment}-dr2-sample-files"
   ingest_state_bucket_name                             = "${local.environment}-dr2-ingest-state"
+  reporting_bucket_name                                = "${local.environment}-dr2-reporting"
   ingest_step_function_name                            = "${local.environment}-dr2-ingest"
   ingest_run_workflow_step_function_name               = "${local.environment}-dr2-ingest-run-workflow"
   additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
@@ -239,6 +240,16 @@ module "sample_files_bucket" {
   bucket_name       = local.sample_files_bucket_name
   create_log_bucket = false
   kms_key_arn       = module.dr2_kms_key.kms_key_arn
+}
+
+module "reporting_bucket" {
+  source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
+  bucket_name = local.reporting_bucket_name
+  bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
+    lambda_role_arns = jsonencode([module.dr2_reporting_helper_lambda.lambda_role_arn]),
+    bucket_name      = local.reporting_bucket_name
+  })
+  kms_key_arn = module.dr2_kms_key.kms_key_arn
 }
 
 module "dr2_ingest_step_function" {
