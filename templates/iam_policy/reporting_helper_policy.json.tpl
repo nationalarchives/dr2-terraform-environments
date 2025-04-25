@@ -23,5 +23,6 @@
       ],
       "Sid": "readWriteLogs"
     }
-  ]
+  ],
+  "Version": "2012-10-17"
 }

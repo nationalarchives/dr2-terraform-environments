@@ -245,9 +245,10 @@ module "sample_files_bucket" {
 module "reporting_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
   bucket_name = local.reporting_bucket_name
-  bucket_policy = templatefile("./templates/s3/lambda_access_bucket_policy.json.tpl", {
-    lambda_role_arns = jsonencode([module.dr2_reporting_helper_lambda.lambda_role_arn]),
+  bucket_policy = templatefile("./templates/s3/cloudfront_bucket_access_policy.json.tpl", {
+    cloudfront_distribution_arn = aws_cloudfront_distribution.cdn.arn,
     bucket_name      = local.reporting_bucket_name
+
   })
   kms_key_arn = module.dr2_kms_key.kms_key_arn
 }
