@@ -31,25 +31,21 @@ resource "aws_cloudfront_origin_access_control" "reporting_access_control" {
 
 resource "aws_cloudfront_distribution" "cdn" {
   origin {
-    domain_name = "${local.reporting_bucket_name}.s3.amazonaws.com"
-    origin_id   = "s3Origin"
+    domain_name              = "${local.reporting_bucket_name}.s3.eu-west-2.amazonaws.com"
+    origin_id                = "s3Origin"
     origin_access_control_id = aws_cloudfront_origin_access_control.reporting_access_control.id
   }
 
-  enabled = true
+  enabled             = true
   default_root_object = "index.html"
 
   default_cache_behavior {
-    allowed_methods = ["GET", "HEAD"]
-    cached_methods = ["GET", "HEAD"]
-    target_origin_id       = "s3Origin"
-    viewer_protocol_policy = "redirect-to-https"
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
+    allowed_methods          = ["GET", "HEAD"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = "s3Origin"
+    viewer_protocol_policy   = "redirect-to-https"
+    cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized policy ID
+    origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" #Managed-CORS-S3Origin policy ID
   }
 
   viewer_certificate {

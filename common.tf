@@ -247,10 +247,9 @@ module "reporting_bucket" {
   bucket_name = local.reporting_bucket_name
   bucket_policy = templatefile("./templates/s3/cloudfront_bucket_access_policy.json.tpl", {
     cloudfront_distribution_arn = aws_cloudfront_distribution.cdn.arn,
-    bucket_name      = local.reporting_bucket_name
+    bucket_name                 = local.reporting_bucket_name
 
   })
-  kms_key_arn = module.dr2_kms_key.kms_key_arn
 }
 
 module "dr2_ingest_step_function" {
