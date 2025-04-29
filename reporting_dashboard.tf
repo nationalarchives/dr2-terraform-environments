@@ -1,6 +1,15 @@
 locals {
   reporting_helper_lambda_name = "${local.environment}-dr2-reporting-helper"
+  origin_id_s3_origin          = "s3Origin"
 }
+
+module "dr2_reporting_helper_cloudwatch_event" {
+  source                  = "git::https://github.com/nationalarchives/da-terraform-modules//cloudwatch_events"
+  rule_name               = "${local.environment}-dr2-reporting-helper-schedule"
+  schedule                = "rate(10 minutes)"
+  lambda_event_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.reporting_helper_lambda_name}"
+}
+
 
 module "dr2_reporting_helper_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
@@ -32,7 +41,7 @@ resource "aws_cloudfront_origin_access_control" "reporting_access_control" {
 resource "aws_cloudfront_distribution" "cdn" {
   origin {
     domain_name              = "${local.reporting_bucket_name}.s3.eu-west-2.amazonaws.com"
-    origin_id                = "s3Origin"
+    origin_id                = local.origin_id_s3_origin
     origin_access_control_id = aws_cloudfront_origin_access_control.reporting_access_control.id
   }
 
@@ -42,7 +51,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   default_cache_behavior {
     allowed_methods          = ["GET", "HEAD"]
     cached_methods           = ["GET", "HEAD"]
-    target_origin_id         = "s3Origin"
+    target_origin_id         = local.origin_id_s3_origin
     viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized policy ID
     origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" #Managed-CORS-S3Origin policy ID
