@@ -1,33 +1,39 @@
 locals {
-  reporting_helper_lambda_name = "${local.environment}-dr2-reporting-helper"
+  ingest_reporting_lambda_name = "${local.environment}-dr2-ingest-reporting"
   origin_id_s3_origin          = "s3Origin"
 }
 
-module "dr2_reporting_helper_cloudwatch_event" {
+module "dr2_ingest_reporting_cloudwatch_event" {
   source                  = "git::https://github.com/nationalarchives/da-terraform-modules//cloudwatch_events"
-  rule_name               = "${local.environment}-dr2-reporting-helper-schedule"
+  rule_name               = "${local.environment}-dr2-ingest-reporting-schedule"
   schedule                = "rate(10 minutes)"
-  lambda_event_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.reporting_helper_lambda_name}"
+  lambda_event_target_arn = "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:${local.ingest_reporting_lambda_name}"
 }
 
 
-module "dr2_reporting_helper_lambda" {
+module "dr2_ingest_reporting_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
-  function_name   = local.reporting_helper_lambda_name
+  function_name   = local.ingest_reporting_lambda_name
   handler         = "lambda_function.lambda_handler"
   timeout_seconds = local.python_timeout_seconds
   policies = {
-    "${local.reporting_helper_lambda_name}-policy" = templatefile("./templates/iam_policy/reporting_helper_policy.json.tpl", {
+    "${local.ingest_reporting_lambda_name}-policy" = templatefile("./templates/iam_policy/ingest_reporting_policy.json.tpl", {
       account_id  = data.aws_caller_identity.current.account_id
-      lambda_name = local.reporting_helper_lambda_name
-      bucket_name = local.reporting_bucket_name
+      lambda_name = local.ingest_reporting_lambda_name
+      bucket_name = local.ingest_reporting_bucket_name
     })
   }
   memory_size = local.python_lambda_memory_size
   runtime     = local.python_runtime
+  plaintext_env_vars = {
+    INGEST_SFN_ARN     = module.dr2_ingest_step_function.step_function_arn
+    WORKFLOW_SFN_ARN   = module.dr2_ingest_run_workflow_step_function.step_function_arn
+    PREINGEST_SFN_ARN  = module.dr2_preingest_tdr_step_function.step_function_arn
+    OUTPUT_BUCKET_NAME = local.ingest_reporting_bucket_name
+  }
 
   tags = {
-    Name = local.reporting_helper_lambda_name
+    Name = local.ingest_reporting_lambda_name
   }
 }
 
@@ -40,7 +46,7 @@ resource "aws_cloudfront_origin_access_control" "reporting_access_control" {
 
 resource "aws_cloudfront_distribution" "cdn" {
   origin {
-    domain_name              = "${local.reporting_bucket_name}.s3.eu-west-2.amazonaws.com"
+    domain_name              = "${local.ingest_reporting_bucket_name}.s3.eu-west-2.amazonaws.com"
     origin_id                = local.origin_id_s3_origin
     origin_access_control_id = aws_cloudfront_origin_access_control.reporting_access_control.id
   }
@@ -68,6 +74,6 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   tags = {
-    Name = local.reporting_helper_lambda_name
+    Name = local.ingest_reporting_lambda_name
   }
 }

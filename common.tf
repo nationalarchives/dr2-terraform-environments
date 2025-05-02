@@ -3,7 +3,7 @@ locals {
   ingest_raw_cache_bucket_name                         = "${local.environment}-dr2-ingest-raw-cache"
   sample_files_bucket_name                             = "${local.environment}-dr2-sample-files"
   ingest_state_bucket_name                             = "${local.environment}-dr2-ingest-state"
-  reporting_bucket_name                                = "${local.environment}-dr2-reporting"
+  ingest_reporting_bucket_name                         = "${local.environment}-dr2-ingest-reporting"
   ingest_step_function_name                            = "${local.environment}-dr2-ingest"
   ingest_run_workflow_step_function_name               = "${local.environment}-dr2-ingest-run-workflow"
   additional_user_roles                                = local.environment != "prod" ? [data.aws_ssm_parameter.dev_admin_role.value] : []
@@ -242,12 +242,12 @@ module "sample_files_bucket" {
   kms_key_arn       = module.dr2_kms_key.kms_key_arn
 }
 
-module "reporting_bucket" {
+module "ingest_reporting_bucket" {
   source      = "git::https://github.com/nationalarchives/da-terraform-modules//s3"
-  bucket_name = local.reporting_bucket_name
+  bucket_name = local.ingest_reporting_bucket_name
   bucket_policy = templatefile("./templates/s3/cloudfront_bucket_access_policy.json.tpl", {
     cloudfront_distribution_arn = aws_cloudfront_distribution.cdn.arn,
-    bucket_name                 = local.reporting_bucket_name
+    bucket_name                 = local.ingest_reporting_bucket_name
 
   })
 }
