@@ -248,7 +248,6 @@ module "ingest_reporting_bucket" {
   bucket_policy = templatefile("./templates/s3/cloudfront_bucket_access_policy.json.tpl", {
     cloudfront_distribution_arn = aws_cloudfront_distribution.cdn.arn,
     bucket_name                 = local.ingest_reporting_bucket_name
-
   })
 }
 
