@@ -41,6 +41,7 @@ resource "aws_s3_object" "index_html" {
   bucket = local.ingest_reporting_bucket_name
   key    = "index.html"
   source = "${path.module}/website/reporting_dashboard/index.html"
+  content_type = "text/html"
 }
 
 resource "aws_cloudfront_origin_access_control" "reporting_access_control" {
