@@ -220,6 +220,24 @@
             },
             "Retry": ${retry_statement},
             "ResultPath": null,
+            "Next": "Insert into post-ingest table"
+          },
+          "Insert into post-ingest table": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:putItem",
+            "Parameters": {
+              "TableName": "${post_ingest_table_name}",
+              "Item": {
+                "assetId": {
+                  "S.$": "$.assetId"
+                },
+                "batchId": {
+                  "S.$": "$$.Execution.Input.batchId"
+                }
+              }
+            },
+            "Retry": ${retry_statement},
+            "ResultPath": null,
             "Next": "Delete asset item from lock table"
           },
           "Delete asset item from lock table": {

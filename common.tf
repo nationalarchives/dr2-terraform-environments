@@ -274,6 +274,7 @@ module "dr2_ingest_step_function" {
     ingest_queue_table_name                           = local.ingest_queue_dynamo_table_name
     ingest_flow_control_lambda_name                   = local.ingest_flow_control_lambda_name
     retry_statement                                   = local.retry_statement
+    post_ingest_table_name                            = module.post_ingest.post_ingest_table_name
   })
   step_function_name = local.ingest_step_function_name
   step_function_role_policy_attachments = {
@@ -334,6 +335,7 @@ module "dr2_ingest_step_function_policy" {
     tna_to_preservica_role_arn                        = local.tna_to_preservica_role_arn
     preingest_tdr_step_function_arn                   = local.preingest_sfn_arn
     ingest_run_workflow_sfn_arn                       = local.ingest_run_workflow_sfn_arn
+    post_ingest_table_name                            = module.post_ingest.post_ingest_table_name
   })
 }
 

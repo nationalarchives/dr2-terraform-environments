@@ -53,6 +53,16 @@
       ]
     },
     {
+      "Sid": "insertPostIngestTable",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:PutItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:eu-west-2:${account_id}:table/${post_ingest_table_name}"
+      ]
+    },
+    {
       "Sid": "callPreingestAndRunWorkflowStepFunction",
       "Effect": "Allow",
       "Action": [
