@@ -34,7 +34,7 @@ module "post_ingest_table" {
 }
 
 module "dr2_custodial_copy_confirmer_queue" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs?ref=make-dlq-creation-optional"
   queue_name = local.custodial_copy_confirmer_queue_name
   sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id,
