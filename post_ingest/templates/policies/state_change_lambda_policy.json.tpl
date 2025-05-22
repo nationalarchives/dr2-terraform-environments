@@ -28,7 +28,7 @@
       "Resource": [
         "${dynamo_db_post_ingest_arn}"
       ],
-      "Sid": "updateDynamoPostIngestTable"
+      "Sid": "readUpdateDynamoPostIngestTable"
     },
     {
       "Action": "sns:Publish",

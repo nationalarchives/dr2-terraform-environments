@@ -1,18 +1,19 @@
 locals {
-  post_ingest_table_name              = "${var.environment}-dr2-postingest-state"
+  post_ingest_state_table_name        = "${var.environment}-dr2-postingest-state"
   post_ingest_gsi_name                = "QueueLastQueuedIdx"
   custodial_copy_confirmer_queue_name = "${var.environment}-dr2-custodial-copy-confirmer"
   state_change_lambda_name            = "${var.environment}-dr2-postingest-state-change-handler"
   resender_lambda_name                = "${var.environment}-dr2-postingest-message-resender"
+  java_runtime                        = "java21"
 }
 
 data "aws_caller_identity" "current" {}
 
-module "post_ingest_table" {
+module "post_ingest_state_table" {
   source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
   hash_key                       = { name = "ioRef", type = "S" }
   range_key                      = { name = "batchId", type = "S" }
-  table_name                     = local.post_ingest_table_name
+  table_name                     = local.post_ingest_state_table_name
   server_side_encryption_enabled = false
   ttl_attribute_name             = "ttl"
   stream_enabled                 = true
@@ -34,7 +35,7 @@ module "post_ingest_table" {
 }
 
 module "dr2_custodial_copy_confirmer_queue" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs?ref=make-dlq-creation-optional"
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
   queue_name = local.custodial_copy_confirmer_queue_name
   sqs_policy = templatefile("./templates/sqs/sqs_access_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id,
@@ -47,7 +48,7 @@ module "dr2_custodial_copy_confirmer_queue" {
 }
 
 
-module "dr2_stage_change_lambda" {
+module "dr2_state_change_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.state_change_lambda_name
   handler         = "uk.gov.nationalarchives.postingeststatechangehandler.Lambda::handleRequest"
@@ -56,39 +57,39 @@ module "dr2_stage_change_lambda" {
   policies = {
     "${local.state_change_lambda_name}-policy" = templatefile("${path.module}/templates/policies/state_change_lambda_policy.json.tpl", {
       custodial_copy_checker_queue_arn = module.dr2_custodial_copy_confirmer_queue.sqs_arn
-      dynamo_db_post_ingest_arn        = module.post_ingest_table.table_arn
+      dynamo_db_post_ingest_arn        = module.post_ingest_state_table.table_arn
       sns_external_notifications_arn   = var.notifications_topic_arn
       account_id                       = data.aws_caller_identity.current.account_id
       lambda_name                      = local.state_change_lambda_name
-      dynamo_db_post_ingest_stream_arn = module.post_ingest_table.stream_arn
+      dynamo_db_post_ingest_stream_arn = module.post_ingest_state_table.stream_arn
     })
   }
   memory_size = 1024
-  runtime     = "java21"
+  runtime     = local.java_runtime
   dynamo_stream_config = {
-    stream_arn = module.post_ingest_table.stream_arn
+    stream_arn = module.post_ingest_state_table.stream_arn
   }
   tags = {
     Name = local.state_change_lambda_name
   }
 }
 
-module "dr2_resender_lambda" {
+module "dr2_message_resender_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name   = local.resender_lambda_name
   handler         = "uk.gov.nationalarchives.postingestresender.Lambda::handleRequest"
   timeout_seconds = 900
 
   policies = {
-    "${local.resender_lambda_name}-policy" = templatefile("${path.module}/templates/policies/resender_lambda_policy.json.tpl", {
+    "${local.resender_lambda_name}-policy" = templatefile("${path.module}/templates/policies/message_resender_lambda_policy.json.tpl", {
       custodial_copy_checker_queue_arn = module.dr2_custodial_copy_confirmer_queue.sqs_arn
-      dynamo_db_post_ingest_arn        = module.post_ingest_table.table_arn
+      post_ingest_state_arn            = module.post_ingest_state_table.table_arn
       account_id                       = data.aws_caller_identity.current.account_id
       lambda_name                      = local.resender_lambda_name
     })
   }
-  memory_size = 1024
-  runtime     = "java21"
+  memory_size = 512
+  runtime     = local.java_runtime
   tags = {
     Name = local.resender_lambda_name
   }

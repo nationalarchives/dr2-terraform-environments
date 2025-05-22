@@ -7,7 +7,7 @@
       ],
       "Effect": "Allow",
       "Resource": "${custodial_copy_checker_queue_arn}",
-      "Sid": "readSqs"
+      "Sid": "readWriteSqs"
     },
     {
       "Action": [
@@ -18,9 +18,9 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "${dynamo_db_post_ingest_arn}"
+        "${post_ingest_state_arn}"
       ],
-      "Sid": "updateDynamoPostIngestTable"
+      "Sid": "readUpdateDynamoPostIngestTable"
     },
     {
       "Action": [
