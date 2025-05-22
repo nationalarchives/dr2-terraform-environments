@@ -5,6 +5,7 @@ locals {
   state_change_lambda_name            = "${var.environment}-dr2-postingest-state-change-handler"
   resender_lambda_name                = "${var.environment}-dr2-postingest-message-resender"
   java_runtime                        = "java21"
+  java_lambda_memory_size             = 512
 }
 
 data "aws_caller_identity" "current" {}
@@ -64,7 +65,7 @@ module "dr2_state_change_lambda" {
       dynamo_db_post_ingest_stream_arn = module.post_ingest_state_table.stream_arn
     })
   }
-  memory_size = 1024
+  memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   dynamo_stream_config = {
     stream_arn = module.post_ingest_state_table.stream_arn
@@ -88,7 +89,7 @@ module "dr2_message_resender_lambda" {
       lambda_name                      = local.resender_lambda_name
     })
   }
-  memory_size = 512
+  memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   tags = {
     Name = local.resender_lambda_name
