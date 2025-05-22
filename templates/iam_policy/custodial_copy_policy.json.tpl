@@ -15,9 +15,17 @@
       "Effect": "Allow",
       "Resource": [
         "${custodial_copy_queue}",
-        "${database_builder_queue}"
+        "${database_builder_queue}",
+        "${custodial_copy_confirmer_queue}"
       ],
       "Sid": "readSqs"
+    },
+    {
+      "Action": [
+        "dynamodb:UpdateItem"
+      ],
+      "Effect": "Allow",
+      "Resource": "${post_ingest_table}"
     },
     {
       "Action": [
@@ -49,6 +57,8 @@
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-re-indexer",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-db-builder:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-db-builder:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-confirmer:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-confirmer:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-builder"
       ],
       "Sid": "writeLogs"
@@ -68,7 +78,8 @@
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-backend",
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-db-builder",
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-webapp",
-        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-re-indexer"
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-re-indexer",
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-confirmer"
       ]
     }
   ],
