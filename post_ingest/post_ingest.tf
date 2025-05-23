@@ -12,7 +12,7 @@ data "aws_caller_identity" "current" {}
 
 module "post_ingest_state_table" {
   source                         = "git::https://github.com/nationalarchives/da-terraform-modules//dynamo"
-  hash_key                       = { name = "ioRef", type = "S" }
+  hash_key                       = { name = "assetId", type = "S" }
   range_key                      = { name = "batchId", type = "S" }
   table_name                     = local.post_ingest_state_table_name
   server_side_encryption_enabled = false

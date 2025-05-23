@@ -228,8 +228,8 @@
             "Parameters": {
               "TableName": "${post_ingest_table_name}",
               "Item": {
-                "ioRef": {
-                  "S.$": "$.ioRef"
+                "assetId": {
+                  "S.$": "$.assetId"
                 },
                 "batchId": {
                   "S.$": "$$.Execution.Input.batchId"
