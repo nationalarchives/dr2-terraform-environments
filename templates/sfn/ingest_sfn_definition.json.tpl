@@ -233,6 +233,9 @@
                 },
                 "batchId": {
                   "S.$": "$$.Execution.Input.batchId"
+                },
+                "ioRef": {
+                  "S.$": "$.ioRef"
                 }
               }
             },
