@@ -18,7 +18,6 @@ module "dr2_ingest_workflow_monitor_lambda" {
   runtime     = local.java_runtime
   plaintext_env_vars = {
     PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_secret.name
-    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
