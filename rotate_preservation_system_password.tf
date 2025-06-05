@@ -21,9 +21,6 @@ module "dr2_rotate_preservation_system_password_lambda" {
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
-  plaintext_env_vars = {
-    PRESERVICA_API_URL = data.aws_ssm_parameter.preservica_url.value
-  }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
     security_group_ids = [module.outbound_https_access_only.security_group_id]

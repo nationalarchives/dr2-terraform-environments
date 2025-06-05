@@ -22,7 +22,6 @@ module "ingest_find_existing_asset" {
   plaintext_env_vars = {
     FILES_DDB_TABLE        = local.files_dynamo_table_name
     PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_read_metadata.name
-    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnets
