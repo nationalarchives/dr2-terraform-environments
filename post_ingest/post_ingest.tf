@@ -6,6 +6,9 @@ locals {
   resender_lambda_name                = "${var.environment}-dr2-postingest-message-resender"
   java_runtime                        = "java21"
   java_lambda_memory_size             = 512
+  post_ingest_queue_config = [
+    { "queueAlias" : "CC", "queueOrder" : 1, "queueUrl" : module.dr2_custodial_copy_confirmer_queue.sqs_queue_url }
+  ]
 }
 
 data "aws_caller_identity" "current" {}
@@ -69,6 +72,12 @@ module "dr2_state_change_lambda" {
   runtime     = local.java_runtime
   dynamo_stream_config = {
     stream_arn = module.post_ingest_state_table.stream_arn
+  }
+  plaintext_env_vars = {
+    POST_INGEST_STATE_DDB_TABLE                = local.post_ingest_state_table_name
+    POST_INGEST_DDB_TABLE_BATCHPARENT_GSI_NAME = local.post_ingest_gsi_name
+    OUTPUT_TOPIC_ARN                           = var.notifications_topic_arn.sns_arn
+    POST_INGEST_QUEUES                         = jsonencode(local.post_ingest_queue_config)
   }
   tags = {
     Name = local.state_change_lambda_name

@@ -22,13 +22,14 @@
     {
       "Action": [
         "dynamodb:BatchWriteItem",
-        "dynamodb:PutItem"
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem"
       ],
       "Effect": "Allow",
       "Resource": [
         "${dynamo_db_post_ingest_arn}"
       ],
-      "Sid": "readUpdateDynamoPostIngestTable"
+      "Sid": "readUpdateDeleteDynamoPostIngestTable"
     },
     {
       "Action": "sns:Publish",
