@@ -234,8 +234,8 @@
                 "batchId": {
                   "S.$": "$$.Execution.Input.batchId"
                 },
-                "ioRef": {
-                  "S.$": "$.ioRef"
+                "input": {
+                  "S.$": "States.Format('\\{\"preservationSystemId\":\"{}\"\\}', $.ioRef)"
                 }
               }
             },
