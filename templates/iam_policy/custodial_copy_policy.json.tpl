@@ -25,7 +25,7 @@
         "dynamodb:UpdateItem"
       ],
       "Effect": "Allow",
-      "Resource": "${post_ingest_table}"
+      "Resource": "${postingest_table}"
     },
     {
       "Action": [

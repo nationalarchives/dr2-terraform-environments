@@ -2,25 +2,40 @@
   "Statement": [
     {
       "Action": [
-        "sqs:SendMessage",
-        "sqs:GetQueueAttributes"
+        "sqs:SendMessage"
       ],
       "Effect": "Allow",
       "Resource": "${custodial_copy_checker_queue_arn}",
-      "Sid": "readWriteSqs"
+      "Sid": "readSqs"
+    },
+    {
+      "Sid": "APIAccessForDynamoDBStreams",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:DescribeStream",
+        "dynamodb:ListStreams"
+      ],
+      "Resource": "${dynamo_db_postingest_stream_arn}"
     },
     {
       "Action": [
         "dynamodb:BatchWriteItem",
         "dynamodb:PutItem",
-        "dynamodb:BatchGetItem",
-        "dynamodb:Query"
+        "dynamodb:DeleteItem"
       ],
       "Effect": "Allow",
       "Resource": [
-        "${post_ingest_state_arn}"
+        "${dynamo_db_postingest_arn}"
       ],
-      "Sid": "readUpdateDynamoPostIngestTable"
+      "Sid": "readUpdateDeleteDynamoPostIngestTable"
+    },
+    {
+      "Action": "sns:Publish",
+      "Effect": "Allow",
+      "Resource": "${sns_external_notifications_arn}",
+      "Sid": "writeSNS"
     },
     {
       "Action": [
