@@ -41,7 +41,6 @@ module "dr2_custodial_copy_queue_creator_lambda" {
   }
   plaintext_env_vars = {
     PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_read_metadata.name
-    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
     OUTPUT_QUEUE_URL       = module.dr2_custodial_copy_queue.sqs_queue_url
   }
 }
