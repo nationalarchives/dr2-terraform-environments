@@ -76,7 +76,7 @@ module "dr2_state_change_lambda" {
   plaintext_env_vars = {
     POSTINGEST_STATE_DDB_TABLE                = local.postingest_state_table_name
     POSTINGEST_DDB_TABLE_BATCHPARENT_GSI_NAME = local.postingest_gsi_name
-    OUTPUT_TOPIC_ARN                          = var.notifications_topic_arn.sns_arn
+    OUTPUT_TOPIC_ARN                          = var.notifications_topic_arn
     POSTINGEST_QUEUES                         = jsonencode(local.postingest_queue_config)
   }
   tags = {
