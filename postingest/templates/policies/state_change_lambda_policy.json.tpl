@@ -22,7 +22,7 @@
     {
       "Action": [
         "dynamodb:BatchWriteItem",
-        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
         "dynamodb:DeleteItem"
       ],
       "Effect": "Allow",
