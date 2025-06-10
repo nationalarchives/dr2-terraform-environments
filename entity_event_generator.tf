@@ -39,7 +39,6 @@ module "dr2_entity_event_generator_lambda" {
   }
   plaintext_env_vars = {
     LAMBDA_STATE_DDB_TABLE = local.last_polled_table_name
-    PRESERVICA_API_URL     = data.aws_ssm_parameter.preservica_url.value
     PRESERVICA_SECRET_NAME = aws_secretsmanager_secret.preservica_read_metadata.name
     OUTPUT_TOPIC_ARN       = local.entity_event_topic_arn
   }
