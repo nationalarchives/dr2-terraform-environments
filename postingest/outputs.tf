@@ -9,3 +9,7 @@ output "postingest_table_arn" {
 output "postingest_confirmer_queue_arn" {
   value = module.dr2_custodial_copy_confirmer_queue.sqs_arn
 }
+
+output "postingest_state_change_lambda_arn" {
+  value = module.dr2_state_change_lambda
+}
