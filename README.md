@@ -96,18 +96,26 @@ HCL Language Support: https://plugins.jetbrains.com/plugin/7808-hashicorp-terraf
    ```
 
 9. Run Terraform to view changes that will be made to the DR2 environment AWS resources
-    1. Make sure your credentials are valid, if you have the AWS CLI installed:
-       1. run `aws sso login --profile [account name where credentials are] && export AWS_PROFILE=[account name where credentials are]`
-       2. run `aws sts assume-role --role-arn arn:aws:iam::[account number]:role/[terraform role] --role-session-name run-terraform`, which should return a JSON
-       3. run `export AWS_ACCESS_KEY_ID=[paste value from JSON]`
-       4. run `export AWS_SECRET_ACCESS_KEY=[paste value from JSON]`
-       5. run `export AWS_SESSION_TOKEN=paste[paste value from JSON]`
-    2. Run
+    1. Make sure your credentials (for the environment that you are interested in) are valid/still valid first (the AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN)
+    2. If you have the AWS CLI installed:
+        1. run `aws sso login --profile [account name where credentials are] && export AWS_PROFILE=[account name where credentials are]`
+        2. run `aws sts assume-role --role-arn arn:aws:iam::[account number]:role/[terraform role] --role-session-name run-terraform`, which should return a JSON
+        3. run `export AWS_ACCESS_KEY_ID=[paste value from JSON]`
+        4. run `export AWS_SECRET_ACCESS_KEY=[paste value from JSON]`
+        5. run `export AWS_SESSION_TOKEN=paste[paste value from JSON]`
+    3. If the workspace has not been switched, run `terraform workspace select [workspace]`
+        1. run `terraform workspace list` to see available workspaces and the current workspace
+    4. Run
       ```
       [location of project] $ terraform plan
       ```
 
 10. Run `terraform fmt --recursive` to properly format your Terraform changes before pushing to a branch.
+
+### Troubleshooting:
+
+If you get the message starting with `Failed to unlock state: failed to delete the lock file...`, ask the person in the
+`Who:` section (of the message) if it is alright to unlock the state, if it is, run `terraform force-unlock [ID]`.
 
 ## Further Information
 

@@ -220,13 +220,13 @@
             },
             "Retry": ${retry_statement},
             "ResultPath": null,
-            "Next": "Insert into post-ingest table"
+            "Next": "Insert into PostIngest table"
           },
-          "Insert into post-ingest table": {
+          "Insert into PostIngest table": {
             "Type": "Task",
             "Resource": "arn:aws:states:::dynamodb:putItem",
             "Parameters": {
-              "TableName": "${post_ingest_table_name}",
+              "TableName": "${postingest_table_name}",
               "Item": {
                 "assetId": {
                   "S.$": "$.assetId"
