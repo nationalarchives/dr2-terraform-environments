@@ -41,7 +41,6 @@ locals {
   dashboard_lambdas = [
     local.copy_files_from_tdr_name,
     local.court_document_anonymiser_lambda_name,
-    local.custodial_copy_ingest_lambda_name,
     local.entity_event_lambda_name,
     local.files_change_handler_name,
     local.get_latest_preservica_version,
@@ -57,7 +56,7 @@ locals {
     local.ingest_start_workflow_lambda_name,
     local.ingest_upsert_archive_folders_lambda_name,
     local.ingest_validate_generic_ingest_inputs_lambda_name,
-    local.ingest_workflow_monitor_lambda_name, #
+    local.ingest_workflow_monitor_lambda_name,
     local.ip_lock_checker_lambda_name,
     local.rotate_preservation_system_password_name,
     local.tdr_aggregator_name,
@@ -68,7 +67,6 @@ locals {
     module.dr2_custodial_copy_queue,
     module.dr2_custodial_copy_queue_creator_queue,
     module.dr2_custodial_copy_db_builder_queue,
-    module.dr2_custodial_copy_notifications_queue,
     module.dr2_external_notifications_queue,
     module.dr2_copy_files_from_tdr_sqs
   ]
@@ -184,7 +182,6 @@ module "dr2_kms_key" {
       module.dr2_ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.dr2_ingest_asset_reconciler_lambda.lambda_role_arn,
       module.dr2_ingest_step_function.step_function_role_arn,
-      module.dr2_custodial_copy_ingest_lambda.lambda_role_arn,
       module.dr2_ingest_files_change_handler_lambda.lambda_role_arn,
       module.dr2_preingest_tdr_aggregator_lambda.lambda_role_arn,
       module.dr2_preingest_tdr_package_builder_lambda.lambda_role_arn,
