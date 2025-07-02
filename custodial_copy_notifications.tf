@@ -1,6 +1,6 @@
 locals {
-  custodial_copy_topic_name         = "${local.environment}-dr2-cc-notifications"
-  custodial_copy_topic_arn          = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.custodial_copy_topic_name}"
+  custodial_copy_topic_name = "${local.environment}-dr2-cc-notifications"
+  custodial_copy_topic_arn  = "arn:aws:sns:eu-west-2:${data.aws_caller_identity.current.account_id}:${local.custodial_copy_topic_name}"
 }
 
 module "dr2_custodial_copy_topic" {
