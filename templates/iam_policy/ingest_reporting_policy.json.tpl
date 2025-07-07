@@ -2,25 +2,16 @@
   "Statement": [
     {
       "Action": [
-        "s3:PutObject"
+        "logs:GetLogEvents",
+        "states:ListExecutions"
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:s3:::${bucket_name}/*"
-      ]
-    },
-    {
-      "Action": [
-        "logs:PutLogEvents",
-        "logs:CreateLogStream",
-        "logs:CreateLogGroup"
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/${environment}-external-notifications:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/${environment}-external-notifications:*",
+        "arn:aws:states:eu-west-2:${account_id}:stateMachine:*"
       ],
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/aws/lambda/${lambda_name}:*:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/aws/lambda/${lambda_name}:*"
-      ],
-      "Sid": "readWriteLogs"
+      "Sid": "readNotificationLogsAndStepFunctionStates"
     }
   ],
   "Version": "2012-10-17"
