@@ -42,7 +42,6 @@ module "deploy_lambda_policy" {
         module.dr2_ingest_workflow_monitor_lambda.lambda_arn,
         module.dr2_get_latest_preservica_version_lambda.lambda_arn,
         module.dr2_rotate_preservation_system_password_lambda.lambda_arn,
-        module.dr2_ingest_files_change_handler_lambda.lambda_arn,
         module.dr2_preingest_tdr_aggregator_lambda.lambda_arn,
         module.dr2_preingest_tdr_package_builder_lambda.lambda_arn,
         module.dr2_copy_files_from_tdr_lambda.lambda_arn,
