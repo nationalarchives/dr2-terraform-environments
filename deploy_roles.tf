@@ -48,7 +48,8 @@ module "deploy_lambda_policy" {
         module.dr2_copy_files_from_tdr_lambda.lambda_arn,
         module.dr2_ingest_validate_generic_ingest_inputs_lambda.lambda_arn,
         local.anonymiser_lambda_arns,
-        module.postingest.postingest_state_change_lambda_arn
+        module.postingest.postingest_state_change_lambda_arn,
+        module.postingest.postingest_resender_lambda_arn
       ]
     ))
     bucket_name = "mgmt-dp-code-deploy",
