@@ -5,7 +5,7 @@
     "Create or update folders in Preservica": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-west-2:${account_id}:function:${ingest_upsert_archive_folders_lambda_name}",
-      "Retry": ${retry_statement},
+      "Retry": ${upsert_lambda_retry_statement},
       "Next": "Start workflow",
       "ResultPath": null
     },
