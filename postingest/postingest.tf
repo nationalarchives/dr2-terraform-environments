@@ -96,10 +96,16 @@ module "dr2_message_resender_lambda" {
       postingest_state_arn             = module.postingest_state_table.table_arn
       account_id                       = data.aws_caller_identity.current.account_id
       lambda_name                      = local.resender_lambda_name
+      gsi_name                         = local.postingest_gsi_name
     })
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
+  plaintext_env_vars = {
+    POSTINGEST_STATE_DDB_TABLE                = local.postingest_state_table_name
+    POSTINGEST_DDB_TABLE_BATCHPARENT_GSI_NAME = local.postingest_gsi_name
+    POSTINGEST_QUEUES                         = jsonencode(local.postingest_queue_config)
+  }
   tags = {
     Name = local.resender_lambda_name
   }

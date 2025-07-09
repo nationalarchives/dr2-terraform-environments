@@ -287,7 +287,8 @@ module "dr2_ingest_run_workflow_step_function" {
     ingest_upsert_archive_folders_lambda_name = local.ingest_upsert_archive_folders_lambda_name
     ingest_start_workflow_lambda_name         = local.ingest_start_workflow_lambda_name
     ingest_workflow_monitor_lambda_name       = local.ingest_workflow_monitor_lambda_name
-    retry_statement                           = local.retry_statement
+    retry_statement                           = local.retry_statement,
+    upsert_lambda_retry_statement             = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = module.dr2_ingest_upsert_archive_folders_lambda.lambda_function.timeout, MaxAttempts = 10, BackoffRate = 1, JitterStrategy = "FULL" }])
   })
   step_function_name = local.ingest_run_workflow_step_function_name
   step_function_role_policy_attachments = {
