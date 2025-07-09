@@ -14,11 +14,13 @@
         "dynamodb:BatchWriteItem",
         "dynamodb:PutItem",
         "dynamodb:BatchGetItem",
-        "dynamodb:Query"
+        "dynamodb:Query",
+        "dynamodb:UpdateItem"
       ],
       "Effect": "Allow",
       "Resource": [
-        "${postingest_state_arn}"
+        "${postingest_state_arn}",
+        "${postingest_state_arn}/index/${gsi_name}"
       ],
       "Sid": "readUpdateDynamoPostIngestTable"
     },
