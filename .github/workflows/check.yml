@@ -6,7 +6,7 @@ permissions:
   contents: write
 jobs:
   check:
-    uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_check.yml@main
+    uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_check.yml@917201e254f112ff041b952dae76ef767cae7378
     secrets:
       WORKFLOW_TOKEN: ${{ secrets.DR2_WORKFLOW_PAT }}
       STATE_BUCKET: ${{ secrets.DR2_INTG_STATE_BUCKET }}
