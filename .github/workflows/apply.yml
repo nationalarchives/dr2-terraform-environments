@@ -12,12 +12,12 @@ permissions:
   contents: write
 jobs:
   setup:
-    uses: nationalarchives/dr2-github-actions/.github/workflows/set_terraform_var_names.yml@main
+    uses: nationalarchives/dr2-github-actions/.github/workflows/set_terraform_var_names.yml@917201e254f112ff041b952dae76ef767cae7378
     with:
       project: dr2
       environment: ${{ github.event.inputs.environment }}
   apply:
-    uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_apply.yml@main
+    uses: nationalarchives/dr2-github-actions/.github/workflows/terraform_apply.yml@917201e254f112ff041b952dae76ef767cae7378
     needs: setup
     with:
       repo-name: dr2-terraform-environments
