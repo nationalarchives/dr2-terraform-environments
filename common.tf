@@ -38,7 +38,6 @@ locals {
   redrive_maximum_receives                             = 5
   ingest_run_workflow_sfn_arn                          = "arn:aws:states:eu-west-2:${data.aws_caller_identity.current.account_id}:stateMachine:${local.ingest_run_workflow_step_function_name}"
   dashboard_lambdas = [
-    local.copy_files_from_tdr_name,
     local.court_document_anonymiser_lambda_name,
     local.entity_event_lambda_name,
     local.get_latest_preservica_version,
@@ -57,8 +56,12 @@ locals {
     local.ingest_workflow_monitor_lambda_name,
     local.ip_lock_checker_lambda_name,
     local.rotate_preservation_system_password_name,
-    local.tdr_aggregator_name,
-    local.tdr_package_builder_lambda_name
+    module.tdr_preingest.aggregator_lambda.function_name,
+    module.tdr_preingest.package_builder_lambda.function_name,
+    module.tdr_preingest.copy_files_lambda.function_name,
+    module.dri_preingest.aggregator_lambda.function_name,
+    module.dri_preingest.package_builder_lambda.function_name,
+    module.dri_preingest.copy_files_lambda.function_name
   ]
   queues = [
     module.dr2_ingest_parsed_court_document_event_handler_sqs,
@@ -66,7 +69,8 @@ locals {
     module.dr2_custodial_copy_queue_creator_queue,
     module.dr2_custodial_copy_db_builder_queue,
     module.dr2_external_notifications_queue,
-    module.dr2_copy_files_from_tdr_sqs
+    module.tdr_preingest.copy_files_sqs,
+    module.dri_preingest.copy_files_sqs
   ]
   retry_statement = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2, JitterStrategy = "FULL" }])
 }
@@ -180,9 +184,12 @@ module "dr2_kms_key" {
       module.dr2_ingest_parent_folder_opex_creator_lambda.lambda_role_arn,
       module.dr2_ingest_asset_reconciler_lambda.lambda_role_arn,
       module.dr2_ingest_step_function.step_function_role_arn,
-      module.dr2_preingest_tdr_aggregator_lambda.lambda_role_arn,
-      module.dr2_preingest_tdr_package_builder_lambda.lambda_role_arn,
-      module.dr2_copy_files_from_tdr_lambda.lambda_role_arn,
+      module.tdr_preingest.aggregator_lambda.role,
+      module.tdr_preingest.package_builder_lambda.role,
+      module.tdr_preingest.copy_files_lambda.role,
+      module.dri_preingest.aggregator_lambda.role,
+      module.dri_preingest.package_builder_lambda.role,
+      module.dri_preingest.copy_files_lambda.role,
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
     ], local.additional_user_roles, local.anonymiser_roles, local.e2e_test_roles)
@@ -319,7 +326,8 @@ module "dr2_ingest_step_function_policy" {
     ingest_run_workflow_sfn_name                      = local.ingest_run_workflow_step_function_name
     ingest_files_table_name                           = local.files_dynamo_table_name
     tna_to_preservica_role_arn                        = local.tna_to_preservica_role_arn
-    preingest_tdr_step_function_arn                   = local.preingest_sfn_arn
+    preingest_tdr_step_function_arn                   = module.tdr_preingest.preingest_sfn_arn
+    preingest_dri_step_function_arn                   = module.dri_preingest.preingest_sfn_arn
     ingest_run_workflow_sfn_arn                       = local.ingest_run_workflow_sfn_arn
     postingest_table_name                             = module.postingest.postingest_table_name
   })
@@ -456,7 +464,8 @@ module "failed_ingest_step_function_event_bridge_rule" {
   event_pattern = templatefile("${path.module}/templates/eventbridge/step_function_failed_event_pattern.json.tpl", {
     step_function_arns = jsonencode([
       module.dr2_ingest_step_function.step_function_arn,
-      module.dr2_preingest_tdr_step_function.step_function_arn,
+      module.tdr_preingest.preingest_sfn_arn,
+      module.dri_preingest.preingest_sfn_arn,
       module.dr2_ingest_run_workflow_step_function.step_function_arn
     ])
   })
