@@ -59,7 +59,10 @@
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-db-builder:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-confirmer:*:*",
         "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-confirmer:*",
-        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-builder"
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-builder",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reconciler:*:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reconciler:*",
+        "arn:aws:logs:eu-west-2:${account_id}:log-group:/custodial-copy-reconciler"
       ],
       "Sid": "writeLogs"
     },
@@ -79,7 +82,8 @@
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-db-builder",
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-webapp",
         "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-re-indexer",
-        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-confirmer"
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-confirmer",
+        "arn:aws:ecr:eu-west-2:${management_account_id}:repository/dr2-custodial-copy-reconciler"
       ]
     }
   ],
