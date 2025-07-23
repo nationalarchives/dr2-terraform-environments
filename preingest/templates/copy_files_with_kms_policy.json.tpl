@@ -5,7 +5,7 @@
         "kms:Decrypt"
       ],
       "Effect": "Allow",
-      "Resource": "${tdr_export_kms_arn}",
+      "Resource": "${kms_arn}",
       "Sid": "DecryptWithTDRKey"
     },
     {
@@ -15,7 +15,7 @@
         "sqs:DeleteMessage"
       ],
       "Effect": "Allow",
-      "Resource": "${copy_files_from_tdr_queue_arn}",
+      "Resource": "${copy_files_queue_arn}",
       "Sid": "readSqs"
     },
     {
@@ -38,8 +38,8 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:s3:::${tdr_bucket_name}",
-        "arn:aws:s3:::${tdr_bucket_name}/*"
+        "arn:aws:s3:::${bucket_name}",
+        "arn:aws:s3:::${bucket_name}/*"
       ],
       "Sid": "readFromTREBucket"
     },
