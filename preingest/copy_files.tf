@@ -39,6 +39,7 @@ module "dr2_copy_files_lambda" {
   plaintext_env_vars = {
     OUTPUT_BUCKET_NAME = var.ingest_raw_cache_bucket_name
     OUTPUT_QUEUE_URL   = module.dr2_preingest_aggregator_queue.sqs_queue_url
+    SOURCE_SYSTEM      = var.source_name
   }
   tags = {
     Name = local.copy_files_name
