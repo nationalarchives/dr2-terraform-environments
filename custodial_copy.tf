@@ -56,4 +56,5 @@ module "dr2_custodial_copy_queue" {
   })
   queue_cloudwatch_alarm_visible_messages_threshold = 50
   encryption_type                                   = local.sse_encryption
+  visibility_timeout                                = 300
 }
