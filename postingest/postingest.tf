@@ -1,6 +1,7 @@
 locals {
   postingest_state_table_name         = "${var.environment}-dr2-postingest-state"
-  postingest_gsi_name                 = "QueueLastQueuedIdx"
+  postingest_gsi_firstqueued_name     = "QueueFirstQueuedIdx"
+  postingest_gsi_lastqueued_name      = "QueueLastQueuedIdx"
   custodial_copy_confirmer_queue_name = "${var.environment}-dr2-custodial-copy-confirmer"
   state_change_lambda_name            = "${var.environment}-dr2-postingest-state-change-handler"
   resender_lambda_name                = "${var.environment}-dr2-postingest-message-resender"
@@ -25,13 +26,20 @@ module "postingest_state_table" {
   deletion_protection_enabled    = true
   additional_attributes = [
     { name = "queue", type = "S" },
-    { name = "lastQueued", type = "S" }
+    { name = "lastQueued", type = "S" },
+    { name = "firstQueued", type = "S" }
   ]
   global_secondary_indexes = [
     {
-      name            = local.postingest_gsi_name
+      name            = local.postingest_gsi_lastqueued_name
       hash_key        = "queue"
       range_key       = "lastQueued"
+      projection_type = "ALL"
+    },
+    {
+      name            = local.postingest_gsi_firstqueued_name
+      hash_key        = "queue"
+      range_key       = "firstQueued"
       projection_type = "ALL"
     }
   ]
@@ -76,7 +84,7 @@ module "dr2_state_change_lambda" {
   }
   plaintext_env_vars = {
     POSTINGEST_STATE_DDB_TABLE                = local.postingest_state_table_name
-    POSTINGEST_DDB_TABLE_BATCHPARENT_GSI_NAME = local.postingest_gsi_name
+    POSTINGEST_DDB_TABLE_BATCHPARENT_GSI_NAME = local.postingest_gsi_lastqueued_name
     OUTPUT_TOPIC_ARN                          = var.notifications_topic_arn
     POSTINGEST_QUEUES                         = jsonencode(local.postingest_queue_config)
   }
@@ -97,14 +105,14 @@ module "dr2_message_resender_lambda" {
       postingest_state_arn             = module.postingest_state_table.table_arn
       account_id                       = data.aws_caller_identity.current.account_id
       lambda_name                      = local.resender_lambda_name
-      gsi_name                         = local.postingest_gsi_name
+      gsi_name                         = local.postingest_gsi_lastqueued_name
     })
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   plaintext_env_vars = {
     POSTINGEST_STATE_DDB_TABLE                = local.postingest_state_table_name
-    POSTINGEST_DDB_TABLE_BATCHPARENT_GSI_NAME = local.postingest_gsi_name
+    POSTINGEST_DDB_TABLE_BATCHPARENT_GSI_NAME = local.postingest_gsi_lastqueued_name
     POSTINGEST_QUEUES                         = jsonencode(local.postingest_queue_config)
   }
   tags = {
