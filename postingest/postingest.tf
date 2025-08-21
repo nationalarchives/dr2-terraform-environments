@@ -4,6 +4,7 @@ locals {
   postingest_gsi_lastqueued_name      = "QueueLastQueuedIdx"
   custodial_copy_confirmer_queue_name = "${var.environment}-dr2-custodial-copy-confirmer"
   state_change_lambda_name            = "${var.environment}-dr2-postingest-state-change-handler"
+  state_change_lambda_dlq             = "${var.environment}-dr2-postingest-state-change-dlq"
   resender_lambda_name                = "${var.environment}-dr2-postingest-message-resender"
   java_runtime                        = "java21"
   java_lambda_memory_size             = 512
@@ -60,12 +61,28 @@ module "dr2_custodial_copy_confirmer_queue" {
   delay_seconds                                     = 900
 }
 
+# this queue will act as dlq for lambda
+module "dr2_state_change_lambda_dlq" {
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  queue_name = local.state_change_lambda_dlq
+  sqs_policy = templatefile("./templates/sqs/lambda_sqs_dlq_policy.json.tpl", {
+    account_id = data.aws_caller_identity.current.account_id,
+    queue_name = local.state_change_lambda_dlq
+  })
+  create_dlq                                        = false
+  queue_cloudwatch_alarm_visible_messages_threshold = 50
+  visibility_timeout                                = 3600
+  encryption_type                                   = "sse"
+  delay_seconds                                     = 900
+}
+
 
 module "dr2_state_change_lambda" {
-  source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
+  source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda?ref=DR2-2368-Update-sqs-and-lambda-modules-in-da-terraform-modules"
   function_name   = local.state_change_lambda_name
   handler         = "uk.gov.nationalarchives.postingeststatechangehandler.Lambda::handleRequest"
   timeout_seconds = 900
+  dead_letter_target_arn = module.dr2_state_change_lambda_dlq.dlq_sqs_arn
 
   policies = {
     "${local.state_change_lambda_name}-policy" = templatefile("${path.module}/templates/policies/state_change_lambda_policy.json.tpl", {
@@ -91,6 +108,7 @@ module "dr2_state_change_lambda" {
   tags = {
     Name = local.state_change_lambda_name
   }
+
 }
 
 module "dr2_message_resender_lambda" {
