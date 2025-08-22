@@ -6,12 +6,12 @@ output "package_builder_lambda" {
   value = module.dr2_preingest_package_builder_lambda.lambda_function
 }
 
-output "copy_files_lambda" {
-  value = module.dr2_copy_files_lambda.lambda_function
+output "importer_lambda" {
+  value = module.dr2_importer_lambda.lambda_function
 }
 
-output "copy_files_sqs" {
-  value = module.dr2_copy_files_sqs
+output "importer_sqs" {
+  value = module.dr2_importer_sqs
 }
 
 output "preingest_sfn_arn" {
