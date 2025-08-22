@@ -70,7 +70,7 @@ module "dr2_state_change_lambda_dlq" {
     queue_name = local.state_change_lambda_dlq
   })
   create_dlq                                        = false
-  queue_cloudwatch_alarm_visible_messages_threshold = 50
+  queue_cloudwatch_alarm_visible_messages_threshold = 5
   visibility_timeout                                = 3600
   encryption_type                                   = "sse"
   delay_seconds                                     = 900
@@ -108,7 +108,6 @@ module "dr2_state_change_lambda" {
   tags = {
     Name = local.state_change_lambda_name
   }
-
 }
 
 module "dr2_message_resender_lambda" {
