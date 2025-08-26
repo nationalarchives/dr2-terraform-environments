@@ -58,10 +58,10 @@ locals {
     local.rotate_preservation_system_password_name,
     module.tdr_preingest.aggregator_lambda.function_name,
     module.tdr_preingest.package_builder_lambda.function_name,
-    module.tdr_preingest.copy_files_lambda.function_name,
+    module.tdr_preingest.importer_lambda.function_name,
     module.dri_preingest.aggregator_lambda.function_name,
     module.dri_preingest.package_builder_lambda.function_name,
-    module.dri_preingest.copy_files_lambda.function_name
+    module.dri_preingest.importer_lambda.function_name
   ]
   queues = [
     module.dr2_ingest_parsed_court_document_event_handler_sqs,
@@ -69,8 +69,8 @@ locals {
     module.dr2_custodial_copy_queue_creator_queue,
     module.dr2_custodial_copy_db_builder_queue,
     module.dr2_external_notifications_queue,
-    module.tdr_preingest.copy_files_sqs,
-    module.dri_preingest.copy_files_sqs
+    module.tdr_preingest.importer_sqs,
+    module.dri_preingest.importer_sqs
   ]
   retry_statement = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2, JitterStrategy = "FULL" }])
 }
@@ -186,10 +186,10 @@ module "dr2_kms_key" {
       module.dr2_ingest_step_function.step_function_role_arn,
       module.tdr_preingest.aggregator_lambda.role,
       module.tdr_preingest.package_builder_lambda.role,
-      module.tdr_preingest.copy_files_lambda.role,
+      module.tdr_preingest.importer_lambda.role,
       module.dri_preingest.aggregator_lambda.role,
       module.dri_preingest.package_builder_lambda.role,
-      module.dri_preingest.copy_files_lambda.role,
+      module.dri_preingest.importer_lambda.role,
       local.tna_to_preservica_role_arn,
       local.tre_prod_judgment_role,
     ], local.additional_user_roles, local.anonymiser_roles, local.e2e_test_roles)
