@@ -4,6 +4,7 @@ locals {
   postingest_gsi_lastqueued_name      = "QueueLastQueuedIdx"
   custodial_copy_confirmer_queue_name = "${var.environment}-dr2-custodial-copy-confirmer"
   state_change_lambda_name            = "${var.environment}-dr2-postingest-state-change-handler"
+  state_change_lambda_dlq             = "${var.environment}-dr2-postingest-state-change-dlq"
   resender_lambda_name                = "${var.environment}-dr2-postingest-message-resender"
   java_runtime                        = "java21"
   java_lambda_memory_size             = 512
@@ -60,6 +61,19 @@ module "dr2_custodial_copy_confirmer_queue" {
   delay_seconds                                     = 900
 }
 
+module "dr2_state_change_lambda_dlq" {
+  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  queue_name = local.state_change_lambda_dlq
+  sqs_policy = templatefile("./templates/sqs/lambda_sqs_dlq_policy.json.tpl", {
+    account_id = data.aws_caller_identity.current.account_id,
+    queue_name = local.state_change_lambda_dlq
+  })
+  create_dlq                                        = false
+  queue_cloudwatch_alarm_visible_messages_threshold = 5
+  visibility_timeout                                = 300
+  encryption_type                                   = "sse"
+}
+
 
 module "dr2_state_change_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
@@ -75,12 +89,14 @@ module "dr2_state_change_lambda" {
       account_id                       = data.aws_caller_identity.current.account_id
       lambda_name                      = local.state_change_lambda_name
       dynamo_db_postingest_stream_arn  = module.postingest_state_table.stream_arn
+      state_change_dlq_arn             = module.dr2_state_change_lambda_dlq.sqs_arn
     })
   }
   memory_size = local.java_lambda_memory_size
   runtime     = local.java_runtime
   dynamo_stream_config = {
-    stream_arn = module.postingest_state_table.stream_arn
+    stream_arn             = module.postingest_state_table.stream_arn
+    dead_letter_target_arn = module.dr2_state_change_lambda_dlq.sqs_arn
   }
   plaintext_env_vars = {
     POSTINGEST_STATE_DDB_TABLE                = local.postingest_state_table_name
