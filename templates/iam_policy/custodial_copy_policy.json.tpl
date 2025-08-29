@@ -67,6 +67,12 @@
       "Sid": "writeLogs"
     },
     {
+      "Sid": "PutEventBridgeEvent",
+      "Effect": "Allow",
+      "Action": "events:PutEvents",
+      "Resource": "arn:aws:events:eu-west-2:${account_id}:event-bus/default"
+    },
+    {
       "Action" : "ecr:GetAuthorizationToken",
       "Effect": "Allow",
       "Resource": "*"
