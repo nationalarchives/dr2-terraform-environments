@@ -5,7 +5,7 @@
         "sqs:SendMessage"
       ],
       "Effect": "Allow",
-      "Resource": ["${custodial_copy_checker_queue_arn}", "${postingest_dlq_arn}"],
+      "Resource": ["${custodial_copy_checker_queue_arn}", "${state_change_dlq_arn}"],
       "Sid": "readSqs"
     },
     {
