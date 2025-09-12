@@ -40,6 +40,7 @@ module "deploy_lambda_policy" {
         module.dr2_ingest_start_workflow_lambda.lambda_arn,
         module.dr2_ingest_asset_reconciler_lambda.lambda_arn,
         module.dr2_ingest_workflow_monitor_lambda.lambda_arn,
+        module.dr2_ingest_metric_collector_lambda.lambda_arn,
         module.dr2_get_latest_preservica_version_lambda.lambda_arn,
         module.dr2_rotate_preservation_system_password_lambda.lambda_arn,
         module.tdr_preingest.aggregator_lambda.arn,
