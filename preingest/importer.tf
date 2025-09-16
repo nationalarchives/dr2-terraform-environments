@@ -59,9 +59,10 @@ module "dr2_importer_sqs" {
     queue_name = local.importer_name
     topic_arn  = var.sns_topic_arn
   })
-  redrive_maximum_receives = local.redrive_maximum_receives
-  visibility_timeout       = local.visibility_timeout
-  encryption_type          = local.sse_encryption
+  queue_cloudwatch_alarm_visible_messages_threshold = local.messages_visible_threshold
+  redrive_maximum_receives                          = local.redrive_maximum_receives
+  visibility_timeout                                = local.visibility_timeout
+  encryption_type                                   = local.sse_encryption
 }
 
 resource "aws_sns_topic_subscription" "dr2_importer_subscription" {
