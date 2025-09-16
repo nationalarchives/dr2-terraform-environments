@@ -39,8 +39,9 @@ module "copy_from_tre_bucket_policy" {
 }
 
 module "dr2_ingest_parsed_court_document_event_handler_sqs" {
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  queue_name = local.ingest_parsed_court_document_event_handler_queue_name
+  source                                            = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  queue_cloudwatch_alarm_visible_messages_threshold = local.messages_visible_threshold
+  queue_name                                        = local.ingest_parsed_court_document_event_handler_queue_name
   sqs_policy = templatefile("./templates/sqs/${local.court_document_queue_sqs_policy}.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.ingest_parsed_court_document_event_handler_queue_name

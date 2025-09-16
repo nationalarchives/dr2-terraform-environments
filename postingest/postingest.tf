@@ -55,8 +55,8 @@ module "dr2_custodial_copy_confirmer_queue" {
     queue_name = local.custodial_copy_confirmer_queue_name
   })
   create_dlq                                        = false
-  queue_cloudwatch_alarm_visible_messages_threshold = 50
-  visibility_timeout                                = 3600
+  queue_cloudwatch_alarm_visible_messages_threshold = 1000000
+  visibility_timeout                                = 600
   encryption_type                                   = "sse"
   delay_seconds                                     = 900
 }
@@ -69,7 +69,7 @@ module "dr2_state_change_lambda_dlq" {
     queue_name = local.state_change_lambda_dlq
   })
   create_dlq                                        = false
-  queue_cloudwatch_alarm_visible_messages_threshold = 5
+  queue_cloudwatch_alarm_visible_messages_threshold = 1
   visibility_timeout                                = 300
   encryption_type                                   = "sse"
 }
