@@ -42,7 +42,7 @@ module "dr2_custodial_copy_db_builder_queue" {
     queue_name = local.custodial_copy_db_builder_queue_name
     topic_arn  = local.custodial_copy_topic_arn
   })
-  queue_cloudwatch_alarm_visible_messages_threshold = 50
+  queue_cloudwatch_alarm_visible_messages_threshold = local.messages_visible_threshold
   encryption_type                                   = local.sse_encryption
 }
 
@@ -54,7 +54,7 @@ module "dr2_custodial_copy_queue" {
     account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.custodial_copy_name
   })
-  queue_cloudwatch_alarm_visible_messages_threshold = 50
+  queue_cloudwatch_alarm_visible_messages_threshold = local.messages_visible_threshold
   encryption_type                                   = local.sse_encryption
   visibility_timeout                                = 300
 }

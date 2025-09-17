@@ -17,6 +17,7 @@ locals {
   aggregator_invocation_batch_size             = 10000                                                                                      # Max number of messages to invoke the Lambda with, but all messages need to be processed before the Lambda times out. <=10000 for Lambda.
   aggregator_group_size                        = 10000                                                                                      # Max size of an aggregation group.
   aggregator_queue_visibility_timeout          = local.aggregator_primary_grouping_window_seconds + local.aggregator_lambda_timeout_seconds # <=43200 for SQS.
+  messages_visible_threshold                   = 1000000
 }
 
 module "dr2_preingest_aggregator_queue" {
@@ -30,8 +31,9 @@ module "dr2_preingest_aggregator_queue" {
     queue_name = local.aggregator_name
     topic_arn  = var.sns_topic_arn
   })
-  visibility_timeout = local.aggregator_queue_visibility_timeout
-  encryption_type    = "sse"
+  queue_cloudwatch_alarm_visible_messages_threshold = local.messages_visible_threshold
+  visibility_timeout                                = local.aggregator_queue_visibility_timeout
+  encryption_type                                   = "sse"
 }
 
 module "dr2_preingest_aggregator_lambda" {

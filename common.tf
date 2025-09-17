@@ -72,7 +72,8 @@ locals {
     module.tdr_preingest.importer_sqs,
     module.dri_preingest.importer_sqs
   ]
-  retry_statement = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2, JitterStrategy = "FULL" }])
+  retry_statement            = jsonencode([{ ErrorEquals = ["States.ALL"], IntervalSeconds = 2, MaxAttempts = 6, BackoffRate = 2, JitterStrategy = "FULL" }])
+  messages_visible_threshold = 1000000
 }
 
 data "aws_iam_role" "org_wiz_access_role" {

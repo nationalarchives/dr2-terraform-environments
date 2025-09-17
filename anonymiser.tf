@@ -37,9 +37,10 @@ module "dr2_court_document_package_anonymiser_lambda" {
 }
 
 module "dr2_court_document_package_anonymiser_sqs" {
-  count      = local.court_document_anonymiser_count
-  source     = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
-  queue_name = local.court_document_anonymiser_queue_name
+  count                                             = local.court_document_anonymiser_count
+  source                                            = "git::https://github.com/nationalarchives/da-terraform-modules//sqs"
+  queue_cloudwatch_alarm_visible_messages_threshold = local.messages_visible_threshold
+  queue_name                                        = local.court_document_anonymiser_queue_name
   sqs_policy = templatefile("./templates/sqs/sns_send_message_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id,
     queue_name = local.court_document_anonymiser_queue_name
