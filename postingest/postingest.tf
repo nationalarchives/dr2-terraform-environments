@@ -11,6 +11,8 @@ locals {
   postingest_queue_config = [ // Before adding a new queue here, update the state change handler to expect it
     { "queueAlias" : "CC", "queueOrder" : 1, "queueUrl" : module.dr2_custodial_copy_confirmer_queue.sqs_queue_url }
   ]
+  six_hours                  = 60 * 60 * 6
+  seven_days                 = 60 * 60 * 24 * 7
   messages_visible_threshold = 1000000
 }
 
@@ -60,6 +62,22 @@ module "dr2_custodial_copy_confirmer_queue" {
   visibility_timeout                                = 600
   encryption_type                                   = "sse"
   delay_seconds                                     = 900
+}
+
+module "cc_confirmer_message_older_than_one_week_alarm" {
+  source              = "git::https://github.com/nationalarchives/da-terraform-modules//cloudwatch_alarms"
+  name                = "${local.custodial_copy_confirmer_queue_name}-messages-older-than-one-week-alarm"
+  comparison_operator = "GreaterThanThreshold"
+  metric_name         = "ApproximateAgeOfOldestMessage"
+  namespace           = "AWS/SQS"
+  statistic           = "Maximum"
+  treat_missing_data  = "ignore"
+  datapoints_to_alarm = 1
+  dimensions = {
+    QueueName = local.custodial_copy_confirmer_queue_name
+  }
+  period    = local.six_hours
+  threshold = local.seven_days
 }
 
 module "dr2_state_change_lambda_dlq" {
