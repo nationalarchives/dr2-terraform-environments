@@ -10,6 +10,12 @@
       "Sid": "listExecutions"
     },
     {
+      "Action"   : "cloudwatch:PutMetricData",
+      "Effect"   : "Allow",
+      "Resource" : "*",
+      "Sid"      : "PutMetricData"
+    },
+    {
       "Action": "dynamodb:Query",
       "Effect": "Allow",
       "Resource": "${ingest_queue_table_arn}",
