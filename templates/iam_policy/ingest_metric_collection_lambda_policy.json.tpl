@@ -2,11 +2,18 @@
   "Statement": [
     {
       "Action": [
-        "states:listExecutions"
+        "states:listExecutions",
+        "states:ListStateMachines"
       ],
       "Effect": "Allow",
-      "Resource": "${workflow_step_function_arn}",
+      "Resource": ["${workflow_step_function_arn}", "arn:aws:states:eu-west-2:${account_id}:stateMachine:*"],
       "Sid": "listExecutions"
+    },
+    {
+      "Action": "dynamodb:Query",
+      "Effect": "Allow",
+      "Resource": "${ingest_queue_table_arn}",
+      "Sid": "DynamoQuery"
     },
     {
       "Action": [
