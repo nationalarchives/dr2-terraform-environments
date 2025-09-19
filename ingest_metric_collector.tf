@@ -8,7 +8,7 @@ module "dr2_ingest_metric_collector_lambda" {
   source          = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   description     = "A lambda function to collect ingest metrics"
   function_name   = local.ingest_metric_collector_lambda_name
-  handler         = "lambda_function.lambda_handler"
+  handler         = "ingest_metric_collector.lambda_handler"
   timeout_seconds = local.python_timeout_seconds
   runtime         = local.python_runtime
   policies = {
@@ -16,6 +16,7 @@ module "dr2_ingest_metric_collector_lambda" {
       account_id                 = data.aws_caller_identity.current.account_id
       lambda_name                = local.ingest_metric_collector_lambda_name
       workflow_step_function_arn = module.dr2_ingest_run_workflow_step_function.step_function_arn
+      ingest_queue_table_arn     = module.ingest_queue_table.table_arn
     })
   }
   tags = {
