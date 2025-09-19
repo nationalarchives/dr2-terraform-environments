@@ -22,6 +22,10 @@ module "dr2_ingest_mapper_lambda" {
     FILES_DDB_TABLE    = local.files_dynamo_table_name
     OUTPUT_BUCKET_NAME = local.ingest_state_bucket_name
   }
+  vpc_config = {
+    subnet_ids         = module.vpc.private_subnets
+    security_group_ids = [module.outbound_https_access_only.security_group_id]
+  }
   tags = {
     Name = local.ingest_mapper_lambda_name
   }
