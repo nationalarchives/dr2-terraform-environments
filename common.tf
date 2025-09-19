@@ -166,6 +166,12 @@ module "outbound_https_access_only" {
     cidr_blocks = ["0.0.0.0/0"],
     protocol    = "tcp"
   }]
+  egress_security_group_rules = [{
+    port              = 443
+    description       = "Outbound https to discovery VPC endpoint"
+    security_group_id = module.discovery_inbound_https.security_group_id
+    protocol          = "tcp"
+  }]
 }
 
 module "dr2_kms_key" {
