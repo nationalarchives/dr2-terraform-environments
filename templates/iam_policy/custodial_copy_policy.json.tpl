@@ -36,6 +36,11 @@
       "Sid": "putMetrics"
     },
     {
+      "Action": "events:PutEvents",
+      "Effect": "Allow",
+      "Resource": "arn:aws:events:eu-west-2:${account_id}:event-bus/default"
+    },
+    {
       "Action": [
         "logs:PutLogEvents",
         "logs:PutRetentionPolicy",
