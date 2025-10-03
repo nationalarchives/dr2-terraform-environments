@@ -2,7 +2,7 @@ locals {
   pause_ingest = "${local.environment}-dr2-pause-ingest"
 }
 module "pause_ingest_lambda" {
-  source        = "../../da/da-terraform-modules//lambda"
+  source        = "git::https://github.com/nationalarchives/da-terraform-modules//lambda"
   function_name = local.pause_ingest
   handler       = "pause_ingest.lambda_handler"
   policies = {
