@@ -24,7 +24,7 @@ module "dri_preingest" {
   copy_source_bucket_name             = local.ingest_raw_cache_bucket_name
 }
 
-module "hdd_preingest" {
+module "adhoc_preingest" {
   source                              = "./preingest"
   environment                         = local.environment
   ingest_lock_dynamo_table_name       = local.ingest_lock_dynamo_table_name
@@ -32,7 +32,7 @@ module "hdd_preingest" {
   ingest_lock_table_group_id_gsi_name = local.ingest_lock_table_group_id_gsi_name
   ingest_raw_cache_bucket_name        = local.ingest_raw_cache_bucket_name
   ingest_step_function_name           = local.ingest_step_function_name
-  source_name                         = "hdd"
+  source_name                         = "adhoc"
   copy_source_bucket_name             = local.ingest_raw_cache_bucket_name
 }
 
